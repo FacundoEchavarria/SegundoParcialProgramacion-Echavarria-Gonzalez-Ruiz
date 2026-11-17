@@ -17,6 +17,7 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
         </Link>
         <nav aria-label="Navegación principal" className="mt-3 flex flex-wrap gap-1 lg:mt-8 lg:flex-col">
           <Link href="/" prefetch={false} className={enlace}>Inicio</Link>
+          <Link href="/productos" prefetch={false} className={enlace}>Productos</Link>
           {usuario.rol === "admin" && (
             <Link href="/usuarios" prefetch={false} className={enlace}>Usuarios</Link>
           )}

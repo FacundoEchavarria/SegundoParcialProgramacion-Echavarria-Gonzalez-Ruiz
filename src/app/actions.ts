@@ -4,6 +4,8 @@ import { normalizarError } from "@/lib/api-error";
 import { borrarCookieSesion, escribirCookieSesion, requireApiSession } from "@/lib/auth-request";
 import { cambiarPassword, cerrarSesion, iniciarSesion } from "@/services/auth";
 import { crearUsuario, editarUsuario, restablecerPassword } from "@/services/usuarios";
+import { crearCategoria, crearProducto, editarCategoria, editarProducto } from "@/services/productos";
+import { registrarMovimiento } from "@/services/stock";
 
 async function ejecutar<T>(operacion: () => Promise<T>) {
   try {
@@ -58,4 +60,24 @@ export async function restablecerPasswordAction(id: number) {
     const { usuario } = await requireApiSession();
     return restablecerPassword(usuario, id);
   });
+}
+
+export async function crearCategoriaAction(input: unknown) {
+  return ejecutar(async () => crearCategoria((await requireApiSession()).usuario, input));
+}
+
+export async function editarCategoriaAction(id: number, input: unknown) {
+  return ejecutar(async () => editarCategoria((await requireApiSession()).usuario, id, input));
+}
+
+export async function crearProductoAction(input: unknown) {
+  return ejecutar(async () => crearProducto((await requireApiSession()).usuario, input));
+}
+
+export async function editarProductoAction(id: number, input: unknown) {
+  return ejecutar(async () => editarProducto((await requireApiSession()).usuario, id, input));
+}
+
+export async function registrarMovimientoAction(id: number, input: unknown) {
+  return ejecutar(async () => registrarMovimiento((await requireApiSession()).usuario, id, input));
 }
