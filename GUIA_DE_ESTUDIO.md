@@ -47,3 +47,15 @@ La interfaz vive en `src/app/` y `src/components/`; la conexión y las tablas vi
 
 1. Entrá como vendedor y ejecutá en la consola del navegador `await fetch("/api/usuarios").then(r => r.json())`. Buscá `SIN_PERMISO` en la respuesta y el estado `403` en la pestaña Red. Encontrá en el servicio el permiso que aplica aunque uses directamente la API.
 2. Abrí una ventana normal como administrador y una ventana privada como vendedor. Desactivá al vendedor en `/usuarios`. Recargá la página del vendedor y comprobá que vuelve a `/login`. Reactivá la cuenta desde la ventana del administrador y verificá que requiere otro inicio de sesión.
+
+## Tarea 3 · Productos, categorías y stock
+
+1. **Preparar la base.** Ejecutá `pnpm db:migrate`. [La migración de stock](drizzle/0002_productos_stock.sql) agrega las tablas de categorías, productos y movimientos. SQLite guarda el precio en centavos y la existencia en unidades enteras.
+2. **Seguir la solicitud.** Desde Productos, un administrador puede crear una categoría y dar de alta un producto. [Las acciones de la interfaz](src/app/actions.ts) y la API llaman a los mismos [servicios de productos](src/services/productos.ts). El servicio valida los datos y el rol. El alta empieza con cero unidades y llama a `moverStock()` si se cargó stock inicial.
+3. **Proteger la existencia.** [`moverStock()`](src/services/stock.ts) convierte la cantidad en un cambio con signo. El `UPDATE` solo aplica el cambio si la existencia resultante es válida. Si un egreso supera el stock, la API devuelve `409 STOCK_INSUFICIENTE`. Si dos escrituras coinciden y SQLite informa un bloqueo temporal, se reintenta la transacción completa para volver a evaluar la condición.
+4. **Registrar y consultar.** La misma transacción inserta el movimiento con la existencia que devolvió el `UPDATE`, el motivo y el usuario. Si el movimiento falla, se revierte la actualización. El historial de la ficha y el historial general leen esos registros. La baja cambia el estado del producto y conserva sus movimientos.
+
+### Practicar para la defensa
+
+1. Como administrador, creá una categoría y un producto con **5** unidades de stock inicial. En la ficha, comprobá que aparece un ingreso con motivo **Stock inicial** y existencia resultante **5**.
+2. Registrá un egreso de **2** y luego intentá otro de **4**. La existencia debe quedar en **3** y el historial debe tener solo dos movimientos. Ubicá en el servicio la condición del `UPDATE` y explicá por qué el intento rechazado no agregó un renglón.

@@ -11,27 +11,13 @@ import {
   usuarioIdSchema,
 } from "@/lib/schemas/usuarios";
 import { calcularHash, camposSesion, type UsuarioSesion } from "@/services/auth";
+import { exigirAdmin, exigirAdminVigente } from "@/services/permisos";
 
 const camposUsuario = {
   ...camposSesion,
   activo: usuarios.activo,
   creadoEn: usuarios.creadoEn,
 };
-
-function exigirAdmin(usuario: UsuarioSesion | undefined) {
-  if (usuario?.rol !== "admin") {
-    throw new ApiError(403, "SIN_PERMISO", "Esta operación es solo para administradores.");
-  }
-}
-
-// Volvemos a leer el rol dentro de las escrituras concurrentes.
-async function exigirAdminVigente(tx: Pick<typeof db, "select">, actor: UsuarioSesion) {
-  const [vigente] = await tx.select(camposSesion).from(usuarios).where(and(
-    eq(usuarios.id, actor.id),
-    eq(usuarios.activo, true),
-  ));
-  exigirAdmin(vigente);
-}
 
 function usuarioPublico(usuario: Pick<typeof usuarios.$inferSelect, keyof typeof camposUsuario>) {
   return { ...usuario, creadoEn: usuario.creadoEn.toISOString() };
