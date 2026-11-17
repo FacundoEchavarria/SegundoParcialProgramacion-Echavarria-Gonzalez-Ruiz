@@ -15,7 +15,7 @@
 
 ## Flujo de trabajo para las ocho tareas
 
-1. Trabajá con un prompt por tarea. Retomá el contexto con este archivo, la [guía de estudio](GUIA_DE_ESTUDIO.md) y el historial de Git. Consultá los apartados relevantes del enunciado, empezá por el diff y seguí el código relacionado. Mostrá solo los resultados de comandos que hagan falta para decidir o verificar.
+1. Trabajá con un prompt y una rama propia por tarea. Partí de una rama que incluya las tareas previas necesarias. Retomá el contexto con este archivo, la [guía de estudio](GUIA_DE_ESTUDIO.md) y el historial de Git. Consultá los apartados relevantes del enunciado, empezá por el diff y seguí el código relacionado. Mostrá solo los resultados de comandos que hagan falta para decidir o verificar.
 2. Aplicá `ponytail` durante la implementación. Sumá otras skills pertinentes y delegá trabajo adicional si es independiente y acotado. Pasá al subagente el objetivo, las rutas y las condiciones de cierre.
 3. Cada vez que termines una tarea, encargale a un subagente una revisión con `ponytail-review`. El revisor debe leer el diff y el código relacionado, ejecutar una prueba del flujo principal o del riesgo más relevante e informar el veredicto, la evidencia y lo que quedó sin verificar.
-4. Corregí los hallazgos aplicables y repetí las comprobaciones afectadas. Actualizá la guía con qué cambió, cómo funciona, dónde encontrarlo y cómo comprobarlo. Cerrá la tarea con un commit descriptivo.
+4. Corregí los hallazgos aplicables y repetí las comprobaciones afectadas. Actualizá la guía con qué cambió, cómo funciona, dónde encontrarlo y cómo comprobarlo. Publicá la rama de la tarea con un commit que explique qué agrega.

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { check, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const usuarios = sqliteTable(
   "usuarios",
@@ -16,5 +16,21 @@ export const usuarios = sqliteTable(
   },
   (tabla) => [
     check("usuarios_rol_valido", sql`${tabla.rol} in ('admin', 'vendedor')`),
+  ],
+);
+
+export const sesiones = sqliteTable(
+  "sesiones",
+  {
+    id: text().primaryKey(),
+    usuarioId: integer("usuario_id").notNull().references(() => usuarios.id),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    venceEn: integer("vence_en", { mode: "timestamp" }).notNull(),
+  },
+  (tabla) => [
+    index("sesiones_usuario_idx").on(tabla.usuarioId),
+    index("sesiones_vencimiento_idx").on(tabla.venceEn),
   ],
 );

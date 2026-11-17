@@ -10,9 +10,9 @@
 
 ### 2. Seguir la página inicial
 
-**Qué se hizo.** Al abrir `/`, Next.js ejecuta [la página inicial](src/app/page.tsx). [El layout](src/app/layout.tsx) envuelve esa página, define el idioma y carga [los estilos globales](src/app/globals.css). Tailwind convierte clases como `px-6` en estilos. El prefijo `sm:` aplica otro estilo a partir del ancho configurado para ese tamaño.
+**Qué se hizo.** Al abrir `/`, Next.js ejecuta [la página inicial](src/app/%28privado%29/page.tsx). [El layout raíz](src/app/layout.tsx) define el idioma y carga [los estilos globales](src/app/globals.css). Tailwind convierte clases como `px-6` en estilos. El prefijo `sm:` aplica otro estilo a partir del ancho configurado para ese tamaño.
 
-**Cómo comprobarlo.** Con `pnpm dev` abierto, visitá `http://localhost:3000`. Achicá la ventana y fijate cómo se ajusta la tarjeta. [El componente Card](src/components/ui/card.tsx) contiene los estilos compartidos de la tarjeta de shadcn/ui. `components.json` indica dónde van los componentes y cuál es el CSS del proyecto.
+**Cómo comprobarlo.** Con `pnpm dev` abierto, visitá `http://localhost:3000` e iniciá sesión. Achicá la ventana y fijate cómo se ajusta la tarjeta. [El componente Card](src/components/ui/card.tsx) contiene los estilos compartidos de la tarjeta de shadcn/ui. `components.json` indica dónde van los componentes y cuál es el CSS del proyecto.
 
 ### 3. Configurar la conexión
 
@@ -32,5 +32,18 @@ La interfaz vive en `src/app/` y `src/components/`; la conexión y las tablas vi
 
 ### Practicar para la defensa
 
-1. Cambiá el título visible en `src/app/page.tsx`, guardá y comprobá el cambio en el navegador con `pnpm dev`. Ubicá también en qué archivo se define el título de la pestaña.
+1. Cambiá el título visible en `src/app/(privado)/page.tsx`, guardá y comprobá el cambio en el navegador con `pnpm dev`. Ubicá también en qué archivo se define el título de la pestaña.
 2. Encontrá la restricción de email único en el esquema y en la migración. Explicá por qué una validación en el formulario también necesita el respaldo de la base de datos.
+
+## Tarea 2 · Acceso y usuarios
+
+1. **Crear las cuentas.** Corré `pnpm db:migrate` y `pnpm db:seed`. La segunda migración crea `sesiones`. [El seed](scripts/seed.ts) lee la configuración, genera los valores locales faltantes y usa el servicio de usuarios para crear las dos cuentas iniciales. Buscá las contraseñas iniciales en `.env.local` y volvé a ejecutar el seed para comprobar que preserva los usuarios existentes.
+2. **Seguir el formulario.** Al enviar `/login`, [la Server Action](src/app/actions.ts) le entrega el email y la contraseña al [servicio de autenticación](src/services/auth.ts). `POST /api/auth/login` usa el mismo servicio. Zod valida el cuerpo. bcrypt compara la contraseña ingresada con el hash guardado. Probá primero una contraseña incorrecta y después la correcta.
+3. **Seguir la sesión.** Con las credenciales correctas, el servicio crea una sesión de ocho horas en SQLite. [El adaptador de solicitud](src/lib/auth-request.ts) firma su identificador y escribe la cookie `sesion`. Desde las herramientas del navegador podés ver la cookie marcada como `HttpOnly`. El valor identifica una sesión, mientras que el rol y el estado se obtienen de la base.
+4. **Ubicar cada control.** [El proxy](src/proxy.ts) revisa la cookie al pedir una página protegida y redirige a `/login` si falta una sesión firmada válida. Las páginas y los adaptadores de API consultan la sesión en la base antes de continuar. [El servicio de usuarios](src/services/usuarios.ts) limita las operaciones de administración al rol `admin`. Los errores de la API se devuelven como JSON con un código y un mensaje.
+5. **Seguir una revocación.** Al desactivar una cuenta, cambiar su contraseña o restablecerla, el servicio actualiza al usuario y elimina sus sesiones dentro de una transacción. Así la actualización y el cierre de las sesiones se aplican juntos. Al salir se elimina solo la sesión actual.
+
+### Practicar para la defensa
+
+1. Entrá como vendedor y ejecutá en la consola del navegador `await fetch("/api/usuarios").then(r => r.json())`. Buscá `SIN_PERMISO` en la respuesta y el estado `403` en la pestaña Red. Encontrá en el servicio el permiso que aplica aunque uses directamente la API.
+2. Abrí una ventana normal como administrador y una ventana privada como vendedor. Desactivá al vendedor en `/usuarios`. Recargá la página del vendedor y comprobá que vuelve a `/login`. Reactivá la cuenta desde la ventana del administrador y verificá que requiere otro inicio de sesión.
