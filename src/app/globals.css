@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f4f6f2;
+  --color-foreground: #18271f;
+  --color-card: #ffffff;
+  --color-card-foreground: #18271f;
+  --color-muted-foreground: #4d6054;
+  --color-border: #d5dfd7;
+  --color-primary: #205741;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
