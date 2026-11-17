@@ -1,6 +1,6 @@
 # Gestión comercial
 
-Proyecto de Programación IV para gestionar ventas, stock y cuentas corrientes. Esta etapa incluye acceso, gestión de usuarios, catálogo, categorías e historial de stock.
+Proyecto de Programación IV para gestionar ventas, stock y cuentas corrientes. Esta etapa incluye acceso, gestión de usuarios, catálogo, stock, clientes y consulta de saldos.
 
 ## Arranque local
 

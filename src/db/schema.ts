@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { check, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const usuarios = sqliteTable(
   "usuarios",
@@ -78,4 +78,38 @@ export const movimientosStock = sqliteTable("movimientos_stock", {
     (${tabla.tipo} in ('ingreso', 'anulacion') and ${tabla.cantidad} > 0)
     or (${tabla.tipo} in ('egreso', 'venta') and ${tabla.cantidad} < 0)
   `),
+]);
+
+export const clientes = sqliteTable("clientes", {
+  id: integer().primaryKey(),
+  tipoDoc: text("tipo_doc", { enum: ["DNI", "CUIT"] }).notNull(),
+  nroDoc: text("nro_doc").notNull(),
+  nombre: text().notNull(),
+  nombreBusqueda: text("nombre_busqueda").notNull(),
+  domicilio: text(),
+  telefono: text(),
+  email: text(),
+  cuentaCorriente: integer("cuenta_corriente", { mode: "boolean" }).notNull().default(false),
+  limiteCredito: integer("limite_credito"),
+  activo: integer({ mode: "boolean" }).notNull().default(true),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull().default(sql`(unixepoch())`),
+}, (tabla) => [
+  uniqueIndex("clientes_documento_unique").on(tabla.tipoDoc, tabla.nroDoc),
+  check("clientes_tipo_doc_valido", sql`${tabla.tipoDoc} in ('DNI', 'CUIT')`),
+  check("clientes_limite_valido", sql`${tabla.limiteCredito} >= 0`),
+]);
+
+export const movimientosCuenta = sqliteTable("movimientos_cuenta", {
+  id: integer().primaryKey(),
+  clienteId: integer("cliente_id").notNull().references(() => clientes.id),
+  tipo: text({ enum: ["debito", "credito"] }).notNull(),
+  importe: integer().notNull(),
+  descripcion: text().notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull().default(sql`(unixepoch())`),
+}, (tabla) => [
+  index("movimientos_cuenta_cliente_fecha_idx").on(tabla.clienteId, tabla.creadoEn),
+  check("movimientos_cuenta_tipo_valido", sql`${tabla.tipo} in ('debito', 'credito')`),
+  check("movimientos_cuenta_importe_valido", sql`${tabla.importe} > 0`),
 ]);
