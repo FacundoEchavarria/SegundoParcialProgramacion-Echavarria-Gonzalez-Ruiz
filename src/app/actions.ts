@@ -6,6 +6,7 @@ import { cambiarPassword, cerrarSesion, iniciarSesion } from "@/services/auth";
 import { crearUsuario, editarUsuario, restablecerPassword } from "@/services/usuarios";
 import { crearCategoria, crearProducto, editarCategoria, editarProducto } from "@/services/productos";
 import { registrarMovimiento } from "@/services/stock";
+import { crearCliente, editarCliente } from "@/services/clientes";
 
 async function ejecutar<T>(operacion: () => Promise<T>) {
   try {
@@ -80,4 +81,12 @@ export async function editarProductoAction(id: number, input: unknown) {
 
 export async function registrarMovimientoAction(id: number, input: unknown) {
   return ejecutar(async () => registrarMovimiento((await requireApiSession()).usuario, id, input));
+}
+
+export async function crearClienteAction(input: unknown) {
+  return ejecutar(async () => crearCliente((await requireApiSession()).usuario, input));
+}
+
+export async function editarClienteAction(id: number, input: unknown) {
+  return ejecutar(async () => editarCliente((await requireApiSession()).usuario, id, input));
 }

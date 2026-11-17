@@ -59,3 +59,21 @@ La interfaz vive en `src/app/` y `src/components/`; la conexión y las tablas vi
 
 1. Como administrador, creá una categoría y un producto con **5** unidades de stock inicial. En la ficha, comprobá que aparece un ingreso con motivo **Stock inicial** y existencia resultante **5**.
 2. Registrá un egreso de **2** y luego intentá otro de **4**. La existencia debe quedar en **3** y el historial debe tener solo dos movimientos. Ubicá en el servicio la condición del `UPDATE` y explicá por qué el intento rechazado no agregó un renglón.
+
+## Tarea 4 · Clientes y cuenta corriente
+
+1. **Crear la base y el cliente.** Corré `pnpm db:migrate` y abrí Clientes. La migración de esta tarea agrega las tablas `clientes` y `movimientos_cuenta`. Cargá un DNI con puntos y buscalo sin puntos para comprobar que se usa el mismo número. Si intentás otra alta con el mismo tipo y número, la API devuelve `409 DOCUMENTO_DUPLICADO`.
+2. **Ubicar la fuente del saldo.** En [el servicio de cuenta corriente](src/services/cuenta-corriente.ts), `importeConSigno` da signo positivo a los débitos y negativo a los créditos. La ficha y el listado suman esos valores. Un cliente recién creado tiene saldo cero porque todavía no tiene movimientos. El campo disponible indica el crédito que resta según el límite, con un mínimo de cero.
+3. **Leer la cuenta en orden.** Para cada movimiento, el servicio añade su cambio al acumulado. Con un filtro desde una fecha, calcula primero lo que pasó antes de ese día en horario argentino y lo devuelve como `saldoAnterior`. El saldo de cada fila incluye su propio movimiento. El saldo de cierre de la cuenta filtrada puede diferir del saldo actual de la ficha.
+4. **Vincular saldo y estado.** [El servicio de clientes](src/services/clientes.ts) calcula el saldo y actualiza el registro dentro de una misma transacción. Si hay saldo pendiente, devuelve `422 SALDO_PENDIENTE` al intentar desactivar al cliente o deshabilitarle la cuenta corriente.
+
+### Practicar para la defensa
+
+Usá este ejemplo para seguir el cálculo en el código. Los movimientos se originarán desde pagos y ventas en las próximas tareas.
+
+| Fecha | Movimiento | Saldo acumulado |
+| --- | --- | --- |
+| 24/10/2026 | Débito de $10.000,00 | $10.000,00 |
+| 25/10/2026 | Crédito de $3.000,00 | $7.000,00 |
+
+Identificá dónde se calculan los **$7.000,00** y en qué unidad trabaja SQLite. Si filtrás desde el 25/10, `saldoAnterior` trae **$10.000,00**, el historial muestra el crédito de **$3.000,00** y el saldo de cierre queda en **$7.000,00**.
