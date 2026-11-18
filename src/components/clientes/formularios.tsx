@@ -9,7 +9,7 @@ import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { aCentavos, centavosComoDecimal } from "@/components/productos/campos";
 import { altaClienteSchema, edicionClienteSchema } from "@/lib/schemas/clientes";
-import type { obtenerCliente } from "@/services/clientes";
+import type { crearCliente, obtenerCliente } from "@/services/clientes";
 
 type Cliente = Awaited<ReturnType<typeof obtenerCliente>>;
 
@@ -34,7 +34,10 @@ function datosCliente(datos: Record<string, FormDataEntryValue>) {
 const altaClienteForm = z.preprocess(datosCliente, altaClienteSchema);
 const edicionClienteForm = z.preprocess(datosCliente, edicionClienteSchema);
 
-export function FormularioCliente({ cliente }: { cliente?: Cliente }) {
+export function FormularioCliente({ cliente, alGuardar }: {
+  cliente?: Cliente;
+  alGuardar?: (guardado: Awaited<ReturnType<typeof crearCliente>>) => void;
+}) {
   const router = useRouter();
   const { enviar, enviando, error, errorCampo, limpiarError } = useFormulario();
   const idErrorTipoDoc = useId();
@@ -50,9 +53,10 @@ export function FormularioCliente({ cliente }: { cliente?: Cliente }) {
           method="post"
           noValidate
           onSubmit={(event) =>
-            enviar(event, esquema, accion, () => {
+            enviar(event, esquema, accion, (guardado) => {
               cerrar();
-              router.refresh();
+              if (alGuardar) alGuardar(guardado);
+              else router.refresh();
             })
           }
         >

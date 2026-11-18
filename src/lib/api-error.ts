@@ -1,13 +1,16 @@
 import { z } from "zod";
 
-type DetalleError = { campo: string; mensaje: string };
+type DetalleCampo = { campo: string; mensaje: string };
+type DetalleStock = { productoId: number; solicitado: number; disponible: number };
+type DetalleCredito = { saldoActual: number; limite: number; excedente: number };
+export type DetallesError = DetalleCampo[] | DetalleStock[] | DetalleCredito;
 
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly code: string,
     message: string,
-    public readonly details?: DetalleError[],
+    public readonly details?: DetallesError,
   ) {
     super(message);
   }

@@ -14,8 +14,14 @@ export async function rutaApi(request: Request, atender: () => Promise<Response>
   let respuesta: Response;
   try {
     const origen = request.headers.get("origin");
-    if (request.method !== "GET" && origen && origen !== new URL(request.url).origin) {
-      throw new ApiError(403, "SIN_PERMISO", "El origen de la solicitud no está permitido.");
+    if (request.method !== "GET" && origen) {
+      const url = new URL(request.url);
+      const host = request.headers.get("host");
+      // Next puede normalizar 127.0.0.1 a localhost al construir Request.url.
+      const origenEsperado = host ? `${url.protocol}//${host}` : url.origin;
+      if (origen !== origenEsperado) {
+        throw new ApiError(403, "SIN_PERMISO", "El origen de la solicitud no está permitido.");
+      }
     }
     respuesta = await atender();
   } catch (error) {

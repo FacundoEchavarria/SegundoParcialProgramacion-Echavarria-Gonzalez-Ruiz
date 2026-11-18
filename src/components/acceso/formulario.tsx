@@ -2,11 +2,13 @@
 
 import { useId, useState, useTransition, type ComponentProps, type FormEvent } from "react";
 import type { ZodType } from "zod";
+import type { DetallesError } from "@/lib/api-error";
 import { claseCampo } from "./estilos";
 
 type ErrorFormulario = {
   message: string;
-  details?: { campo: string; mensaje: string }[];
+  code?: string;
+  details?: DetallesError;
 };
 
 type Resultado<T> = { ok: true; data: T } | { ok: false; error: ErrorFormulario };
@@ -61,7 +63,12 @@ export function useFormulario() {
     enviar,
     ejecutar,
     limpiarError: () => setError(null),
-    errorCampo: (campo: string) => error?.details?.find((detalle) => detalle.campo === campo)?.mensaje,
+    errorCampo: (campo: string) => {
+      const detalles = error?.details;
+      if (!Array.isArray(detalles)) return undefined;
+      const detalle = detalles.find((item) => "campo" in item && item.campo === campo);
+      return detalle && "mensaje" in detalle ? detalle.mensaje : undefined;
+    },
   };
 }
 

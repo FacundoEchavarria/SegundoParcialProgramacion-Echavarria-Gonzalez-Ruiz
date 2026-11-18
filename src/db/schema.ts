@@ -69,6 +69,7 @@ export const movimientosStock = sqliteTable("movimientos_stock", {
   existenciaResultante: integer("existencia_resultante").notNull(),
   motivo: text().notNull(),
   observacion: text(),
+  facturaId: integer("factura_id").references(() => facturas.id),
   creadoEn: integer("creado_en", { mode: "timestamp" })
     .notNull().default(sql`(unixepoch())`),
 }, (tabla) => [
@@ -100,6 +101,54 @@ export const clientes = sqliteTable("clientes", {
   check("clientes_limite_valido", sql`${tabla.limiteCredito} >= 0`),
 ]);
 
+export const facturas = sqliteTable("facturas", {
+  id: integer().primaryKey(),
+  puntoVenta: integer("punto_venta").notNull(),
+  numero: integer().notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  estado: text({ enum: ["emitida", "anulada"] }).notNull().default("emitida"),
+  usuarioId: integer("usuario_id").notNull().references(() => usuarios.id),
+  usuarioNombre: text("usuario_nombre").notNull(),
+  clienteId: integer("cliente_id").references(() => clientes.id),
+  clienteNombre: text("cliente_nombre"),
+  clienteTipoDoc: text("cliente_tipo_doc", { enum: ["DNI", "CUIT"] }),
+  clienteNroDoc: text("cliente_nro_doc"),
+  clienteDomicilio: text("cliente_domicilio"),
+  total: integer().notNull(),
+  formaPago: text("forma_pago", { enum: ["contado", "tarjeta", "cuenta_corriente"] }).notNull(),
+  montoRecibido: integer("monto_recibido"),
+  tarjetaTipo: text("tarjeta_tipo", { enum: ["debito", "credito"] }),
+  tarjetaMarca: text("tarjeta_marca"),
+  tarjetaUltimos4: text("tarjeta_ultimos4"),
+  saldoCliente: integer("saldo_cliente"),
+}, (tabla) => [
+  uniqueIndex("facturas_punto_venta_numero_unique").on(tabla.puntoVenta, tabla.numero),
+  index("facturas_cliente_fecha_idx").on(tabla.clienteId, tabla.creadoEn),
+  check("facturas_importes_validos", sql`
+    ${tabla.total} > 0 and (${tabla.montoRecibido} is null or ${tabla.montoRecibido} >= ${tabla.total})
+  `),
+  check("facturas_estado_valido", sql`${tabla.estado} in ('emitida', 'anulada')`),
+  check("facturas_forma_pago_valida", sql`${tabla.formaPago} in ('contado', 'tarjeta', 'cuenta_corriente')`),
+]);
+
+export const facturaItems = sqliteTable("factura_items", {
+  id: integer().primaryKey(),
+  facturaId: integer("factura_id").notNull().references(() => facturas.id),
+  productoId: integer("producto_id").notNull().references(() => productos.id),
+  codigo: text().notNull(),
+  descripcion: text().notNull(),
+  cantidad: integer().notNull(),
+  precioUnitario: integer("precio_unitario").notNull(),
+  subtotal: integer().notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+}, (tabla) => [
+  uniqueIndex("factura_items_producto_unique").on(tabla.facturaId, tabla.productoId),
+  check("factura_items_importes_validos", sql`
+    ${tabla.cantidad} > 0 and ${tabla.precioUnitario} > 0
+    and ${tabla.subtotal} = ${tabla.cantidad} * ${tabla.precioUnitario}
+  `),
+]);
+
 export const pagos = sqliteTable("pagos", {
   id: integer().primaryKey({ autoIncrement: true }),
   clienteId: integer("cliente_id").notNull().references(() => clientes.id),
@@ -124,6 +173,7 @@ export const movimientosCuenta = sqliteTable("movimientos_cuenta", {
   importe: integer().notNull(),
   descripcion: text().notNull(),
   pagoId: integer("pago_id").references(() => pagos.id).unique(),
+  facturaId: integer("factura_id").references(() => facturas.id),
   creadoEn: integer("creado_en", { mode: "timestamp" })
     .notNull().default(sql`(unixepoch())`),
 }, (tabla) => [
