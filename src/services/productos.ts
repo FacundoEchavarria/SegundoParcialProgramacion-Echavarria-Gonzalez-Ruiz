@@ -87,19 +87,19 @@ export async function obtenerProducto(_actor: UsuarioSesion, inputId: unknown) {
 }
 
 // RF-P2. El stock inicial se registra como ingreso dentro del alta.
-export async function crearProducto(actor: UsuarioSesion, input: unknown) {
+export async function crearProducto(actor: UsuarioSesion, input: unknown, creadoEn?: Date) {
   exigirAdmin(actor);
   const { stockInicial, ...datos } = validar(altaProductoSchema, input);
   return transaccionEscritura(async (tx) => {
     await exigirAdminVigente(tx, actor);
     await exigirCategoriaActiva(tx, datos.categoriaId);
-    const [nuevo] = await tx.insert(productos).values(datos)
+    const [nuevo] = await tx.insert(productos).values({ ...datos, creadoEn })
       .onConflictDoNothing({ target: productos.codigo }).returning({ id: productos.id });
     if (!nuevo) throw codigoDuplicado();
     if (stockInicial) {
       await moverStock(tx, {
         productoId: nuevo.id, usuarioId: actor.id, tipo: "ingreso",
-        cantidad: stockInicial, motivo: "Stock inicial",
+        cantidad: stockInicial, motivo: "Stock inicial", creadoEn,
       });
     }
     const [fila] = await consultaProductos(tx).where(eq(productos.id, nuevo.id));

@@ -39,7 +39,7 @@ function pagoContado(montoRecibido: number, total: number) {
 }
 
 // RF-V6. El número, los renglones, el stock y la deuda se confirman juntos.
-export async function confirmarVenta(actor: UsuarioSesion, input: unknown) {
+export async function confirmarVenta(actor: UsuarioSesion, input: unknown, fechaEmision?: Date) {
   const venta = validar(ventaSchema, input);
 
   return transaccionEscritura(async (tx) => {
@@ -106,7 +106,7 @@ export async function confirmarVenta(actor: UsuarioSesion, input: unknown) {
 
     const numero = await siguienteNumero(tx);
     const numeroFormateado = formatearNumeroFactura(puntoVenta, numero);
-    const creadoEn = new Date();
+    const creadoEn = fechaEmision ?? new Date();
     const tarjeta = pago.forma === "tarjeta" ? pago.tarjeta : undefined;
     const [factura] = await tx.insert(facturas).values({
       puntoVenta, numero, creadoEn, total, saldoCliente,

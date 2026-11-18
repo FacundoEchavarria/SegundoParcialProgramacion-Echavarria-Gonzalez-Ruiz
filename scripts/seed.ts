@@ -15,6 +15,7 @@ function exigirVariable(variable: string) {
 
 async function main() {
   const local = exigirVariable("DATABASE_URL").startsWith("file:");
+  if (!local) exigirVariable("DATABASE_AUTH_TOKEN");
   const nuevasVariables: Record<string, string> = {};
 
   function secreto(variable: string, bytes: number) {
@@ -28,7 +29,9 @@ async function main() {
 
   const { db } = await import("@/db");
   const { usuarios } = await import("@/db/schema");
+  const { camposSesion } = await import("@/services/auth");
   const { crearUsuarioInicial } = await import("@/services/usuarios");
+  const { cargarDemo } = await import("./seed-demo");
   const cuentas = [
     { rol: "admin", nombre: "Administrador", prefijo: "SEED_ADMIN", emailLocal: "admin@gestion.test" },
     { rol: "vendedor", nombre: "Vendedor de prueba", prefijo: "SEED_VENDEDOR", emailLocal: "vendedor@gestion.test" },
@@ -62,8 +65,24 @@ async function main() {
   if (vars.length) await appendFile(".env.local", `\n${vars.join("\n")}\n`, { mode: 0o600 });
   for (const alta of altas) await crearUsuarioInicial(alta);
 
+  const actores = await Promise.all(emails.map(async (email) => {
+    const [usuario] = await db.select({ ...camposSesion, activo: usuarios.activo }).from(usuarios)
+      .where(eq(usuarios.email, email));
+    return usuario;
+  }));
+  const [admin, vendedor] = actores;
+  if (!admin?.activo || admin.rol !== "admin" || !vendedor?.activo || vendedor.rol !== "vendedor") {
+    throw new Error("Las cuentas iniciales deben estar activas y tener los roles configurados.");
+  }
+
+  const cargado = await cargarDemo(admin, vendedor);
   console.log(`Cuentas iniciales: ${emails.join(", ")}.`);
-  if (local) console.log("Las contraseñas generadas se guardan en .env.local.");
+  if (nuevasVariables.SEED_ADMIN_PASSWORD || nuevasVariables.SEED_VENDEDOR_PASSWORD) {
+    console.log("Las contraseñas generadas se guardaron en .env.local.");
+  }
+  console.log(cargado
+    ? "Demo cargada: 5 categorías, 30 productos, 10 clientes, 50 facturas emitidas, 1 anulada y 3 pagos."
+    : "Los datos de demostración ya están cargados.");
 }
 
 main().catch((error: unknown) => {
@@ -72,7 +91,9 @@ main().catch((error: unknown) => {
   if (error instanceof Error && (
     error.message.startsWith("Falta configurar ") ||
     error.message.startsWith("SESSION_SECRET ") ||
-    error.message.startsWith("Usá emails ")
+    error.message.startsWith("Usá emails ") ||
+    error.message.startsWith("Las cuentas iniciales ") ||
+    error.message.startsWith("La carga de demostración ")
   )) {
     console.error(error.message);
   } else {
