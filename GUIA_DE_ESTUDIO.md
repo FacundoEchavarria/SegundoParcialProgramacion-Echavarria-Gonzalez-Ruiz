@@ -87,6 +87,18 @@ Identificá dónde se calculan los **$7.000,00** y en qué unidad trabaja SQLite
 
 ### Practicar para la defensa
 
-Usá una base local descartable. Por ejemplo, configurá `$env:DATABASE_URL = 'file:practica-pagos.db'` en PowerShell, corré `pnpm db:migrate`, `pnpm db:seed` y `pnpm dev` en esa terminal. Creá un cliente con cuenta corriente. Hasta que la aplicación tenga ventas, usá `pnpm exec drizzle-kit studio` en otra terminal con la misma variable para insertar un débito de prueba en `movimientos_cuenta`. Usá el ID del cliente, `tipo = debito`, `importe = 1000000` y `descripcion = Deuda de prueba`.
+Usá una base local descartable. Por ejemplo, configurá `$env:DATABASE_URL = 'file:practica-pagos.db'` en PowerShell, corré `pnpm db:migrate`, `pnpm db:seed` y `pnpm dev` en esa terminal. Creá un cliente con cuenta corriente. Podés generar la deuda con una venta a cuenta de $10.000,00 como en la tarea 6. Para probar solo pagos, usá `pnpm exec drizzle-kit studio` en otra terminal con la misma variable para insertar un débito de prueba en `movimientos_cuenta`. Usá el ID del cliente, `tipo = debito`, `importe = 1000000` y `descripcion = Deuda de prueba`.
 
 Volvé a la ficha y registrá un pago de **$3.000,00**. Comprobá que el recibo indique **$7.000,00** como saldo posterior y que el historial muestre el crédito con un enlace al recibo. Intentá registrar **$7.001,00**. La deuda debe seguir en **$7.000,00** y el historial debe conservar un solo crédito. Pagá los **$7.000,00** restantes y reabrí el primer recibo para comparar su saldo histórico con el saldo actual de la ficha.
+
+## Tarea 6 · Ventas y confirmación
+
+1. **Preparar la base.** Corré `pnpm db:migrate` y `pnpm dev`, e ingresá con un usuario de prueba. La migración agrega `facturas`, `factura_items` y referencias opcionales a factura en los dos historiales.
+2. **Armar la venta.** En **Ventas**, elegí comprador, buscá productos, ajustá cantidades y elegí contado, tarjeta o cuenta corriente. El total que muestra el formulario se calcula con los precios consultados al armarlo. El alta rápida del comprador reutiliza la Server Action de clientes y conserva el borrador.
+3. **Ver qué recibe el servidor.** [La ruta de API](src/app/api/facturas/route.ts) obtiene la sesión y llama a [`confirmarVenta()`](src/services/facturas.ts) con los identificadores, cantidades y datos del pago. El esquema rechaza precios o totales enviados por el navegador, renglones duplicados y campos extra de tarjeta.
+4. **Seguir la transacción.** El servicio vuelve a leer productos, cliente y deuda. Calcula los subtotales en centavos con los precios vigentes, valida el pago y asigna el próximo número de factura. Guarda la factura y los renglones con los datos de emisión. Por cada renglón llama a [`moverStock()`](src/services/stock.ts) para descontar existencia y grabar su movimiento.
+5. **Seguir el débito y la respuesta.** En una venta a cuenta se agrega un débito vinculado a la factura. Si algo falla, se revierte la transacción completa. Si se confirma, la pantalla muestra el número y total devueltos por el servidor, con vuelto o saldo posterior cuando corresponda.
+
+### Practicar para la defensa
+
+En una base de prueba, cargá un producto a **$5.000,00** con **3 unidades** y un cliente con cuenta corriente habilitada y límite de **$10.000,00**. Confirmá dos unidades a cuenta. El producto debe quedar con **1 unidad**, la ficha del cliente debe mostrar una factura reciente y el historial debe mostrar un débito de **$10.000,00**. Intentá venderle la última unidad a cuenta antes de cobrar: el límite debe impedirlo y el stock debe seguir en **1**. Registrá un pago de **$3.000,00** desde la ficha. La deuda debe quedar en **$7.000,00** y el recibo debe seguir su propia numeración.

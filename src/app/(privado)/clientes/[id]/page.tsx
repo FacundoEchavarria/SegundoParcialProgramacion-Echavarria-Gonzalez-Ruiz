@@ -94,7 +94,8 @@ export default async function FichaCliente({
     if (error instanceof ApiError) {
       if (error.status === 404) notFound();
       if (error.status === 400 || error.status === 422) {
-        return error.details?.[0]?.mensaje ?? "Ingresá un período válido.";
+        const detalle = Array.isArray(error.details) ? error.details[0] : undefined;
+        return detalle && "mensaje" in detalle ? detalle.mensaje : "Ingresá un período válido.";
       }
     }
     throw error;
@@ -142,7 +143,22 @@ export default async function FichaCliente({
 
       <Card className="gap-2 px-4 sm:px-5">
         <h2 className="text-xl font-semibold">Últimas facturas</h2>
-        {cliente.ultimasFacturas.length === 0 && <p className="text-muted-foreground">Todavía no hay facturas.</p>}
+        {cliente.ultimasFacturas.length === 0 ? (
+          <p className="text-muted-foreground">Todavía no hay facturas.</p>
+        ) : (
+          <ul className="divide-y text-sm">
+            {cliente.ultimasFacturas.map((factura) => (
+              <li key={factura.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-3">
+                <span className="font-medium tabular-nums">{factura.numeroFormateado}</span>
+                <time dateTime={factura.fecha} className="text-muted-foreground">
+                  {fechaArgentina.format(new Date(factura.fecha))}
+                </time>
+                <span>{factura.estado === "emitida" ? "Emitida" : "Anulada"}</span>
+                <span className="ml-auto font-medium tabular-nums">{saldoEnPesos(factura.total)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
 
       <Card className="gap-0 overflow-hidden py-0">

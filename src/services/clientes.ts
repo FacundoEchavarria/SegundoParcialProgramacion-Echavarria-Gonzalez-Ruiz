@@ -1,8 +1,9 @@
 import "server-only";
 import { and, count, desc, eq, gt, ne, or, sql } from "drizzle-orm";
 import { db, transaccionEscritura } from "@/db";
-import { clientes, movimientosCuenta } from "@/db/schema";
+import { clientes, facturas, movimientosCuenta } from "@/db/schema";
 import { ApiError, validar } from "@/lib/api-error";
+import { formatearNumeroFactura } from "@/lib/formatos";
 import { altaClienteSchema, edicionClienteSchema, listadoClientesSchema, normalizarDocumento } from "@/lib/schemas/clientes";
 import { usuarioIdSchema } from "@/lib/schemas/usuarios";
 import type { UsuarioSesion } from "@/services/auth";
@@ -78,13 +79,29 @@ export async function listarClientes(_actor: UsuarioSesion, input: unknown) {
   };
 }
 
-// RF-C3. Las facturas se incorporan cuando se implemente facturación.
+// RF-C3.
 export async function obtenerCliente(_actor: UsuarioSesion, inputId: unknown) {
   const id = validar(usuarioIdSchema, inputId);
   const [cliente] = await db.select(camposCliente).from(clientes).where(eq(clientes.id, id));
   if (!cliente) throw clienteInexistente();
-  const saldo = await calcularSaldo(db, id);
-  return { ...clientePublico(cliente, saldo), ultimasFacturas: [] };
+  const [saldo, recientes] = await Promise.all([
+    calcularSaldo(db, id),
+    db.select({
+      id: facturas.id,
+      puntoVenta: facturas.puntoVenta,
+      numero: facturas.numero,
+      creadoEn: facturas.creadoEn,
+      estado: facturas.estado,
+      total: facturas.total,
+    }).from(facturas).where(eq(facturas.clienteId, id))
+      .orderBy(desc(facturas.creadoEn), desc(facturas.id)).limit(6),
+  ]);
+  const ultimasFacturas = recientes.map(({ creadoEn, ...factura }) => ({
+    ...factura,
+    fecha: creadoEn.toISOString(),
+    numeroFormateado: formatearNumeroFactura(factura.puntoVenta, factura.numero),
+  }));
+  return { ...clientePublico(cliente, saldo), ultimasFacturas };
 }
 
 // RF-C2. El documento normalizado se compara también en la restricción única de la base.

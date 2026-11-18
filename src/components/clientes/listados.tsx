@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
 import { FormularioCliente } from "@/components/clientes/formularios";
-import { cargarPagina, Estado, Paginacion, precioEnPesos, textoParametro } from "@/components/productos/listados";
+import { cargarPagina, Estado, Paginacion, textoParametro } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
 import type { requirePageUser } from "@/lib/auth-request";
+import { precioEnPesos as saldoEnPesos } from "@/lib/formatos";
 import { listarClientes } from "@/services/clientes";
 
-export function saldoEnPesos(centavos: number) {
-  return (centavos < 0 ? "-" : "") + precioEnPesos(Math.abs(centavos));
-}
+export { saldoEnPesos };
 
 export async function ListadoClientes({
   actor,

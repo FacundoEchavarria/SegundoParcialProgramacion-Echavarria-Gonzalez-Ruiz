@@ -8,20 +8,14 @@ export type ParametrosPagina = Promise<Record<string, string | string[] | undefi
 type Pagina = { page: number; pageSize: number; total: number };
 type Filtros = Record<string, string | undefined>;
 
-const moneda = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
+export { precioEnPesos } from "@/lib/formatos";
+
 const cantidadConSigno = new Intl.NumberFormat("es-AR", { signDisplay: "always" });
 const fechaArgentina = new Intl.DateTimeFormat("es-AR", {
   dateStyle: "short",
   timeStyle: "short",
   timeZone: "America/Argentina/Buenos_Aires",
 });
-
-export function precioEnPesos(centavos: number) {
-  const fraccion = centavos % 100;
-  return moneda.formatToParts((centavos - fraccion) / 100)
-    .map(({ type, value }) => type === "fraction" ? String(fraccion).padStart(2, "0") : value)
-    .join("");
-}
 
 export const tiposMovimiento = {
   ingreso: "Ingreso",
@@ -150,7 +144,14 @@ export function TablaMovimientos({
               <td>{tiposMovimiento[movimiento.tipo]}</td>
               <td className="text-right tabular-nums">{cantidadConSigno.format(movimiento.cantidad)}</td>
               <td className="text-right tabular-nums">{movimiento.existenciaResultante}</td>
-              <td>{movimiento.motivo}</td>
+              <td>
+                {movimiento.motivo}
+                {movimiento.referencia && (
+                  <span className="block whitespace-nowrap text-muted-foreground">
+                    Factura {movimiento.referencia.numero}
+                  </span>
+                )}
+              </td>
               <td><span className="block min-w-24 break-words">{movimiento.observacion || "—"}</span></td>
               <td>{movimiento.usuario.nombre}</td>
             </tr>

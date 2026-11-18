@@ -1,8 +1,9 @@
 import "server-only";
 import { and, count, desc, eq, gte, lt, sql } from "drizzle-orm";
 import { db, transaccionEscritura, type Transaccion } from "@/db";
-import { movimientosStock, productos, usuarios } from "@/db/schema";
+import { facturas, movimientosStock, productos, usuarios } from "@/db/schema";
 import { ApiError, validar } from "@/lib/api-error";
+import { formatearNumeroFactura } from "@/lib/formatos";
 import { listadoMovimientosSchema, movimientoManualSchema } from "@/lib/schemas/productos";
 import { usuarioIdSchema } from "@/lib/schemas/usuarios";
 import type { UsuarioSesion } from "@/services/auth";
@@ -18,18 +19,27 @@ const camposMovimiento = {
   fecha: movimientosStock.creadoEn,
   producto: { id: productos.id, codigo: productos.codigo },
   usuario: { id: usuarios.id, nombre: usuarios.nombre },
+  factura: { id: facturas.id, puntoVenta: facturas.puntoVenta, numero: facturas.numero },
 };
 
 function consultaMovimientos(conexion: Pick<typeof db, "select">) {
   return conexion.select(camposMovimiento).from(movimientosStock)
     .innerJoin(productos, eq(productos.id, movimientosStock.productoId))
-    .innerJoin(usuarios, eq(usuarios.id, movimientosStock.usuarioId));
+    .innerJoin(usuarios, eq(usuarios.id, movimientosStock.usuarioId))
+    .leftJoin(facturas, eq(facturas.id, movimientosStock.facturaId));
 }
 
 type FilaMovimiento = Awaited<ReturnType<typeof consultaMovimientos>>[number];
 
-function movimientoPublico(fila: FilaMovimiento) {
-  return { ...fila, fecha: fila.fecha.toISOString(), referencia: null };
+function movimientoPublico({ factura, fecha, ...fila }: FilaMovimiento) {
+  return {
+    ...fila,
+    fecha: fecha.toISOString(),
+    referencia: factura ? {
+      facturaId: factura.id,
+      numero: formatearNumeroFactura(factura.puntoVenta, factura.numero),
+    } : null,
+  };
 }
 
 // RF-P4 y RF-P5. Todo cambio de existencia y su registro comparten transacción.
@@ -40,6 +50,8 @@ export async function moverStock(tx: Transaccion, datos: {
   cantidad: number;
   motivo: string;
   observacion?: string;
+  facturaId?: number;
+  creadoEn?: Date;
 }) {
   const { productoId, tipo } = datos;
   const cantidad = tipo === "egreso" || tipo === "venta" ? -datos.cantidad : datos.cantidad;
@@ -50,11 +62,14 @@ export async function moverStock(tx: Transaccion, datos: {
   )).returning({ existencia: productos.existencia });
 
   if (!producto) {
-    const [actual] = await tx.select({ id: productos.id }).from(productos)
+    const [actual] = await tx.select({ existencia: productos.existencia }).from(productos)
       .where(eq(productos.id, productoId));
     if (!actual) throw new ApiError(404, "NO_ENCONTRADO", "El producto no existe.");
     if (cantidad < 0) {
-      throw new ApiError(409, "STOCK_INSUFICIENTE", "El producto no tiene stock suficiente.");
+      const detalles = tipo === "venta"
+        ? [{ productoId, solicitado: datos.cantidad, disponible: actual.existencia }]
+        : undefined;
+      throw new ApiError(409, "STOCK_INSUFICIENTE", "El producto no tiene stock suficiente.", detalles);
     }
     throw new ApiError(422, "VALIDACION", "La existencia resultante supera el máximo permitido.");
   }
