@@ -50,11 +50,15 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
                   </td>
                   <td>{movimiento.tipo === "debito" ? "Débito" : "Crédito"}</td>
                   <td className="min-w-36 break-words">
-                    {movimiento.pagoId === null ? movimiento.descripcion : (
+                    {movimiento.pagoId !== null ? (
                       <Link href={`/pagos/${movimiento.pagoId}`} className="text-primary underline">
                         {movimiento.descripcion}
                       </Link>
-                    )}
+                    ) : movimiento.facturaId !== null ? (
+                      <Link href={`/ventas/${movimiento.facturaId}`} className="text-primary underline">
+                        {movimiento.descripcion}
+                      </Link>
+                    ) : movimiento.descripcion}
                   </td>
                   <td className="text-right whitespace-nowrap tabular-nums">{saldoEnPesos(movimiento.importe)}</td>
                   <td className="text-right whitespace-nowrap tabular-nums">{saldoEnPesos(movimiento.saldo)}</td>
@@ -106,7 +110,9 @@ export default async function FichaCliente({
     ["Teléfono", cliente.telefono ?? "—"],
     ["Email", cliente.email ?? "—"],
     ["Cuenta corriente", cliente.cuentaCorriente ? "Habilitada" : "Deshabilitada"],
-    ["Saldo actual", saldoEnPesos(cliente.saldo)],
+    cliente.saldo < 0
+      ? ["Saldo a favor", saldoEnPesos(-cliente.saldo)]
+      : ["Saldo actual", saldoEnPesos(cliente.saldo)],
     ["Límite de crédito", cliente.limiteCredito === null ? "Sin límite" : saldoEnPesos(cliente.limiteCredito)],
     ["Crédito disponible", cliente.disponible === null ? "Sin límite" : saldoEnPesos(cliente.disponible)],
   ];
@@ -149,7 +155,9 @@ export default async function FichaCliente({
           <ul className="divide-y text-sm">
             {cliente.ultimasFacturas.map((factura) => (
               <li key={factura.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-3">
-                <span className="font-medium tabular-nums">{factura.numeroFormateado}</span>
+                <Link href={`/ventas/${factura.id}`} className="font-medium text-primary underline tabular-nums">
+                  {factura.numeroFormateado}
+                </Link>
                 <time dateTime={factura.fecha} className="text-muted-foreground">
                   {fechaArgentina.format(new Date(factura.fecha))}
                 </time>

@@ -102,3 +102,13 @@ Volvé a la ficha y registrá un pago de **$3.000,00**. Comprobá que el recibo 
 ### Practicar para la defensa
 
 En una base de prueba, cargá un producto a **$5.000,00** con **3 unidades** y un cliente con cuenta corriente habilitada y límite de **$10.000,00**. Confirmá dos unidades a cuenta. El producto debe quedar con **1 unidad**, la ficha del cliente debe mostrar una factura reciente y el historial debe mostrar un débito de **$10.000,00**. Intentá venderle la última unidad a cuenta antes de cobrar: el límite debe impedirlo y el stock debe seguir en **1**. Registrá un pago de **$3.000,00** desde la ficha. La deuda debe quedar en **$7.000,00** y el recibo debe seguir su propia numeración.
+
+## Tarea 7 · Facturas y anulaciones
+
+1. **Consultar e imprimir.** Corré `pnpm db:migrate` para agregar los datos de anulación. Abrí **Ventas**, aplicá un filtro y entrá a una factura. El detalle lee los nombres, precios y cantidades guardados al confirmar. **Imprimir factura** muestra un comprobante interno con esos datos. El total emitido del listado suma las facturas emitidas de todas las páginas que coinciden con los filtros.
+2. **Seguir el motivo.** El formulario de un administrador envía el identificador de la factura y el motivo a una Server Action. La API admite los mismos datos y ambos caminos llaman a [`anularFactura()`](src/services/facturas.ts). El servicio valida el motivo, confirma el permiso y cambia el estado solo si sigue emitida.
+3. **Seguir las devoluciones.** Dentro de la misma transacción, cada renglón llama a [`moverStock()`](src/services/stock.ts) con su cantidad original y tipo `anulacion`. Para una venta a cuenta, se registra además un crédito por el total original. Los movimientos apuntan a la factura. Si un paso falla, se revierte todo. La factura conserva sus datos de emisión y se puede consultar como anulada.
+
+### Practicar para la defensa
+
+Emití una venta a cuenta por **$10.000,00**, registrá un pago de **$3.000,00** y anulá la factura con un motivo. Comprobá que las unidades vuelvan al stock y que la cuenta muestre el débito de la venta, el crédito del pago y el crédito de **$10.000,00** de la anulación. El cliente debe quedar con **$3.000,00 a favor**. Abrí la factura desde el historial y comprobá que el comprobante identifica la anulación y que un segundo intento no devuelve las unidades otra vez.
