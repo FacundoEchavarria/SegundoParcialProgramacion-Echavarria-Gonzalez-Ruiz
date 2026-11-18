@@ -147,9 +147,9 @@ export function TablaMovimientos({
               <td>
                 {movimiento.motivo}
                 {movimiento.referencia && (
-                  <span className="block whitespace-nowrap text-muted-foreground">
+                  <Link href={`/ventas/${movimiento.referencia.facturaId}`} className="block whitespace-nowrap text-primary underline">
                     Factura {movimiento.referencia.numero}
-                  </span>
+                  </Link>
                 )}
               </td>
               <td><span className="block min-w-24 break-words">{movimiento.observacion || "—"}</span></td>

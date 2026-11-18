@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
@@ -120,7 +121,10 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
               <div><dt>Saldo del cliente</dt><dd>{precioEnPesos(confirmada.saldoCliente)}</dd></div>
             )}
           </dl>
-          <div><button type="button" className={clasePrincipal} onClick={() => window.location.reload()}>Nueva venta</button></div>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/ventas/${confirmada.id}`} prefetch={false} className={clasePrincipal}>Ver factura</Link>
+            <button type="button" className={claseSecundaria} onClick={() => window.location.reload()}>Nueva venta</button>
+          </div>
         </Card>
       </section>
     );

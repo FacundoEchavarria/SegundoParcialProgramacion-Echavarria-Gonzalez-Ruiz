@@ -8,6 +8,7 @@ import { crearCategoria, crearProducto, editarCategoria, editarProducto } from "
 import { registrarMovimiento } from "@/services/stock";
 import { crearCliente, editarCliente } from "@/services/clientes";
 import { registrarPago } from "@/services/pagos";
+import { anularFactura } from "@/services/facturas";
 
 async function ejecutar<T>(operacion: () => Promise<T>) {
   try {
@@ -94,4 +95,8 @@ export async function editarClienteAction(id: number, input: unknown) {
 
 export async function registrarPagoAction(clienteId: number, input: unknown) {
   return ejecutar(async () => registrarPago((await requireApiSession()).usuario, clienteId, input));
+}
+
+export async function anularFacturaAction(facturaId: number, input: unknown) {
+  return ejecutar(async () => anularFactura((await requireApiSession()).usuario, facturaId, input));
 }

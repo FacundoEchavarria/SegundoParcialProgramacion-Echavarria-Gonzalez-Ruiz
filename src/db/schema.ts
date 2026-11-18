@@ -121,6 +121,10 @@ export const facturas = sqliteTable("facturas", {
   tarjetaMarca: text("tarjeta_marca"),
   tarjetaUltimos4: text("tarjeta_ultimos4"),
   saldoCliente: integer("saldo_cliente"),
+  anuladaEn: integer("anulada_en", { mode: "timestamp" }),
+  anuladaPorId: integer("anulada_por_id").references(() => usuarios.id),
+  anuladaPorNombre: text("anulada_por_nombre"),
+  motivoAnulacion: text("motivo_anulacion"),
 }, (tabla) => [
   uniqueIndex("facturas_punto_venta_numero_unique").on(tabla.puntoVenta, tabla.numero),
   index("facturas_cliente_fecha_idx").on(tabla.clienteId, tabla.creadoEn),
