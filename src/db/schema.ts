@@ -100,12 +100,30 @@ export const clientes = sqliteTable("clientes", {
   check("clientes_limite_valido", sql`${tabla.limiteCredito} >= 0`),
 ]);
 
+export const pagos = sqliteTable("pagos", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  clienteId: integer("cliente_id").notNull().references(() => clientes.id),
+  clienteNombre: text("cliente_nombre").notNull(),
+  usuarioId: integer("usuario_id").notNull().references(() => usuarios.id),
+  usuarioNombre: text("usuario_nombre").notNull(),
+  importe: integer().notNull(),
+  medio: text({ enum: ["efectivo", "transferencia", "tarjeta_debito"] }).notNull(),
+  observacion: text(),
+  saldoCliente: integer("saldo_cliente").notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+}, (tabla) => [
+  check("pagos_importe_valido", sql`${tabla.importe} > 0`),
+  check("pagos_saldo_valido", sql`${tabla.saldoCliente} >= 0`),
+  check("pagos_medio_valido", sql`${tabla.medio} in ('efectivo', 'transferencia', 'tarjeta_debito')`),
+]);
+
 export const movimientosCuenta = sqliteTable("movimientos_cuenta", {
   id: integer().primaryKey(),
   clienteId: integer("cliente_id").notNull().references(() => clientes.id),
   tipo: text({ enum: ["debito", "credito"] }).notNull(),
   importe: integer().notNull(),
   descripcion: text().notNull(),
+  pagoId: integer("pago_id").references(() => pagos.id).unique(),
   creadoEn: integer("creado_en", { mode: "timestamp" })
     .notNull().default(sql`(unixepoch())`),
 }, (tabla) => [

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
 import { CambiarEstadoCliente, FormularioCliente } from "@/components/clientes/formularios";
 import { saldoEnPesos } from "@/components/clientes/listados";
+import { FormularioPago } from "@/components/clientes/formulario-pago";
 import { Estado, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
 import { ApiError } from "@/lib/api-error";
@@ -48,7 +49,13 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
                     <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
                   </td>
                   <td>{movimiento.tipo === "debito" ? "Débito" : "Crédito"}</td>
-                  <td className="min-w-36 break-words">{movimiento.descripcion}</td>
+                  <td className="min-w-36 break-words">
+                    {movimiento.pagoId === null ? movimiento.descripcion : (
+                      <Link href={`/pagos/${movimiento.pagoId}`} className="text-primary underline">
+                        {movimiento.descripcion}
+                      </Link>
+                    )}
+                  </td>
                   <td className="text-right whitespace-nowrap tabular-nums">{saldoEnPesos(movimiento.importe)}</td>
                   <td className="text-right whitespace-nowrap tabular-nums">{saldoEnPesos(movimiento.saldo)}</td>
                 </tr>
@@ -127,6 +134,9 @@ export default async function FichaCliente({
         <div className="flex flex-wrap gap-2 border-t pt-4">
           <FormularioCliente cliente={cliente} />
           <CambiarEstadoCliente cliente={cliente} />
+          {cliente.activo && cliente.cuentaCorriente && cliente.saldo > 0 && (
+            <FormularioPago clienteId={cliente.id} deuda={saldoEnPesos(cliente.saldo)} />
+          )}
         </div>
       </Card>
 

@@ -10,8 +10,8 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
   const usuario = await requirePageUser();
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
-      <aside className="bg-primary px-4 py-4 text-white lg:px-5 lg:py-7">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] print:block print:min-h-0">
+      <aside className="bg-primary px-4 py-4 text-white lg:px-5 lg:py-7 print:hidden">
         <Link href="/" prefetch={false} className="inline-block px-3 text-lg font-semibold tracking-tight">
           Gestión comercial
         </Link>
@@ -26,7 +26,7 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
         </nav>
       </aside>
       <div className="min-w-0">
-        <header className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-b bg-white px-5 py-4 sm:px-8">
+        <header className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-b bg-white px-5 py-4 sm:px-8 print:hidden">
           <div className="min-w-0">
             <p className="font-semibold break-words">{usuario.nombre}</p>
             <p className="text-sm text-muted-foreground">
@@ -35,7 +35,7 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
           </div>
           <CerrarSesion />
         </header>
-        <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">{children}</main>
+        <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 print:p-0">{children}</main>
       </div>
     </div>
   );
