@@ -112,3 +112,21 @@ En una base de prueba, cargá un producto a **$5.000,00** con **3 unidades** y u
 ### Practicar para la defensa
 
 Emití una venta a cuenta por **$10.000,00**, registrá un pago de **$3.000,00** y anulá la factura con un motivo. Comprobá que las unidades vuelvan al stock y que la cuenta muestre el débito de la venta, el crédito del pago y el crédito de **$10.000,00** de la anulación. El cliente debe quedar con **$3.000,00 a favor**. Abrí la factura desde el historial y comprobá que el comprobante identifica la anulación y que un segundo intento no devuelve las unidades otra vez.
+
+## Tarea 8 · Tablero, datos de prueba y publicación
+
+1. **Ejecutar.** Instalá las dependencias con `pnpm install --frozen-lockfile`, copiá `.env.example` a `.env` y usá una base de prueba. Corré `pnpm db:migrate`, `pnpm db:seed` y `pnpm dev`. El [README](README.md) indica cómo entrar con cada rol y cómo publicar la demo en Turso y Vercel.
+2. **Seguir una cifra del tablero.** Tanto **Inicio** como `GET /api/tablero` llaman a [`obtenerTablero()`](src/services/tablero.ts). Buscá cómo el servicio agrupa las facturas emitidas por fecha argentina, agrega ceros hasta completar los 30 días y calcula el ticket promedio. El ranking suma unidades de los renglones. La deuda se obtiene de los movimientos de cada cliente y solo suma los saldos positivos. Los gráficos reciben datos ya calculados.
+3. **Seguir un dato de prueba.** Abrí [el seed](scripts/seed.ts) y seguí cómo llama a los servicios que también usa la aplicación. Buscá una venta del seed en **Ventas** y verificá que tenga movimientos de stock y, si se hizo a cuenta, un débito del cliente. Identificá cómo se excluye una anulada del tablero.
+
+### Guion de defensa de 10 minutos
+
+| Minutos | Demostración | Qué explicar |
+| --- | --- | --- |
+| 0–2 | Ingresar como vendedor, mostrar el tablero y anotar el stock de un producto. | Cómo se calculan los indicadores y por qué dependen de facturas, stock y movimientos. |
+| 2–4 | Vender una unidad a consumidor final en efectivo. Mostrar total, vuelto, factura y stock actualizado. | La API toma el precio guardado y confirma la factura y el descuento en una transacción. |
+| 4–6 | Crear un cliente desde otra venta y habilitar su cuenta corriente. Confirmar la venta y mostrar el débito en su ficha. | El borrador se conserva y el servidor verifica stock y límite de crédito. |
+| 6–8 | Registrar un pago parcial y abrir el recibo desde el historial. | El pago y el crédito se guardan juntos y el saldo sale del historial. |
+| 8–10 | Entrar como administrador y anular la factura a cuenta con motivo. Mostrar la devolución de stock, el crédito total, el saldo a favor por el pago previo y la factura anulada. | La anulación conserva el número y revierte los efectos de la venta en una sola transacción. |
+
+Para la parte de código, practicá ubicar en qué archivo está cada paso. Ensayá también un cambio pequeño, como ajustar el texto de una validación y comprobarlo en una base local de prueba.
