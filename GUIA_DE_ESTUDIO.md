@@ -69,7 +69,7 @@ La interfaz vive en `src/app/` y `src/components/`; la conexión y las tablas vi
 
 ### Practicar para la defensa
 
-Usá este ejemplo para seguir el cálculo en el código. Los movimientos se originarán desde pagos y ventas en las próximas tareas.
+Usá este ejemplo para seguir el cálculo en el código. La tarea 5 registra los créditos por pagos y la tarea 6 incorporará los débitos por ventas.
 
 | Fecha | Movimiento | Saldo acumulado |
 | --- | --- | --- |
@@ -77,3 +77,16 @@ Usá este ejemplo para seguir el cálculo en el código. Los movimientos se orig
 | 25/10/2026 | Crédito de $3.000,00 | $7.000,00 |
 
 Identificá dónde se calculan los **$7.000,00** y en qué unidad trabaja SQLite. Si filtrás desde el 25/10, `saldoAnterior` trae **$10.000,00**, el historial muestra el crédito de **$3.000,00** y el saldo de cierre queda en **$7.000,00**.
+
+## Tarea 5 · Pagos
+
+1. **Migrar.** Corré `pnpm db:migrate`. [La migración de pagos](drizzle/0004_pagos.sql) crea la tabla `pagos` y agrega `pago_id` al historial. Los movimientos anteriores quedan sin recibo asociado.
+2. **Seguir el formulario.** [Registrar pago](src/components/clientes/formulario-pago.tsx) convierte los pesos ingresados a centavos. La Server Action y la API llegan a [`registrarPago()`](src/services/pagos.ts), que vuelve a validar la entrada y consulta la deuda dentro de la transacción.
+3. **Vincular el pago con el crédito.** El identificador del pago forma el número del recibo. La misma transacción guarda un movimiento de tipo `credito` por el importe pagado, con su `pagoId`. Si el crédito falla, se revierten el pago y la asignación del número.
+4. **Leer el saldo y reimprimir.** La ficha sigue sumando débitos y restando créditos. El recibo conserva los nombres del cliente y del usuario junto con el saldo inmediatamente posterior al pago. El historial enlaza al recibo asociado.
+
+### Practicar para la defensa
+
+Usá una base local descartable. Por ejemplo, configurá `$env:DATABASE_URL = 'file:practica-pagos.db'` en PowerShell, corré `pnpm db:migrate`, `pnpm db:seed` y `pnpm dev` en esa terminal. Creá un cliente con cuenta corriente. Hasta que la aplicación tenga ventas, usá `pnpm exec drizzle-kit studio` en otra terminal con la misma variable para insertar un débito de prueba en `movimientos_cuenta`. Usá el ID del cliente, `tipo = debito`, `importe = 1000000` y `descripcion = Deuda de prueba`.
+
+Volvé a la ficha y registrá un pago de **$3.000,00**. Comprobá que el recibo indique **$7.000,00** como saldo posterior y que el historial muestre el crédito con un enlace al recibo. Intentá registrar **$7.001,00**. La deuda debe seguir en **$7.000,00** y el historial debe conservar un solo crédito. Pagá los **$7.000,00** restantes y reabrí el primer recibo para comparar su saldo histórico con el saldo actual de la ficha.

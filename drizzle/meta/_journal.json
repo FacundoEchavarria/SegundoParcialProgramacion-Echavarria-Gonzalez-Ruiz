@@ -29,6 +29,13 @@
       "when": 1794932546994,
       "tag": "0003_clientes_cuenta_corriente",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794960758764,
+      "tag": "0004_pagos",
+      "breakpoints": true
     }
   ]
 }

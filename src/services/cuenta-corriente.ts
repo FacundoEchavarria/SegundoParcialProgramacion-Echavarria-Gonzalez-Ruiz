@@ -42,6 +42,7 @@ export async function obtenerCuenta(_actor: UsuarioSesion, inputId: unknown, inp
     tipo: movimientosCuenta.tipo,
     importe: movimientosCuenta.importe,
     descripcion: movimientosCuenta.descripcion,
+    pagoId: movimientosCuenta.pagoId,
     cambio: importeConSigno,
   }).from(movimientosCuenta).where(and(
     eq(movimientosCuenta.clienteId, clienteId),
@@ -56,7 +57,7 @@ export async function obtenerCuenta(_actor: UsuarioSesion, inputId: unknown, inp
     if (inicio && fecha < inicio) {
       saldoAnterior = saldo;
     } else {
-      movimientos.push({ fecha: fecha.toISOString(), ...datos, facturaId: null, pagoId: null, saldo });
+      movimientos.push({ fecha: fecha.toISOString(), ...datos, facturaId: null, saldo });
     }
   }
   return { cliente, saldoAnterior, movimientos, saldo };
