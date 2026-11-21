@@ -81,6 +81,12 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
                 <dt>Motivo</dt>
                 <dd className="whitespace-pre-wrap break-words">{anulacion.motivo}</dd>
               </div>
+              {anulacion.importeDevuelto !== undefined && (
+                <div>
+                  <dt>Devolución de caja</dt>
+                  <dd>{precioEnPesos(anulacion.importeDevuelto)}</dd>
+                </div>
+              )}
             </dl>
           </section>
         )}

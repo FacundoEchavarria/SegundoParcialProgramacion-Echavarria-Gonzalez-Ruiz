@@ -1,0 +1,1 @@
+ALTER TABLE `facturas` ADD `importe_devuelto_anulacion` integer;
