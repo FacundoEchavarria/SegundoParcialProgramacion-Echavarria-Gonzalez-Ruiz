@@ -1,31 +1,14 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { CerrarSesion } from "@/components/acceso/formularios-sesion";
+import { Navegacion } from "@/components/acceso/navegacion";
 import { requirePageUser } from "@/lib/auth-request";
-
-const enlace =
-  "rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
 
 export default async function LayoutPrivado({ children }: { children: ReactNode }) {
   const usuario = await requirePageUser();
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] print:block print:min-h-0">
-      <aside className="bg-primary px-4 py-4 text-white lg:px-5 lg:py-7 print:hidden">
-        <Link href="/" prefetch={false} className="inline-block px-3 text-lg font-semibold tracking-tight">
-          Gestión comercial
-        </Link>
-        <nav aria-label="Navegación principal" className="mt-3 flex flex-wrap gap-1 lg:mt-8 lg:flex-col">
-          <Link href="/" prefetch={false} className={enlace}>Inicio</Link>
-          <Link href="/ventas" prefetch={false} className={enlace}>Ventas</Link>
-          <Link href="/productos" prefetch={false} className={enlace}>Productos</Link>
-          <Link href="/clientes" prefetch={false} className={enlace}>Clientes</Link>
-          {usuario.rol === "admin" && (
-            <Link href="/usuarios" prefetch={false} className={enlace}>Usuarios</Link>
-          )}
-          <Link href="/perfil" prefetch={false} className={enlace}>Mi perfil</Link>
-        </nav>
-      </aside>
+      <Navegacion admin={usuario.rol === "admin"} />
       <div className="min-w-0">
         <header className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-b bg-white px-5 py-4 sm:px-8 print:hidden">
           <div className="min-w-0">

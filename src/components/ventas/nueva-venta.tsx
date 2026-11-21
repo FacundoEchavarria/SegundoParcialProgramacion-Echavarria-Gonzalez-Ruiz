@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
@@ -28,6 +28,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
   const [forma, setForma] = useState<FormaPago>("contado");
   const [recibido, setRecibido] = useState("");
   const [confirmada, setConfirmada] = useState<FacturaEmitida | null>(null);
+  const selectorPago = useRef<HTMLSelectElement>(null);
   const { enviar, enviando, error, errorCampo, limpiarError } = useFormulario();
 
   const items = renglones.map(({ producto, cantidad }) => {
@@ -70,6 +71,11 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
   function cambiarCantidad(id: number, cantidad: string) {
     limpiarError();
     setRenglones((actuales) => actuales.map((renglon) => renglon.producto.id === id ? { ...renglon, cantidad } : renglon));
+  }
+
+  function hayStockParaAgregar(producto: Producto) {
+    const renglon = items.find((item) => item.producto.id === producto.id);
+    return (renglon?.unidades ?? 0) < producto.existencia;
   }
 
   const esquema = z.preprocess((datos: Record<string, FormDataEntryValue>) => ({
@@ -131,7 +137,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
   }
 
   return (
-    <section className="grid gap-6">
+    <section className="grid grid-cols-1 gap-6">
       <header className="flex flex-wrap items-end justify-between gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Nueva venta</h1>
         <p className="text-sm text-muted-foreground">Próximo número estimado <span className="font-semibold tabular-nums">{numeroEstimado}</span></p>
@@ -167,22 +173,24 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
         <h2 className="text-xl font-semibold">Ítems</h2>
         <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
           <BusquedaVenta<Producto> key={versionCatalogo} recurso="productos" etiqueta="Buscar por código o descripción" maxLength={100}
-            resultado={(producto) => {
-              const renglon = items.find((item) => item.producto.id === producto.id);
-              return (
-                <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-                  <div className="min-w-0 break-words">
-                    <p className="font-medium">{producto.descripcion}</p>
-                    <p className="text-muted-foreground">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</p>
-                  </div>
-                  <button type="button" className={claseSecundaria} aria-label={`Agregar ${producto.descripcion}`}
-                    disabled={(renglon?.unidades ?? 0) >= producto.existencia} onClick={() => agregar(producto)}>
-                    Agregar
-                  </button>
-                </div>
-              );
+            alEnter={(resultados) => {
+              const producto = resultados.find(hayStockParaAgregar);
+              if (producto) agregar(producto);
             }}
+            resultado={(producto) => (
+              <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                <div className="min-w-0 break-words">
+                  <p className="font-medium">{producto.descripcion}</p>
+                  <p className="text-muted-foreground">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</p>
+                </div>
+                <button type="button" className={claseSecundaria} aria-label={`Agregar ${producto.descripcion}`}
+                  disabled={!hayStockParaAgregar(producto)} onClick={() => agregar(producto)}>
+                  Agregar
+                </button>
+              </div>
+            )}
           />
+          <p className="text-sm text-muted-foreground">Presioná Enter para agregar el primer resultado con stock disponible.</p>
           {renglones.length === 0 ? (
             <p className="rounded-lg bg-background px-3 py-4 text-sm text-muted-foreground">Agregá al menos un producto para confirmar la venta.</p>
           ) : (
@@ -230,6 +238,12 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
               </table>
             </div>
           )}
+          {renglones.length > 0 && (
+            <button type="button" className={`w-fit ${claseSecundaria}`} disabled={!puedeConfirmar}
+              onClick={() => selectorPago.current?.focus()}>
+              Ir al pago
+            </button>
+          )}
         </fieldset>
       </Card>
 
@@ -245,7 +259,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
           <fieldset disabled={enviando} className="grid min-w-0 gap-4">
             <label className="grid max-w-xs gap-1.5 text-sm font-medium">
               Forma de pago
-              <select className={claseCampo} value={forma} onChange={(event) => {
+              <select ref={selectorPago} className={claseCampo} value={forma} onChange={(event) => {
                 setForma(event.currentTarget.value as FormaPago);
                 limpiarError();
               }}>
