@@ -1,9 +1,11 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { z } from "zod";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { FormularioCliente } from "@/components/clientes/formularios";
 import { aCentavos, aEntero } from "@/components/productos/campos";
@@ -129,7 +131,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
           </dl>
           <div className="flex flex-wrap gap-2">
             <Link href={`/ventas/${confirmada.id}`} prefetch={false} className={clasePrincipal}>Ver factura</Link>
-            <button type="button" className={claseSecundaria} onClick={() => window.location.reload()}>Nueva venta</button>
+            <Button type="button" variant="outline" onClick={() => window.location.reload()}>Nueva venta</Button>
           </div>
         </Card>
       </section>
@@ -152,7 +154,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
               {cliente && <p className="text-sm text-muted-foreground">{cliente.tipoDoc} {cliente.nroDoc}</p>}
             </div>
             <div className="flex flex-wrap gap-2">
-              {cliente && <button type="button" className={claseSecundaria} onClick={() => elegirCliente(null)}>Usar consumidor final</button>}
+              {cliente && <Button type="button" variant="outline" onClick={() => elegirCliente(null)}>Usar consumidor final</Button>}
               <FormularioCliente alGuardar={elegirCliente} />
             </div>
           </div>
@@ -183,10 +185,10 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
                   <p className="font-medium">{producto.descripcion}</p>
                   <p className="text-muted-foreground">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</p>
                 </div>
-                <button type="button" className={claseSecundaria} aria-label={`Agregar ${producto.descripcion}`}
+                <Button type="button" variant="outline" aria-label={`Agregar ${producto.descripcion}`}
                   disabled={!hayStockParaAgregar(producto)} onClick={() => agregar(producto)}>
                   Agregar
-                </button>
+                </Button>
               </div>
             )}
           />
@@ -194,7 +196,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
           {renglones.length === 0 ? (
             <p className="rounded-lg bg-background px-3 py-4 text-sm text-muted-foreground">Agregá al menos un producto para confirmar la venta.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="relative overflow-x-auto">
               <table aria-label="Ítems de la venta" className="w-full text-left text-sm">
                 <thead className="border-b bg-background text-muted-foreground [&_th]:px-3 [&_th]:py-2">
                   <tr>
@@ -215,7 +217,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
                       <td className="w-36 min-w-24">
                         <label className="grid gap-1.5">
                           <span className="sr-only">Cantidad de {producto.descripcion}</span>
-                          <input className={claseCampo} type="number" min={1} max={producto.existencia} step={1}
+                          <Input type="number" min={1} max={producto.existencia} step={1}
                             aria-invalid={Boolean(errorCantidad ?? errorCampo(`items.${indice}.cantidad`))}
                             aria-describedby={`cantidad-${producto.id}`}
                             value={cantidad} onChange={(event) => cambiarCantidad(producto.id, event.currentTarget.value)} />
@@ -227,10 +229,10 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
                       <td className="text-right whitespace-nowrap tabular-nums">{precioEnPesos(producto.precio)}</td>
                       <td className="text-right font-semibold whitespace-nowrap tabular-nums">{subtotal === null ? "—" : precioEnPesos(subtotal)}</td>
                       <td className="text-right">
-                        <button type="button" className={claseSecundaria} aria-label={`Quitar ${producto.descripcion}`} onClick={() => {
+                        <Button type="button" variant="outline" aria-label={`Quitar ${producto.descripcion}`} onClick={() => {
                           setRenglones((actuales) => actuales.filter((item) => item.producto.id !== producto.id));
                           limpiarError();
-                        }}>Quitar</button>
+                        }}>Quitar</Button>
                       </td>
                     </tr>
                   ))}
@@ -239,10 +241,10 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
             </div>
           )}
           {renglones.length > 0 && (
-            <button type="button" className={`w-fit ${claseSecundaria}`} disabled={!puedeConfirmar}
+            <Button type="button" variant="outline" className="w-fit" disabled={!puedeConfirmar}
               onClick={() => selectorPago.current?.focus()}>
               Ir al pago
-            </button>
+            </Button>
           )}
         </fieldset>
       </Card>
@@ -302,9 +304,9 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
             )}
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal} disabled={enviando || !puedeConfirmar}>
+              <Button type="submit" disabled={enviando || !puedeConfirmar}>
                 {enviando ? "Confirmando…" : "Confirmar venta"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>

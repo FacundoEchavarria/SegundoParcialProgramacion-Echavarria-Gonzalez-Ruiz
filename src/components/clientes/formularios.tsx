@@ -1,11 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { z } from "zod";
 import { crearClienteAction, editarClienteAction } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { aCentavos, centavosComoDecimal } from "@/components/productos/campos";
 import { altaClienteSchema, edicionClienteSchema } from "@/lib/schemas/clientes";
@@ -57,7 +58,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
               cerrar();
               if (alGuardar) alGuardar(guardado);
               else router.refresh();
-            })
+            }, cliente ? "Cliente actualizado." : "Cliente creado.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -109,9 +110,9 @@ export function FormularioCliente({ cliente, alGuardar }: {
             />
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>
+              <Button type="submit">
                 {enviando ? "Guardando…" : cliente ? "Guardar cambios" : "Crear cliente"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>
@@ -137,15 +138,15 @@ export function CambiarEstadoCliente({ cliente }: { cliente: Cliente }) {
             enviar(event, esquema, editarClienteAction.bind(null, cliente.id), () => {
               cerrar();
               router.refresh();
-            })
+            }, cliente.activo ? "Cliente desactivado." : "Cliente reactivado.")
           }
         >
           <p className="break-words">¿Querés {activo ? "reactivar" : "desactivar"} a {cliente.nombre}?</p>
           <AvisoError error={error} />
           <div>
-            <button className={clasePrincipal} disabled={enviando}>
+            <Button type="submit" disabled={enviando}>
               {enviando ? "Guardando…" : titulo}
-            </button>
+            </Button>
           </div>
         </form>
       )}

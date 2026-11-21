@@ -2,8 +2,10 @@
 
 import { useId, useState, useTransition, type ComponentProps, type FormEvent } from "react";
 import type { ZodType } from "zod";
+import { Alert } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 import type { DetallesError } from "@/lib/api-error";
-import { claseCampo } from "./estilos";
+import { useAviso } from "./avisos";
 
 type ErrorFormulario = {
   message: string;
@@ -14,16 +16,18 @@ type ErrorFormulario = {
 type Resultado<T> = { ok: true; data: T } | { ok: false; error: ErrorFormulario };
 
 export function useFormulario() {
+  const avisar = useAviso();
   const [error, setError] = useState<ErrorFormulario | null>(null);
   const [enviando, iniciarEnvio] = useTransition();
 
-  function ejecutar<T>(accion: () => Promise<Resultado<T>>, alCompletar: (data: T) => void) {
+  function ejecutar<T>(accion: () => Promise<Resultado<T>>, alCompletar: (data: T) => void, mensajeExito?: string) {
     setError(null);
     iniciarEnvio(async () => {
       try {
         const resultado = await accion();
         if (resultado.ok) {
           alCompletar(resultado.data);
+          if (mensajeExito) avisar(mensajeExito);
         } else {
           setError(resultado.error);
         }
@@ -38,6 +42,7 @@ export function useFormulario() {
     esquema: ZodType,
     accion: (datos: unknown) => Promise<Resultado<T>>,
     alCompletar: (data: T) => void,
+    mensajeExito?: string,
   ) {
     event.preventDefault();
     const datos = Object.fromEntries(new FormData(event.currentTarget));
@@ -54,7 +59,7 @@ export function useFormulario() {
       return;
     }
 
-    ejecutar(() => accion(validacion.data), alCompletar);
+    ejecutar(() => accion(validacion.data), alCompletar, mensajeExito);
   }
 
   return {
@@ -81,9 +86,8 @@ export function Campo({
   return (
     <label className="grid min-w-0 gap-1.5 text-sm font-medium">
       <span>{etiqueta}</span>
-      <input
+      <Input
         {...props}
-        className={claseCampo}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? idError : undefined}
       />
@@ -95,8 +99,6 @@ export function Campo({
 export function AvisoError({ error }: { error: ErrorFormulario | null }) {
   if (!error) return null;
   return (
-    <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-      {error.message}
-    </p>
+    <Alert variant="destructive">{error.message}</Alert>
   );
 }

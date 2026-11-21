@@ -1,10 +1,11 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { anularFacturaAction } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, useFormulario } from "@/components/acceso/formulario";
 import { precioEnPesos } from "@/lib/formatos";
 import { anulacionSchema } from "@/lib/schemas/facturas";
@@ -28,7 +29,7 @@ export function FormularioAnulacion({ facturaId, numero }: { facturaId: number; 
           enviar(evento, esquema, anularFacturaAction.bind(null, facturaId), () => {
             cerrar();
             router.refresh();
-          })
+          }, importe > 0 ? "Factura anulada y devolución registrada." : "Factura anulada.")
         }>
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
             <p className="text-sm">
@@ -49,9 +50,9 @@ export function FormularioAnulacion({ facturaId, numero }: { facturaId: number; 
               </p>
             )}
             <div>
-              <button className={clasePrincipal}>
+              <Button type="submit">
                 {enviando ? "Anulando…" : importe > 0 ? "Anular y registrar devolución" : "Confirmar anulación"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>

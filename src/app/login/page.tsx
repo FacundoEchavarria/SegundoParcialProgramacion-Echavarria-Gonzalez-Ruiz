@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { FormularioLogin } from "@/components/acceso/formularios-sesion";
+import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { getRequestSession } from "@/lib/auth-request";
 
@@ -8,10 +9,10 @@ export const metadata = { title: "Iniciar sesión | Gestión comercial" };
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ cambio?: string }>;
+  searchParams: Promise<{ cambio?: string; salida?: string }>;
 }) {
   if (await getRequestSession()) redirect("/");
-  const { cambio } = await searchParams;
+  const { cambio, salida } = await searchParams;
 
   return (
     <main className="grid min-h-dvh place-items-center px-5 py-10">
@@ -21,10 +22,10 @@ export default async function Login({
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">Iniciar sesión</h1>
         </header>
         <div className="grid gap-4 px-6 pb-7 sm:px-8 sm:pb-8">
-          {cambio === "1" && (
-            <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-              Contraseña actualizada. Ingresá con tu nueva contraseña.
-            </p>
+          {(cambio === "1" || salida === "1") && (
+            <Alert variant="success" role="status">
+              {cambio === "1" ? "Contraseña actualizada. Ingresá con tu nueva contraseña." : "Sesión cerrada."}
+            </Alert>
           )}
           <FormularioLogin />
         </div>

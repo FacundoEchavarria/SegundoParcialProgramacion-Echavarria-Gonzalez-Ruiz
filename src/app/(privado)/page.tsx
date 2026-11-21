@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
 import { GraficoFormasDePago, GraficoVentasDiarias } from "@/components/tablero/graficos";
 import { Card } from "@/components/ui/card";
 import { requirePageUser } from "@/lib/auth-request";
-import { precioEnPesos } from "@/lib/formatos";
+import { formatearDia, precioEnPesos } from "@/lib/formatos";
 import { obtenerTablero } from "@/services/tablero";
 
 export const metadata = { title: "Inicio | Gestión comercial" };
@@ -68,7 +69,7 @@ export default async function Inicio() {
               <tbody className="divide-y tabular-nums">
                 {ventasDiarias.map(({ fecha, importe }) => (
                   <tr key={fecha}>
-                    <td className="py-1.5"><time dateTime={fecha}>{fecha.split("-").reverse().join("/")}</time></td>
+                    <td className="py-1.5"><time dateTime={fecha}>{formatearDia(fecha)}</time></td>
                     <td className="py-1.5 text-right">{precioEnPesos(importe)}</td>
                   </tr>
                 ))}
@@ -88,7 +89,7 @@ export default async function Inicio() {
       <Card className="gap-0 overflow-hidden py-0">
         <h2 className="p-5 text-lg font-semibold">Productos más vendidos del mes</h2>
         {masVendidos.length === 0 ? (
-          <p className="border-t p-5 text-sm text-muted-foreground">Todavía no hay productos vendidos este mes.</p>
+          <ListaVacia className="border-t p-5">Todavía no hay productos vendidos este mes.</ListaVacia>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm" aria-label="Productos más vendidos del mes">

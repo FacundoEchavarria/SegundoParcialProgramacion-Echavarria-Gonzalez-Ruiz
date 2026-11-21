@@ -5,17 +5,12 @@ import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { saldoEnPesos } from "@/components/clientes/listados";
 import { Card } from "@/components/ui/card";
 import { ApiError } from "@/lib/api-error";
+import { formatearFechaHora } from "@/lib/formatos";
 import { requirePageUser } from "@/lib/auth-request";
 import { mediosPago } from "@/lib/schemas/pagos";
 import { obtenerPago } from "@/services/pagos";
 
 export const metadata = { title: "Recibo de pago | Gestión comercial" };
-
-const fechaArgentina = new Intl.DateTimeFormat("es-AR", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "America/Argentina/Buenos_Aires",
-});
 
 export default async function ReciboPago({ params }: { params: Promise<{ id: string }> }) {
   const actor = await requirePageUser();
@@ -26,7 +21,7 @@ export default async function ReciboPago({ params }: { params: Promise<{ id: str
   });
 
   const datos = [
-    ["Fecha", fechaArgentina.format(new Date(recibo.fecha))],
+    ["Fecha", formatearFechaHora(recibo.fecha)],
     ["Cliente", recibo.cliente.nombre],
     ["Recibido por", recibo.usuario.nombre],
     ["Medio de pago", mediosPago[recibo.medio]],

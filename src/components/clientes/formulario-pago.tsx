@@ -1,11 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { z } from "zod";
 import { registrarPagoAction } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { aCentavos } from "@/components/productos/campos";
 import { mediosPago, pagoSchema } from "@/lib/schemas/pagos";
@@ -46,7 +47,7 @@ export function FormularioPago({ clienteId, deuda }: { clienteId: number; deuda:
             </label>
             <Campo etiqueta="Observación (opcional)" name="observacion" error={errorCampo("observacion")} />
             <AvisoError error={error} />
-            <div><button className={clasePrincipal}>{enviando ? "Registrando…" : "Registrar pago"}</button></div>
+            <div><Button type="submit">{enviando ? "Registrando…" : "Registrar pago"}</Button></div>
           </fieldset>
         </form>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
-import { clasePrincipal } from "@/components/acceso/estilos";
 
+import { Button } from "@/components/ui/button";
 export function BotonImprimir({ etiqueta = "Imprimir recibo" }: { etiqueta?: string }) {
-  return <button type="button" className={clasePrincipal} onClick={() => window.print()}>{etiqueta}</button>;
+  return <Button type="button" onClick={() => window.print()}>{etiqueta}</Button>;
 }

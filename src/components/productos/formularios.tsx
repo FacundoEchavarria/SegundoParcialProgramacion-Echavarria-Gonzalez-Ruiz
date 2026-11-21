@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useId, useState, type ComponentProps } from "react";
 import { z } from "zod";
@@ -11,7 +12,7 @@ import {
   registrarMovimientoAction,
 } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import {
   altaCategoriaSchema,
@@ -96,7 +97,7 @@ export function FormularioProducto({
             enviar(event, esquema, accion, () => {
               cerrar();
               router.refresh();
-            })
+            }, producto ? "Producto actualizado." : "Producto creado.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -149,9 +150,9 @@ export function FormularioProducto({
             )}
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>
+              <Button type="submit">
                 {enviando ? "Guardando…" : producto ? "Guardar cambios" : "Crear producto"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>
@@ -176,7 +177,7 @@ export function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
             enviar(event, categoria ? edicionCategoriaSchema : altaCategoriaSchema, accion, () => {
               cerrar();
               router.refresh();
-            })
+            }, categoria ? "Categoría actualizada." : "Categoría creada.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -189,9 +190,9 @@ export function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
             />
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>
+              <Button type="submit">
                 {enviando ? "Guardando…" : categoria ? "Guardar cambios" : "Crear categoría"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>
@@ -225,16 +226,16 @@ export function CambiarEstado({ producto, categoria }: Entidad) {
             ejecutar<unknown>(actualizar, () => {
               cerrar();
               router.refresh();
-            });
+            }, "Estado actualizado.");
           }}
         >
           <p>¿Querés {verbo.toLowerCase()} {nombre}?</p>
           <AvisoError error={error} />
           <div className="flex flex-wrap gap-2">
-            <button type="submit" className={clasePrincipal} disabled={enviando}>
+            <Button type="submit" disabled={enviando}>
               {enviando ? "Guardando…" : `Confirmar ${activo ? "desactivación" : "reactivación"}`}
-            </button>
-            <button type="button" className={claseSecundaria} disabled={enviando} onClick={cerrar}>Cancelar</button>
+            </Button>
+            <Button type="button" variant="outline" disabled={enviando} onClick={cerrar}>Cancelar</Button>
           </div>
         </form>
       )}
@@ -265,7 +266,7 @@ export function FormularioMovimiento({ productoId }: { productoId: number }) {
             enviar(event, movimientoManualForm, registrarMovimientoAction.bind(null, productoId), () => {
               cerrar();
               router.refresh();
-            })
+            }, "Movimiento de stock registrado.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -296,7 +297,7 @@ export function FormularioMovimiento({ productoId }: { productoId: number }) {
             <Campo etiqueta="Observación (opcional)" name="observacion" error={errorCampo("observacion")} />
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>{enviando ? "Guardando…" : "Registrar movimiento"}</button>
+              <Button type="submit">{enviando ? "Guardando…" : "Registrar movimiento"}</Button>
             </div>
           </fieldset>
         </form>

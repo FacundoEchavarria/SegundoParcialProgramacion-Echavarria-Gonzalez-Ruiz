@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { claseSecundaria } from "@/components/acceso/estilos";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
+import { Badge } from "@/components/ui/badge";
 import { ApiError } from "@/lib/api-error";
+import { formatearFechaHora } from "@/lib/formatos";
 import type { listarMovimientos } from "@/services/stock";
 
 export type ParametrosPagina = Promise<Record<string, string | string[] | undefined>>;
@@ -11,11 +14,6 @@ type Filtros = Record<string, string | undefined>;
 export { precioEnPesos } from "@/lib/formatos";
 
 const cantidadConSigno = new Intl.NumberFormat("es-AR", { signDisplay: "always" });
-const fechaArgentina = new Intl.DateTimeFormat("es-AR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "America/Argentina/Buenos_Aires",
-});
 
 export const tiposMovimiento = {
   ingreso: "Ingreso",
@@ -86,20 +84,17 @@ export function Paginacion({ ruta, filtros, pagina }: { ruta: string; filtros: F
 export function Estado({ activo, femenino = false }: { activo: boolean; femenino?: boolean }) {
   const etiqueta = activo ? (femenino ? "Activa" : "Activo") : (femenino ? "Inactiva" : "Inactivo");
   return (
-    <span className={activo
-      ? "inline-block rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-900"
-      : "inline-block rounded-full bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-700"}
-    >
+    <Badge className={activo ? "bg-emerald-50 text-emerald-900" : "bg-neutral-100 text-neutral-700"}>
       {etiqueta}
-    </span>
+    </Badge>
   );
 }
 
 export function AvisoBajoStock() {
   return (
-    <span className="inline-block rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950">
+    <Badge className="bg-amber-50 text-amber-950">
       Bajo stock
-    </span>
+    </Badge>
   );
 }
 
@@ -111,7 +106,7 @@ export function TablaMovimientos({
   mostrarProducto?: boolean;
 }) {
   if (movimientos.length === 0) {
-    return <p className="p-5 text-muted-foreground">No hay movimientos para mostrar.</p>;
+    return <ListaVacia>No hay movimientos para mostrar.</ListaVacia>;
   }
   return (
     <div className="overflow-x-auto">
@@ -132,7 +127,7 @@ export function TablaMovimientos({
           {movimientos.map((movimiento) => (
             <tr key={movimiento.id} className="align-top">
               <td className="whitespace-nowrap">
-                <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
+                <time dateTime={movimiento.fecha}>{formatearFechaHora(movimiento.fecha)}</time>
               </td>
               {mostrarProducto && (
                 <td>

@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useEffect, useState, type ReactNode } from "react";
-import { claseSecundaria } from "@/components/acceso/estilos";
 import { AvisoError, Campo } from "@/components/acceso/formulario";
 
 type Pagina<T> = { data: T[]; pageSize: number; total: number };
@@ -18,6 +18,7 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
   const [texto, setTexto] = useState("");
   const [pagina, setPagina] = useState(1);
   const [respuesta, setRespuesta] = useState<Pagina<T> | "error" | null>(null);
+  const [intento, setIntento] = useState(0);
   const consulta = texto.trim();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
       clearTimeout(espera);
       controlador.abort();
     };
-  }, [consulta, pagina, recurso]);
+  }, [consulta, pagina, recurso, intento]);
 
   function cambiarTexto(nuevo: string) {
     setTexto(nuevo);
@@ -66,7 +67,15 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
           if (!event.repeat) alEnter(activos);
         })} />
       {consulta && respuesta === null && <p role="status" className="text-sm text-muted-foreground">Buscando…</p>}
-      {respuesta === "error" && <AvisoError error={{ message: "No se pudo realizar la búsqueda. Volvé a ingresar el texto." }} />}
+      {respuesta === "error" && (
+        <div className="grid gap-2">
+          <AvisoError error={{ message: "No se pudo realizar la búsqueda." }} />
+          <Button variant="outline" className="w-fit" onClick={() => {
+            setRespuesta(null);
+            setIntento((anterior) => anterior + 1);
+          }}>Reintentar</Button>
+        </div>
+      )}
       {respuesta && respuesta !== "error" && (
         <>
           {activos.length ? (
@@ -80,11 +89,11 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
           )}
           {ultima > 1 && (
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <button type="button" className={claseSecundaria} disabled={pagina === 1}
-                onClick={() => cambiarPagina(pagina - 1)}>Anterior</button>
+              <Button type="button" variant="outline" disabled={pagina === 1}
+                onClick={() => cambiarPagina(pagina - 1)}>Anterior</Button>
               <span>Página {pagina} de {ultima}</span>
-              <button type="button" className={claseSecundaria} disabled={pagina >= ultima}
-                onClick={() => cambiarPagina(pagina + 1)}>Siguiente</button>
+              <Button type="button" variant="outline" disabled={pagina >= ultima}
+                onClick={() => cambiarPagina(pagina + 1)}>Siguiente</Button>
             </div>
           )}
         </>

@@ -107,11 +107,11 @@ En una base de prueba, cargá un producto a **$5.000,00** con **3 unidades** y u
 
 1. **Consultar e imprimir.** Corré `pnpm db:migrate` para agregar los datos de anulación. Abrí **Ventas**, aplicá un filtro y entrá a una factura. El detalle lee los nombres, precios y cantidades guardados al confirmar. **Imprimir factura** muestra un comprobante interno con esos datos. El total emitido del listado suma las facturas emitidas de todas las páginas que coinciden con los filtros.
 2. **Seguir el motivo.** El formulario de un administrador envía el identificador de la factura y el motivo a una Server Action. La API admite los mismos datos y ambos caminos llaman a [`anularFactura()`](src/services/facturas.ts). El servicio valida el motivo, confirma el permiso y cambia el estado solo si sigue emitida.
-3. **Seguir las devoluciones.** Dentro de la misma transacción, cada renglón llama a [`moverStock()`](src/services/stock.ts) con su cantidad original y tipo `anulacion`. Para una venta a cuenta, se registra además un crédito por el total original. Los movimientos apuntan a la factura. Si un paso falla, se revierte todo. La factura conserva sus datos de emisión y se puede consultar como anulada.
+3. **Seguir las devoluciones.** Cada renglón repone el stock mediante [`moverStock()`](src/services/stock.ts). Si la venta fue a cuenta, el servicio acredita el total de la factura. Si el crédito supera la deuda actual, primero pide confirmar una devolución de caja por la diferencia. La API devuelve `409 DEVOLUCION_REQUERIDA` con el importe en centavos. El administrador vuelve a enviar el motivo y `importeDevuelto` con ese valor. El servidor vuelve a calcular el importe y registra el débito por la devolución, el crédito, el stock y la anulación en la misma transacción.
 
 ### Practicar para la defensa
 
-Emití una venta a cuenta por **$10.000,00**, registrá un pago de **$3.000,00** y anulá la factura con un motivo. Comprobá que las unidades vuelvan al stock y que la cuenta muestre el débito de la venta, el crédito del pago y el crédito de **$10.000,00** de la anulación. El cliente debe quedar con **$3.000,00 a favor**. Abrí la factura desde el historial y comprobá que el comprobante identifica la anulación y que un segundo intento no devuelve las unidades otra vez.
+Emití una venta a cuenta por **$10.000,00** para un cliente sin deuda previa. Registrá un pago de **$3.000,00** y solicitá la anulación con un motivo. El diálogo pide confirmar una devolución de **$3.000,00**. Después de confirmar, comprobá que las unidades vuelvan al stock, que el historial muestre la devolución y el crédito por **$10.000,00**, y que el saldo termine en **$0,00**. Abrí la factura anulada desde el historial y verificá su motivo y el importe devuelto. Corré `pnpm test` para probar este flujo con SQLite en memoria.
 
 ## Tarea 8 · Tablero, datos de prueba y publicación
 
@@ -127,6 +127,10 @@ Emití una venta a cuenta por **$10.000,00**, registrá un pago de **$3.000,00**
 | 2–4 | Vender una unidad a consumidor final en efectivo. Mostrar total, vuelto, factura y stock actualizado. | La API toma el precio guardado y confirma la factura y el descuento en una transacción. |
 | 4–6 | Crear un cliente desde otra venta y habilitar su cuenta corriente. Confirmar la venta y mostrar el débito en su ficha. | El borrador se conserva y el servidor verifica stock y límite de crédito. |
 | 6–8 | Registrar un pago parcial y abrir el recibo desde el historial. | El pago y el crédito se guardan juntos y el saldo sale del historial. |
-| 8–10 | Entrar como administrador y anular la factura a cuenta con motivo. Mostrar la devolución de stock, el crédito total, el saldo a favor por el pago previo y la factura anulada. | La anulación conserva el número y revierte los efectos de la venta en una sola transacción. |
+| 8–10 | Entrar como administrador, anular la factura a cuenta con motivo y confirmar el importe de la devolución. Mostrar el stock repuesto, el saldo en cero y la factura anulada. | El servicio vuelve a calcular la devolución y registra juntos la anulación y los movimientos de stock y cuenta corriente. |
 
 Para la parte de código, practicá ubicar en qué archivo está cada paso. Ensayá también un cambio pequeño, como ajustar el texto de una validación y comprobarlo en una base local de prueba.
+
+### Demostrar las correcciones de interfaz
+
+Abrí la aplicación con un ancho de 360 px. Usá **Menú** y comprobá que el módulo activo se distinga, también desde una pantalla interna. En **Nueva venta**, buscá un producto, agregalo con **Enter** y usá **Tab** para llegar a **Ir al pago**. Verificá que al activarlo el foco pase al selector de pago. Guardá un producto para ver el aviso de éxito y buscá un código inexistente para ver el estado vacío. En una factura o recibo, comprobá la fecha con año de cuatro dígitos y hora argentina.

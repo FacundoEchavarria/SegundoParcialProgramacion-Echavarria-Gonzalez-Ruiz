@@ -1,7 +1,11 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo, claseSecundaria } from "@/components/acceso/estilos";
 import { GestionarUsuario, NuevoUsuario } from "@/components/acceso/formularios-usuarios";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
+import { Estado } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
 import { requirePageUser } from "@/lib/auth-request";
 import { listadoUsuariosSchema } from "@/lib/schemas/usuarios";
@@ -56,7 +60,7 @@ export default async function Usuarios({
         >
           <label className="grid w-full gap-1.5 text-sm font-medium sm:max-w-xs">
             Buscar por nombre o email
-            <input className={claseCampo} type="search" name="q" defaultValue={q} />
+            <Input type="search" name="q" defaultValue={q} />
           </label>
           <label className="grid min-w-36 grow gap-1.5 text-sm font-medium sm:max-w-40">
             Estado
@@ -66,14 +70,14 @@ export default async function Usuarios({
               <option value="false">Inactivos</option>
             </select>
           </label>
-          <button className={clasePrincipal}>Filtrar</button>
+          <Button type="submit">Filtrar</Button>
           {(q || activo) && (
             <Link href="/usuarios" prefetch={false} className={claseSecundaria}>Limpiar</Link>
           )}
         </form>
 
         {usuarios.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay usuarios que coincidan con la búsqueda.</p>
+          <ListaVacia>No hay usuarios que coincidan con la búsqueda.</ListaVacia>
         ) : (
           <ul aria-label="Resultados de usuarios" className="divide-y">
             {usuarios.data.map((usuario) => (
@@ -90,12 +94,7 @@ export default async function Usuarios({
                   <span className="text-sm text-muted-foreground">
                     {usuario.rol === "admin" ? "Administrador" : "Vendedor"}
                   </span>
-                  <span className={usuario.activo
-                    ? "w-fit rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-900"
-                    : "w-fit rounded-full bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-700"}
-                  >
-                    {usuario.activo ? "Activo" : "Inactivo"}
-                  </span>
+                  <Estado activo={usuario.activo} />
                 </div>
                 <GestionarUsuario usuario={usuario} esPropio={usuario.id === actor.id} />
               </li>

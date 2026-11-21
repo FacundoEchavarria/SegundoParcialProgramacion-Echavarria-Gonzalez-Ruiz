@@ -1,11 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { crearUsuarioAction, editarUsuarioAction, restablecerPasswordAction } from "@/app/actions";
 import { altaUsuarioSchema, edicionUsuarioSchema } from "@/lib/schemas/usuarios";
 import { Dialogo } from "./dialogo";
-import { claseCampo, clasePrincipal, claseSecundaria } from "./estilos";
+import { claseCampo } from "./estilos";
 import { AvisoError, Campo, useFormulario } from "./formulario";
 
 type UsuarioEditable = {
@@ -37,6 +38,7 @@ export function GestionarUsuario({ usuario, esPropio }: { usuario: UsuarioEditab
         cerrar();
         router.refresh();
       },
+      usuario.activo ? "Usuario desactivado." : "Usuario reactivado.",
     );
   }
 
@@ -71,18 +73,18 @@ export function GestionarUsuario({ usuario, esPropio }: { usuario: UsuarioEditab
           <div className="grid gap-3 border-t pt-4">
             <div className="flex flex-wrap gap-2">
               {!esPropio && (
-                <button
+                <Button
                   type="button"
-                  className={claseSecundaria}
+                  variant="outline"
                   disabled={enviando}
                   onClick={() => cambiarEstado(cerrar)}
                 >
                   {usuario.activo ? "Desactivar" : "Activar"}
-                </button>
+                </Button>
               )}
-              <button type="button" className={claseSecundaria} disabled={enviando} onClick={restablecer}>
+              <Button type="button" variant="outline" disabled={enviando} onClick={restablecer}>
                 Restablecer contraseña
-              </button>
+              </Button>
               {enviando && <p role="status" className="my-auto text-sm text-muted-foreground">Procesando…</p>}
             </div>
             <AvisoError error={error} />
@@ -118,7 +120,7 @@ function FormularioUsuario({
         enviar(event, esquema, accion, () => {
           alGuardar();
           router.refresh();
-        })
+        }, usuario ? "Usuario actualizado." : "Usuario creado.")
       }
       noValidate
     >
@@ -167,9 +169,9 @@ function FormularioUsuario({
         )}
         <AvisoError error={error} />
         <div>
-          <button className={clasePrincipal}>
+          <Button type="submit">
             {enviando ? "Guardando…" : usuario ? "Guardar cambios" : "Crear usuario"}
-          </button>
+          </Button>
         </div>
       </fieldset>
     </form>

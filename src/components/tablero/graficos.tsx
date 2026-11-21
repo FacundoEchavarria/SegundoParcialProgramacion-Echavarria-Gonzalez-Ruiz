@@ -3,7 +3,7 @@
 import { ArcElement, CategoryScale, Chart, LinearScale, LineElement, PointElement, Tooltip } from "chart.js";
 import { Doughnut, Line } from "react-chartjs-2";
 import { formasPago } from "@/components/ventas/facturas";
-import { precioEnPesos } from "@/lib/formatos";
+import { formatearDia, precioEnPesos } from "@/lib/formatos";
 import type { Tablero } from "@/services/tablero";
 
 Chart.register(ArcElement, CategoryScale, LinearScale, LineElement, PointElement, Tooltip);
@@ -20,7 +20,7 @@ export function GraficoVentasDiarias({ ventasDiarias }: Pick<Tablero, "ventasDia
       <Line
         aria-label="Importes de venta diarios de los últimos 30 días"
         data={{
-          labels: ventasDiarias.map(({ fecha }) => `${fecha.slice(8, 10)}/${fecha.slice(5, 7)}`),
+          labels: ventasDiarias.map(({ fecha }) => formatearDia(fecha)),
           datasets: [{
             label: "Ventas",
             data: ventasDiarias.map(({ importe }) => importe),
@@ -36,7 +36,11 @@ export function GraficoVentasDiarias({ ventasDiarias }: Pick<Tablero, "ventasDia
           maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
           scales: {
-            x: { grid: { display: false }, ticks: { maxTicksLimit: 6, maxRotation: 0 } },
+            x: { grid: { display: false }, ticks: {
+              maxTicksLimit: 6,
+              maxRotation: 0,
+              callback: (indice) => formatearDia(ventasDiarias[Number(indice)].fecha, false),
+            } },
             y: {
               beginAtZero: true,
               suggestedMax: 100,

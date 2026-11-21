@@ -1,5 +1,7 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo, claseSecundaria } from "@/components/acceso/estilos";
 import {
   cargarPagina,
   Paginacion,
@@ -43,7 +45,7 @@ export default async function Movimientos({ searchParams }: { searchParams: Para
         <form action={ruta} method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
           <label className="grid min-w-32 gap-1.5 text-sm font-medium">
             ID de producto
-            <input className={claseCampo} type="number" name="productoId" min={1} defaultValue={filtros.productoId} />
+            <Input type="number" name="productoId" min={1} defaultValue={filtros.productoId} />
           </label>
           <label className="grid min-w-28 grow gap-1.5 text-sm font-medium">
             Tipo
@@ -56,13 +58,13 @@ export default async function Movimientos({ searchParams }: { searchParams: Para
           </label>
           <label className="grid grow gap-1.5 text-sm font-medium">
             Desde
-            <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
+            <Input type="date" name="desde" defaultValue={filtros.desde} />
           </label>
           <label className="grid grow gap-1.5 text-sm font-medium">
             Hasta
-            <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
+            <Input type="date" name="hasta" defaultValue={filtros.hasta} />
           </label>
-          <button className={clasePrincipal}>Filtrar</button>
+          <Button type="submit">Filtrar</Button>
           {Object.values(filtros).some((valor) => valor !== undefined) && (
             <Link href={ruta} prefetch={false} className={claseSecundaria}>Limpiar</Link>
           )}

@@ -1,23 +1,22 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseSecundaria } from "@/components/acceso/estilos";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
 import { CambiarEstadoCliente, FormularioCliente } from "@/components/clientes/formularios";
 import { saldoEnPesos } from "@/components/clientes/listados";
 import { FormularioPago } from "@/components/clientes/formulario-pago";
 import { Estado, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";
+import { formatearFechaHora } from "@/lib/formatos";
 import { obtenerCliente } from "@/services/clientes";
 import { obtenerCuenta } from "@/services/cuenta-corriente";
 
 export const metadata = { title: "Ficha de cliente | Gestión comercial" };
-
-const fechaArgentina = new Intl.DateTimeFormat("es-AR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "America/Argentina/Buenos_Aires",
-});
 
 type Cuenta = Awaited<ReturnType<typeof obtenerCuenta>>;
 
@@ -29,7 +28,7 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
         <strong className="tabular-nums">{saldoEnPesos(cuenta.saldoAnterior)}</strong>
       </div>
       {cuenta.movimientos.length === 0 ? (
-        <p className="p-5 text-muted-foreground">No hay movimientos en el período seleccionado.</p>
+        <ListaVacia>No hay movimientos en el período seleccionado.</ListaVacia>
       ) : (
         <div className="overflow-x-auto">
           <table aria-label="Movimientos de cuenta corriente" className="w-full text-left text-sm">
@@ -46,7 +45,7 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
               {cuenta.movimientos.map((movimiento, indice) => (
                 <tr key={`${movimiento.fecha}-${indice}`}>
                   <td className="whitespace-nowrap">
-                    <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
+                    <time dateTime={movimiento.fecha}>{formatearFechaHora(movimiento.fecha)}</time>
                   </td>
                   <td>{movimiento.tipo === "debito" ? "Débito" : "Crédito"}</td>
                   <td className="min-w-36 break-words">
@@ -150,7 +149,7 @@ export default async function FichaCliente({
       <Card className="gap-2 px-4 sm:px-5">
         <h2 className="text-xl font-semibold">Últimas facturas</h2>
         {cliente.ultimasFacturas.length === 0 ? (
-          <p className="text-muted-foreground">Todavía no hay facturas.</p>
+          <ListaVacia className="">Todavía no hay facturas.</ListaVacia>
         ) : (
           <ul className="divide-y text-sm">
             {cliente.ultimasFacturas.map((factura) => (
@@ -159,7 +158,7 @@ export default async function FichaCliente({
                   {factura.numeroFormateado}
                 </Link>
                 <time dateTime={factura.fecha} className="text-muted-foreground">
-                  {fechaArgentina.format(new Date(factura.fecha))}
+                  {formatearFechaHora(factura.fecha)}
                 </time>
                 <span>{factura.estado === "emitida" ? "Emitida" : "Anulada"}</span>
                 <span className="ml-auto font-medium tabular-nums">{saldoEnPesos(factura.total)}</span>
@@ -176,17 +175,17 @@ export default async function FichaCliente({
         <form action={ruta} method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
           <label className="grid grow gap-1.5 text-sm font-medium">
             Desde
-            <input className={claseCampo} type="date" name="desde" defaultValue={desde} />
+            <Input type="date" name="desde" defaultValue={desde} />
           </label>
           <label className="grid grow gap-1.5 text-sm font-medium">
             Hasta
-            <input className={claseCampo} type="date" name="hasta" defaultValue={hasta} />
+            <Input type="date" name="hasta" defaultValue={hasta} />
           </label>
-          <button className={clasePrincipal}>Filtrar</button>
+          <Button type="submit">Filtrar</Button>
           {(desde || hasta) && <Link href={ruta} prefetch={false} className={claseSecundaria}>Limpiar</Link>}
         </form>
         {typeof cuenta === "string" ? (
-          <p role="alert" className="p-5 text-red-800">{cuenta}</p>
+          <Alert variant="destructive" className="m-5">{cuenta}</Alert>
         ) : (
           <HistorialCuenta cuenta={cuenta} />
         )}

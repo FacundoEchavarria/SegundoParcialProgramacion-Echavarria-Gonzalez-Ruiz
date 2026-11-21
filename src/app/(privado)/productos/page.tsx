@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo, claseSecundaria } from "@/components/acceso/estilos";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
 import { FormularioProducto } from "@/components/productos/formularios";
 import {
   AvisoBajoStock,
@@ -50,7 +53,7 @@ export default async function Productos({ searchParams }: { searchParams: Parame
         <form action="/productos" method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
           <label className="grid min-w-48 grow gap-1.5 text-sm font-medium">
             Código o descripción
-            <input className={claseCampo} type="search" name="q" defaultValue={filtros.q} maxLength={100} />
+            <Input type="search" name="q" defaultValue={filtros.q} maxLength={100} />
           </label>
           <label className="grid min-w-36 grow gap-1.5 text-sm font-medium">
             Categoría
@@ -83,14 +86,14 @@ export default async function Productos({ searchParams }: { searchParams: Parame
             />
             Bajo stock
           </label>
-          <button className={clasePrincipal}>Filtrar</button>
+          <Button type="submit">Filtrar</Button>
           {Object.values(filtros).some((valor) => valor !== undefined) && (
             <Link href="/productos" prefetch={false} className={claseSecundaria}>Limpiar</Link>
           )}
         </form>
 
         {productos.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay productos que coincidan con la búsqueda.</p>
+          <ListaVacia>No hay productos que coincidan con la búsqueda.</ListaVacia>
         ) : (
           <div className="overflow-x-auto">
             <table aria-label="Catálogo de productos" className="w-full text-left text-sm">

@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { claseSecundaria } from "./estilos";
 
 export function Dialogo({
   etiqueta,
@@ -33,9 +33,9 @@ export function Dialogo({
 
   return (
     <>
-      <button type="button" className={claseSecundaria} onClick={() => setAbierto(true)} aria-haspopup="dialog">
+      <Button type="button" variant="outline" onClick={() => setAbierto(true)} aria-haspopup="dialog">
         {etiqueta}
-      </button>
+      </Button>
       <dialog
         ref={ref}
         aria-labelledby={idTitulo}
@@ -51,9 +51,9 @@ export function Dialogo({
       >
         <header className="mb-5 flex items-start justify-between gap-4">
           <h2 id={idTitulo} className="text-xl font-semibold">{titulo}</h2>
-          <button type="button" className={claseSecundaria} onClick={cerrar} disabled={ocupado}>
+          <Button type="button" variant="outline" onClick={cerrar} disabled={ocupado}>
             Cerrar
-          </button>
+          </Button>
         </header>
         {abierto && children(cerrar)}
       </dialog>

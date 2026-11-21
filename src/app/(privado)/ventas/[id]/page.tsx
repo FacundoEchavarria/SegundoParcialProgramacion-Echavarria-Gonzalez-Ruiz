@@ -3,11 +3,11 @@ import { notFound } from "next/navigation";
 import { claseSecundaria } from "@/components/acceso/estilos";
 import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { Card } from "@/components/ui/card";
-import { estadosFactura, fechaFactura, formasPago } from "@/components/ventas/facturas";
+import { estadosFactura, formasPago } from "@/components/ventas/facturas";
 import { FormularioAnulacion } from "@/components/ventas/formulario-anulacion";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";
-import { precioEnPesos } from "@/lib/formatos";
+import { formatearFechaHora, precioEnPesos } from "@/lib/formatos";
 import { obtenerFactura } from "@/services/facturas";
 
 export const metadata = { title: "Detalle de factura | Gestión comercial" };
@@ -41,7 +41,7 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
           <div className="w-full">
             <h1 className="text-2xl font-semibold tabular-nums">Factura {numeroFormateado}</h1>
             <p className="text-sm">
-              <time dateTime={fecha}>{fechaFactura(fecha)}</time>
+              <time dateTime={fecha}>{formatearFechaHora(fecha)}</time>
             </p>
           </div>
         </header>
@@ -71,7 +71,7 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
             <dl className="grid gap-2 [&_dt]:font-medium">
               <div>
                 <dt>Fecha de anulación</dt>
-                <dd><time dateTime={anulacion.fecha}>{fechaFactura(anulacion.fecha)}</time></dd>
+                <dd><time dateTime={anulacion.fecha}>{formatearFechaHora(anulacion.fecha)}</time></dd>
               </div>
               <div>
                 <dt>Responsable</dt>

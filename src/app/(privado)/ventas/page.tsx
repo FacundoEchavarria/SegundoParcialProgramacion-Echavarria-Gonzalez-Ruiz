@@ -1,10 +1,14 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
+import { Badge } from "@/components/ui/badge";
 import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
 import { cargarPagina, Paginacion, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
-import { estadosFactura, fechaFactura, formasPago } from "@/components/ventas/facturas";
+import { estadosFactura, formasPago } from "@/components/ventas/facturas";
 import { requirePageUser } from "@/lib/auth-request";
-import { precioEnPesos } from "@/lib/formatos";
+import { formatearFechaHora, precioEnPesos } from "@/lib/formatos";
 import { listarFacturas, opcionesFacturas } from "@/services/facturas";
 
 export const metadata = { title: "Facturas | Gestión comercial" };
@@ -40,15 +44,15 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <label className={filtroCampo}>
               Número o nombre del cliente
-              <input className={claseCampo} type="search" name="q" maxLength={150} defaultValue={filtros.q} />
+              <Input type="search" name="q" maxLength={150} defaultValue={filtros.q} />
             </label>
             <label className={filtroCampo}>
               Desde
-              <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
+              <Input type="date" name="desde" defaultValue={filtros.desde} />
             </label>
             <label className={filtroCampo}>
               Hasta
-              <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
+              <Input type="date" name="hasta" defaultValue={filtros.hasta} />
             </label>
             <label className={filtroCampo}>
               Cliente
@@ -80,11 +84,11 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
             </label>
             <label className={filtroCampo}>
               Resultados por página
-              <input className={claseCampo} type="number" name="pageSize" min={1} max={100} defaultValue={facturas.pageSize} />
+              <Input type="number" name="pageSize" min={1} max={100} defaultValue={facturas.pageSize} />
             </label>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button className={clasePrincipal}>Filtrar</button>
+            <Button type="submit">Filtrar</Button>
             {Object.values(filtros).some(Boolean) && (
               <Link href="/ventas" className={claseSecundaria} prefetch={false}>Limpiar</Link>
             )}
@@ -96,7 +100,7 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
           <dd className="font-semibold tabular-nums">{precioEnPesos(facturas.totalEmitido)}</dd>
         </dl>
         {facturas.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay facturas que coincidan con la búsqueda.</p>
+          <ListaVacia>No hay facturas que coincidan con la búsqueda.</ListaVacia>
         ) : (
           <div className="overflow-x-auto">
             <table aria-label="Facturas" className="w-full text-left text-sm">
@@ -120,15 +124,15 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
                       </Link>
                     </td>
                     <td className="whitespace-nowrap">
-                      <time dateTime={factura.fecha}>{fechaFactura(factura.fecha)}</time>
+                      <time dateTime={factura.fecha}>{formatearFechaHora(factura.fecha)}</time>
                     </td>
                     <td className="min-w-24 break-words">{factura.cliente?.nombre ?? "Consumidor final"}</td>
                     <td className="min-w-24 break-words">{factura.vendedor.nombre}</td>
                     <td>{formasPago[factura.forma]}</td>
                     <td>
-                      <span className={factura.estado === "anulada" ? "font-semibold text-red-900" : "text-muted-foreground"}>
+                      <Badge className={factura.estado === "anulada" ? "bg-red-50 text-red-900" : "bg-neutral-100 text-muted-foreground"}>
                         {estadosFactura[factura.estado]}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="text-right whitespace-nowrap tabular-nums">{precioEnPesos(factura.total)}</td>
                   </tr>

@@ -1,4 +1,22 @@
 const moneda = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
+const fechaHoraArgentina = new Intl.DateTimeFormat("es-AR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "America/Argentina/Buenos_Aires",
+});
+
+export function formatearFechaHora(fecha: string) {
+  return fechaHoraArgentina.format(new Date(fecha));
+}
+
+export function formatearDia(fecha: string, incluirAnio = true) {
+  const [anio, mes, dia] = fecha.split("-");
+  return incluirAnio ? `${dia}/${mes}/${anio}` : `${dia}/${mes}`;
+}
 
 export function precioEnPesos(centavos: number) {
   const absoluto = Math.abs(centavos);

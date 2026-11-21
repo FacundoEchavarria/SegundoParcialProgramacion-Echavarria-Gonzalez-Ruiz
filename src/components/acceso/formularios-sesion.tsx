@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { cambiarPasswordAction, loginAction, logoutAction } from "@/app/actions";
 import { cambioPasswordSchema, loginSchema } from "@/lib/schemas/usuarios";
-import { clasePrincipal, claseSecundaria } from "./estilos";
 import { AvisoError, Campo, useFormulario } from "./formulario";
 
 export function FormularioLogin() {
@@ -18,9 +18,9 @@ export function FormularioLogin() {
       <Campo etiqueta="Email" name="email" type="email" autoComplete="username" error={errorCampo("email")} required />
       <Campo etiqueta="Contraseña" name="password" type="password" autoComplete="current-password" error={errorCampo("password")} required />
       <AvisoError error={error} />
-      <button className={clasePrincipal} disabled={enviando}>
+      <Button type="submit" disabled={enviando}>
         {enviando ? "Ingresando…" : "Ingresar"}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -42,9 +42,9 @@ export function FormularioPassword() {
       <p className="text-sm text-muted-foreground">Usá al menos 8 caracteres. Al guardar, vas a volver a iniciar sesión.</p>
       <AvisoError error={error} />
       <div>
-        <button className={clasePrincipal} disabled={enviando}>
+        <Button type="submit" disabled={enviando}>
           {enviando ? "Guardando…" : "Guardar contraseña"}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -55,14 +55,14 @@ export function CerrarSesion() {
 
   return (
     <div className="grid justify-items-start gap-2 sm:justify-items-end">
-      <button
+      <Button
         type="button"
-        className={claseSecundaria}
-        onClick={() => ejecutar(logoutAction, () => window.location.replace("/login"))}
+        variant="outline"
+        onClick={() => ejecutar(logoutAction, () => window.location.replace("/login?salida=1"))}
         disabled={enviando}
       >
         {enviando ? "Saliendo…" : "Cerrar sesión"}
-      </button>
+      </Button>
       <AvisoError error={error} />
     </div>
   );

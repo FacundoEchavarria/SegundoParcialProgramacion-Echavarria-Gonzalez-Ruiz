@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
 import { CambiarEstado, FormularioCategoria } from "@/components/productos/formularios";
 import { Estado } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
@@ -25,7 +26,7 @@ export default async function Categorias() {
       </header>
       <Card className="gap-0 py-0">
         {categorias.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay categorías para mostrar.</p>
+          <ListaVacia>No hay categorías para mostrar.</ListaVacia>
         ) : (
           <ul aria-label="Categorías de productos" className="divide-y">
             {categorias.map((categoria) => (

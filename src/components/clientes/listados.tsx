@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseSecundaria } from "@/components/acceso/estilos";
+import { ListaVacia } from "@/components/acceso/lista-vacia";
 import { FormularioCliente } from "@/components/clientes/formularios";
 import { cargarPagina, Estado, Paginacion, textoParametro } from "@/components/productos/listados";
 import { Card } from "@/components/ui/card";
@@ -48,9 +51,9 @@ export async function ListadoClientes({
         <form action={ruta} method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
           <label className="grid min-w-48 grow gap-1.5 text-sm font-medium">
             Nombre o número de documento
-            <input className={claseCampo} name="q" type="search" defaultValue={filtros.q} maxLength={150} />
+            <Input name="q" type="search" defaultValue={filtros.q} maxLength={150} />
           </label>
-          <button className={clasePrincipal}>Buscar</button>
+          <Button type="submit">Buscar</Button>
           {filtros.q && <Link href={ruta} prefetch={false} className={claseSecundaria}>Limpiar</Link>}
         </form>
 
@@ -61,9 +64,9 @@ export async function ListadoClientes({
           </div>
         )}
         {clientes.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">
+          <ListaVacia>
             {saldos ? "No hay saldos pendientes para esta búsqueda." : "No hay clientes que coincidan con la búsqueda."}
-          </p>
+          </ListaVacia>
         ) : (
           <div className="overflow-x-auto">
             <table aria-label={saldos ? "Clientes con saldo pendiente" : "Catálogo de clientes"} className="w-full text-left text-sm">

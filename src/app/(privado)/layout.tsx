@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Avisos } from "@/components/acceso/avisos";
 import { CerrarSesion } from "@/components/acceso/formularios-sesion";
 import { Navegacion } from "@/components/acceso/navegacion";
 import { requirePageUser } from "@/lib/auth-request";
@@ -19,7 +20,7 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
           </div>
           <CerrarSesion />
         </header>
-        <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 print:p-0">{children}</main>
+        <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 print:p-0"><Avisos>{children}</Avisos></main>
       </div>
     </div>
   );
