@@ -1,6 +1,7 @@
 "use server";
 
-import { normalizarError } from "@/lib/api-error";
+import { ApiError, normalizarError } from "@/lib/api-error";
+import { credencialesDemo, rolesDemo, type RolDemo } from "@/lib/demo";
 import { borrarCookieSesion, escribirCookieSesion, requireApiSession } from "@/lib/auth-request";
 import { cambiarPassword, cerrarSesion, iniciarSesion } from "@/services/auth";
 import { crearUsuario, editarUsuario, restablecerPassword } from "@/services/usuarios";
@@ -18,11 +19,26 @@ async function ejecutar<T>(operacion: () => Promise<T>) {
   }
 }
 
+async function ingresar(input: unknown) {
+  const { id, usuario, venceEn } = await iniciarSesion(input);
+  await escribirCookieSesion(id, venceEn);
+  return usuario;
+}
+
 export async function loginAction(input: unknown) {
+  return ejecutar(() => ingresar(input));
+}
+
+// Entra por el mismo login, con credenciales que el navegador nunca ve.
+export async function loginDemoAction(rol: unknown) {
   return ejecutar(async () => {
-    const { id, usuario, venceEn } = await iniciarSesion(input);
-    await escribirCookieSesion(id, venceEn);
-    return usuario;
+    const credenciales = rolesDemo.includes(rol as RolDemo) ? credencialesDemo(rol as RolDemo) : null;
+    const noDisponible = new ApiError(404, "NO_ENCONTRADO", "El modo demo no está disponible.");
+    if (!credenciales) throw noDisponible;
+    // Si la cuenta demo cambió, "email o contraseña incorrectos" confundiría a quien no escribió nada.
+    return ingresar(credenciales).catch((error: unknown) => {
+      throw error instanceof ApiError && error.code === "CREDENCIALES_INVALIDAS" ? noDisponible : error;
+    });
   });
 }
 

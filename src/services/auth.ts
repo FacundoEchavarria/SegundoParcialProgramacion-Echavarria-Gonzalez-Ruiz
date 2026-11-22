@@ -5,6 +5,7 @@ import { and, eq, gt, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { sesiones, usuarios } from "@/db/schema";
 import { ApiError, validar } from "@/lib/api-error";
+import { exigirCuentaModificable } from "@/lib/demo";
 import { cambioPasswordSchema, loginSchema } from "@/lib/schemas/usuarios";
 
 export const camposSesion = {
@@ -74,6 +75,7 @@ export async function cerrarSesion(id: string) {
 
 // RF-U5.
 export async function cambiarPassword(usuario: UsuarioSesion, input: unknown) {
+  exigirCuentaModificable(usuario.email);
   const { actual, nueva } = validar(cambioPasswordSchema, input);
   const [cuenta] = await db.select({ passwordHash: usuarios.passwordHash })
     .from(usuarios).where(and(eq(usuarios.id, usuario.id), eq(usuarios.activo, true)));
