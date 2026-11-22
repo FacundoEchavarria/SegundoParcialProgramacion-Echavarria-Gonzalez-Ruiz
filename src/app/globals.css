@@ -1,17 +1,91 @@
 @import "tailwindcss";
 
+/* Libreta de fiado: tapa azul, papel teñido de azul y el margen rojo de la cuenta. */
 @theme {
-  --color-background: #f4f6f2;
-  --color-foreground: #18271f;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  /* Única escala de neutros, teñida con el azul de la tapa. */
+  --color-tinta-50: #f5f7fb;
+  --color-tinta-100: #ebeff7;
+  --color-tinta-200: #dde3ef;
+  --color-tinta-300: #c6cfe1;
+  --color-tinta-400: #98a3bd;
+  --color-tinta-500: #6d7a97;
+  --color-tinta-600: #525f7e;
+  --color-tinta-700: #3e4966;
+  --color-tinta-800: #2a334d;
+  --color-tinta-900: #1b2333;
+  --color-tinta-950: #101626;
+
+  --color-tapa: #1d3f8f;
+  --color-tapa-oscura: #16316f;
+  --color-tapa-clara: #e8eefa;
+  --color-tapa-texto: #d9e2f5;
+  --color-margen: #c8323a;
+
+  --color-exito: #22704a;
+  --color-exito-fondo: #e3f2ea;
+  --color-alerta: #8a5a00;
+  --color-alerta-fondo: #fbf0d6;
+  --color-peligro: #b4232c;
+  --color-peligro-fondo: #fbe8e9;
+
+  /* Tokens que usan los componentes de shadcn/ui. */
+  --color-background: var(--color-tinta-50);
+  --color-foreground: var(--color-tinta-900);
   --color-card: #ffffff;
-  --color-card-foreground: #18271f;
-  --color-muted-foreground: #4d6054;
-  --color-border: #d5dfd7;
-  --color-primary: #205741;
+  --color-card-foreground: var(--color-tinta-900);
+  --color-popover: #ffffff;
+  --color-popover-foreground: var(--color-tinta-900);
+  --color-primary: var(--color-tapa);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-tinta-100);
+  --color-secondary-foreground: var(--color-tinta-900);
+  --color-muted: var(--color-tinta-100);
+  --color-muted-foreground: var(--color-tinta-600);
+  --color-accent: var(--color-tapa-clara);
+  --color-accent-foreground: var(--color-tapa);
+  --color-destructive: var(--color-peligro);
+  --color-border: var(--color-tinta-200);
+  --color-input: var(--color-tinta-300);
+  --color-ring: var(--color-tapa);
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    scrollbar-color: var(--color-tinta-300) transparent;
+    caret-color: var(--color-tapa);
+  }
+
+  body {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--color-tapa-clara);
+    color: var(--color-tapa-oscura);
+  }
+
+  :focus-visible {
+    outline-color: var(--color-tapa);
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff;
   }
 }
