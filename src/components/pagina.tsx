@@ -1,6 +1,8 @@
 import type { ComponentProps, ReactNode } from "react";
 import { Inbox } from "lucide-react";
 import { Fila, Pila, Texto, Titulo } from "@/components/maquetacion";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export function EncabezadoPagina({ titulo, descripcion, acciones, className }: {
@@ -26,6 +28,39 @@ export function Panel({ className, children, ...props }: { className?: string; c
     <section className={cn("min-w-0 rounded-xl border bg-card", className)} {...props}>
       {children}
     </section>
+  );
+}
+
+// Insignias de estado: un solo componente para todos los estados de la app.
+const tonosInsignia = {
+  exito: "bg-exito-fondo text-exito",
+  alerta: "bg-alerta-fondo text-alerta",
+  peligro: "bg-peligro-fondo text-peligro",
+  neutro: "bg-tinta-100 text-tinta-600",
+  info: "bg-tapa-clara text-tapa",
+};
+
+export function Insignia({ tono = "neutro", children }: { tono?: keyof typeof tonosInsignia; children: ReactNode }) {
+  return <Badge className={cn("font-semibold", tonosInsignia[tono])}>{children}</Badge>;
+}
+
+// Campo de un formulario de filtros (GET): etiqueta arriba y el control debajo.
+export function CampoFiltro({ etiqueta, children }: { etiqueta: string; children: ReactNode }) {
+  return (
+    <Label className="grid min-w-0 content-start gap-1.5">
+      {etiqueta}
+      {children}
+    </Label>
+  );
+}
+
+// Par etiqueta/valor de una ficha; va dentro de un <dl>.
+export function Dato({ etiqueta, children, className }: { etiqueta: string; children: ReactNode; className?: string }) {
+  return (
+    <div className={cn("grid min-w-0 content-start gap-0.5", className)}>
+      <dt className="text-xs font-semibold tracking-[0.06em] text-muted-foreground uppercase">{etiqueta}</dt>
+      <dd className="break-words">{children}</dd>
+    </div>
   );
 }
 

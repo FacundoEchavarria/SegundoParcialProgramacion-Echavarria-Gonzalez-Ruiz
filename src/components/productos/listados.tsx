@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { claseSecundaria } from "@/components/acceso/estilos";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Fila, Texto } from "@/components/maquetacion";
+import { EstadoVacio, Insignia } from "@/components/pagina";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/lib/api-error";
 import type { listarMovimientos } from "@/services/stock";
 
@@ -61,46 +65,35 @@ export function Paginacion({ ruta, filtros, pagina }: { ruta: string; filtros: F
   const { page, total, pageSize } = pagina;
   const ultima = Math.max(1, Math.ceil(total / pageSize));
   return (
-    <footer className="flex flex-wrap items-center justify-between gap-3 border-t p-4 sm:p-5">
-      <p className="text-sm text-muted-foreground">
+    <Fila as="footer" gap="md" className="justify-between border-t px-4 py-3 sm:px-5">
+      <Texto tono="secundario">
         {total} {total === 1 ? "resultado" : "resultados"} · Página {page} de {ultima}
-      </p>
+      </Texto>
       {ultima > 1 && (
-        <nav aria-label="Paginación" className="flex flex-wrap gap-2">
+        <Fila as="nav" aria-label="Paginación">
           {page > 1 && (
-            <Link href={enlacePagina(ruta, filtros, page - 1)} prefetch={false} className={claseSecundaria}>
-              Anterior
-            </Link>
+            <Button asChild variant="outline" size="sm">
+              <Link href={enlacePagina(ruta, filtros, page - 1)} prefetch={false}><ChevronLeft aria-hidden />Anterior</Link>
+            </Button>
           )}
           {page < ultima && (
-            <Link href={enlacePagina(ruta, filtros, page + 1)} prefetch={false} className={claseSecundaria}>
-              Siguiente
-            </Link>
+            <Button asChild variant="outline" size="sm">
+              <Link href={enlacePagina(ruta, filtros, page + 1)} prefetch={false}>Siguiente<ChevronRight aria-hidden /></Link>
+            </Button>
           )}
-        </nav>
+        </Fila>
       )}
-    </footer>
+    </Fila>
   );
 }
 
 export function Estado({ activo, femenino = false }: { activo: boolean; femenino?: boolean }) {
   const etiqueta = activo ? (femenino ? "Activa" : "Activo") : (femenino ? "Inactiva" : "Inactivo");
-  return (
-    <span className={activo
-      ? "inline-block rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-900"
-      : "inline-block rounded-full bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-700"}
-    >
-      {etiqueta}
-    </span>
-  );
+  return <Insignia tono={activo ? "exito" : "neutro"}>{etiqueta}</Insignia>;
 }
 
 export function AvisoBajoStock() {
-  return (
-    <span className="inline-block rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950">
-      Bajo stock
-    </span>
-  );
+  return <Insignia tono="alerta">Bajo stock</Insignia>;
 }
 
 export function TablaMovimientos({
@@ -111,53 +104,55 @@ export function TablaMovimientos({
   mostrarProducto?: boolean;
 }) {
   if (movimientos.length === 0) {
-    return <p className="p-5 text-muted-foreground">No hay movimientos para mostrar.</p>;
+    return <EstadoVacio>No hay movimientos para mostrar.</EstadoVacio>;
   }
   return (
-    <div className="overflow-x-auto">
-      <table aria-label="Movimientos de stock" className="w-full text-left text-sm">
-        <thead className="border-b bg-background text-muted-foreground [&_th]:px-4 [&_th]:py-3">
-          <tr>
-            <th scope="col">Fecha</th>
-            {mostrarProducto && <th scope="col">Producto</th>}
-            <th scope="col">Tipo</th>
-            <th scope="col" className="text-right">Cantidad</th>
-            <th scope="col" className="text-right">Existencia resultante</th>
-            <th scope="col">Motivo</th>
-            <th scope="col">Observación</th>
-            <th scope="col">Usuario</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y [&_td]:px-4 [&_td]:py-3">
-          {movimientos.map((movimiento) => (
-            <tr key={movimiento.id} className="align-top">
-              <td className="whitespace-nowrap">
-                <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
-              </td>
-              {mostrarProducto && (
-                <td>
-                  <Link href={`/productos/${movimiento.producto.id}`} prefetch={false} className="font-medium text-primary underline">
-                    {movimiento.producto.codigo}
-                  </Link>
-                </td>
+    <Table aria-label="Movimientos de stock">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Fecha</TableHead>
+          {mostrarProducto && <TableHead>Producto</TableHead>}
+          <TableHead>Tipo</TableHead>
+          <TableHead className="text-right">Cantidad</TableHead>
+          <TableHead className="text-right">Existencia resultante</TableHead>
+          <TableHead>Motivo</TableHead>
+          <TableHead>Observación</TableHead>
+          <TableHead>Usuario</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {movimientos.map((movimiento) => (
+          <TableRow key={movimiento.id} className="align-top">
+            <TableCell>
+              <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
+            </TableCell>
+            {mostrarProducto && (
+              <TableCell>
+                <Link href={`/productos/${movimiento.producto.id}`} prefetch={false} className="font-semibold text-tapa hover:underline">
+                  {movimiento.producto.codigo}
+                </Link>
+              </TableCell>
+            )}
+            <TableCell>
+              <Insignia tono={movimiento.cantidad > 0 ? "exito" : "info"}>{tiposMovimiento[movimiento.tipo]}</Insignia>
+            </TableCell>
+            <TableCell className={movimiento.cantidad > 0 ? "text-right font-semibold text-exito" : "text-right font-semibold"}>
+              {cantidadConSigno.format(movimiento.cantidad)}
+            </TableCell>
+            <TableCell className="text-right">{movimiento.existenciaResultante}</TableCell>
+            <TableCell className="whitespace-normal">
+              {movimiento.motivo}
+              {movimiento.referencia && (
+                <Link href={`/ventas/${movimiento.referencia.facturaId}`} className="block whitespace-nowrap text-tapa hover:underline">
+                  Factura {movimiento.referencia.numero}
+                </Link>
               )}
-              <td>{tiposMovimiento[movimiento.tipo]}</td>
-              <td className="text-right tabular-nums">{cantidadConSigno.format(movimiento.cantidad)}</td>
-              <td className="text-right tabular-nums">{movimiento.existenciaResultante}</td>
-              <td>
-                {movimiento.motivo}
-                {movimiento.referencia && (
-                  <Link href={`/ventas/${movimiento.referencia.facturaId}`} className="block whitespace-nowrap text-primary underline">
-                    Factura {movimiento.referencia.numero}
-                  </Link>
-                )}
-              </td>
-              <td><span className="block min-w-24 break-words">{movimiento.observacion || "—"}</span></td>
-              <td>{movimiento.usuario.nombre}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+            </TableCell>
+            <TableCell className="min-w-24 whitespace-normal break-words">{movimiento.observacion || "—"}</TableCell>
+            <TableCell>{movimiento.usuario.nombre}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
