@@ -31,7 +31,7 @@
   --color-peligro-fondo: #fbe8e9;
 
   /* Tokens que usan los componentes de shadcn/ui. */
-  --color-background: var(--color-tinta-50);
+  --color-background: var(--color-tinta-100);
   --color-foreground: var(--color-tinta-900);
   --color-card: #ffffff;
   --color-card-foreground: var(--color-tinta-900);
@@ -54,6 +54,10 @@
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
+}
+
+@utility angosta {
+  font-stretch: 75%;
 }
 
 @layer base {

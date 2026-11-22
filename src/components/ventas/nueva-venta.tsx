@@ -325,12 +325,12 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
 
 function Bloque({ numero, titulo, children }: { numero: number; titulo: string; children: ReactNode }) {
   return (
-    <Panel aria-label={titulo} className="p-5 sm:p-6">
-      <Fila as="h2" gap="sm" className="mb-4 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+    <Panel aria-label={titulo} className="overflow-hidden">
+      <Fila as="h2" gap="sm" className="border-b bg-tapa-clara px-5 py-3 text-xs font-semibold tracking-[0.08em] text-tapa uppercase sm:px-6">
         <span aria-hidden className="grid size-5 place-items-center rounded-full bg-tapa text-xs text-white">{numero}</span>
         {titulo}
       </Fila>
-      {children}
+      <div className="p-5 sm:p-6">{children}</div>
     </Panel>
   );
 }
@@ -359,7 +359,7 @@ function Total({ importe }: { importe: number }) {
   return (
     <Fila gap="md" className="mt-3 items-end justify-between bg-card py-1">
       <span className="font-semibold">Total</span>
-      <output key={importe} aria-live="polite" className="subrayado-doble pb-2 text-2xl font-bold tracking-tight text-tapa">
+      <output key={importe} aria-live="polite" className="subrayado-doble angosta pb-2 text-3xl font-bold tracking-tight text-tapa">
         {precioEnPesos(importe)}
       </output>
     </Fila>

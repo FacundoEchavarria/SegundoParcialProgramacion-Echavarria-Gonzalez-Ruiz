@@ -30,9 +30,9 @@ export function Texto({ as: Etiqueta = "p", tono = "normal", className, ...props
   return <Etiqueta className={cn("text-sm", tonos[tono], className)} {...props} />;
 }
 
-// Cuatro tamaños en toda la app (xs, sm, xl, 2xl): el rango lo marcan el peso y la mayúscula.
+// Cuatro tamaños en toda la app (xs, sm, xl, 3xl): el rango lo marcan el peso y la mayúscula.
 const niveles = {
-  1: "text-2xl font-bold tracking-tight",
+  1: "angosta text-3xl font-bold tracking-tight",
   2: "text-xl font-semibold tracking-tight",
   3: "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground",
 };

@@ -51,7 +51,7 @@ function Enlaces({ esAdmin, alElegir }: { esAdmin: boolean; alElegir?: () => voi
 
 function Marca() {
   return (
-    <Link href="/" prefetch={false} className="px-3 text-xl font-bold tracking-tight text-white">
+    <Link href="/" prefetch={false} className="angosta px-3 text-3xl font-bold tracking-tight text-white">
       Gestión comercial
     </Link>
   );
@@ -72,7 +72,7 @@ export function MenuMovil({ esAdmin }: { esAdmin: boolean }) {
   return (
     <Sheet open={abierto} onOpenChange={setAbierto}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="lg:hidden" aria-label="Abrir menú">
+        <Button variant="outline" size="icon" className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white lg:hidden" aria-label="Abrir menú">
           <Menu />
         </Button>
       </SheetTrigger>
