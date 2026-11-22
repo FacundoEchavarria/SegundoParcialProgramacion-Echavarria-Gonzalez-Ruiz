@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { FormularioLogin } from "@/components/acceso/formularios-sesion";
 import { Card } from "@/components/ui/card";
 import { getRequestSession } from "@/lib/auth-request";
+import { rolesDemoDisponibles } from "@/lib/demo";
 
 export const metadata = { title: "Iniciar sesión | Gestión comercial" };
 
@@ -26,7 +27,7 @@ export default async function Login({
               Contraseña actualizada. Ingresá con tu nueva contraseña.
             </p>
           )}
-          <FormularioLogin />
+          <FormularioLogin rolesDemo={rolesDemoDisponibles()} />
         </div>
       </Card>
     </main>

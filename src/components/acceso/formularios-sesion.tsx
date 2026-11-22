@@ -1,12 +1,14 @@
 "use client";
 
-import { cambiarPasswordAction, loginAction, logoutAction } from "@/app/actions";
+import { cambiarPasswordAction, loginAction, loginDemoAction, logoutAction } from "@/app/actions";
 import { cambioPasswordSchema, loginSchema } from "@/lib/schemas/usuarios";
 import { clasePrincipal, claseSecundaria } from "./estilos";
 import { AvisoError, Campo, useFormulario } from "./formulario";
 
-export function FormularioLogin() {
-  const { enviar, enviando, error, errorCampo } = useFormulario();
+const nombresDemo = { admin: "Administrador", vendedor: "Vendedor" };
+
+export function FormularioLogin({ rolesDemo }: { rolesDemo: (keyof typeof nombresDemo)[] }) {
+  const { enviar, ejecutar, enviando, error, errorCampo } = useFormulario();
 
   return (
     <form
@@ -21,6 +23,19 @@ export function FormularioLogin() {
       <button className={clasePrincipal} disabled={enviando}>
         {enviando ? "Ingresando…" : "Ingresar"}
       </button>
+      {rolesDemo.length > 0 && (
+        <fieldset className="grid gap-2">
+          <legend className="mb-2 w-full border-t pt-4 text-sm text-muted-foreground">O entrá en modo demo, sin escribir la contraseña:</legend>
+          <div className="grid grid-cols-2 gap-2">
+            {rolesDemo.map((rol) => (
+              <button key={rol} type="button" className={claseSecundaria} disabled={enviando}
+                onClick={() => ejecutar(() => loginDemoAction(rol), () => window.location.replace("/"))}>
+                {nombresDemo[rol]}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
     </form>
   );
 }

@@ -37,6 +37,8 @@ El seed prepara 5 categorías, 30 productos, 10 clientes, 50 facturas emitidas y
 | `DATABASE_AUTH_TOKEN` | Vacía. | Token privado de Turso. |
 | `SESSION_SECRET` | Se genera con `pnpm db:seed`. | Se configura por entorno con un secreto aleatorio de al menos 32 bytes. |
 
+Para mostrar los botones **Administrador** y **Vendedor** de modo demo en el login, configurá `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD`, `DEMO_VENDEDOR_EMAIL` y `DEMO_VENDEDOR_PASSWORD` con cuentas existentes. Cada botón entra por el login normal con esas credenciales, que nunca llegan al navegador. Si falta una variable, el botón de ese rol no aparece. En el sitio publicado, cualquiera puede usarlos, así que activalos solo para la demo.
+
 Podés personalizar las cuentas iniciales antes del primer seed con `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_VENDEDOR_EMAIL` y `SEED_VENDEDOR_PASSWORD`. Para el seed remoto configurá esos cuatro valores junto con las tres variables de la tabla en la terminal donde ejecutes los comandos. Compartí las contraseñas de la demo por privado.
 
 Corré los comandos desde la raíz del proyecto. `pnpm db:migrate` aplica las migraciones pendientes. Cuando cambies el esquema, `pnpm db:generate` genera la migración para revisar y versionar. `pnpm lint` revisa el código y `pnpm build` compila la app para producción.

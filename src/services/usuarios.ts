@@ -4,6 +4,7 @@ import { and, count, eq, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { sesiones, usuarios } from "@/db/schema";
 import { ApiError, validar } from "@/lib/api-error";
+import { exigirCuentaModificable } from "@/lib/demo";
 import {
   altaUsuarioSchema,
   edicionUsuarioSchema,
@@ -68,6 +69,11 @@ export async function crearUsuario(actor: UsuarioSesion, input: unknown) {
   });
 }
 
+async function exigirDestinoModificable(tx: Pick<typeof db, "select">, id: number) {
+  const [destino] = await tx.select({ email: usuarios.email }).from(usuarios).where(eq(usuarios.id, id));
+  if (destino) exigirCuentaModificable(destino.email);
+}
+
 // RF-U4. Desactivar revoca las sesiones y conserva el usuario para su historial.
 export async function editarUsuario(actor: UsuarioSesion, inputId: unknown, input: unknown) {
   const id = validar(usuarioIdSchema, inputId);
@@ -79,6 +85,7 @@ export async function editarUsuario(actor: UsuarioSesion, inputId: unknown, inpu
 
   return db.transaction(async (tx) => {
     await exigirAdminVigente(tx, actor);
+    await exigirDestinoModificable(tx, id);
     if (datos.email) {
       const [otro] = await tx.select({ id: usuarios.id }).from(usuarios).where(and(
         eq(usuarios.email, datos.email), ne(usuarios.id, id),
@@ -104,6 +111,7 @@ export async function restablecerPassword(actor: UsuarioSesion, inputId: unknown
 
   await db.transaction(async (tx) => {
     await exigirAdminVigente(tx, actor);
+    await exigirDestinoModificable(tx, id);
     const [actualizado] = await tx.update(usuarios).set({ passwordHash })
       .where(eq(usuarios.id, id)).returning({ id: usuarios.id });
     if (!actualizado) throw usuarioInexistente();
