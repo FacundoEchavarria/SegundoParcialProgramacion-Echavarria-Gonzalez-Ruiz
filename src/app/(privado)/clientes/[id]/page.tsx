@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { EstadoVacio } from "@/components/estados";
+import { Estado, Insignia } from "@/components/insignia";
+import { CampoFiltro, Dato, Panel } from "@/components/pagina";
 import { claseCampo } from "@/components/acceso/estilos";
 import { CambiarEstadoCliente, FormularioCliente } from "@/components/clientes/formularios";
 import { saldoEnPesos } from "@/components/clientes/listados";
 import { FormularioPago } from "@/components/clientes/formulario-pago";
-import { Estado, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
+import { textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
-import { CampoFiltro, Dato, EstadoVacio, Insignia, Panel } from "@/components/pagina";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/lib/api-error";

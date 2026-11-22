@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { EstadoVacio } from "@/components/estados";
+import { Insignia } from "@/components/insignia";
 import { Fila, Texto } from "@/components/maquetacion";
-import { EstadoVacio, Insignia } from "@/components/pagina";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/lib/api-error";
@@ -85,15 +86,6 @@ export function Paginacion({ ruta, filtros, pagina }: { ruta: string; filtros: F
       )}
     </Fila>
   );
-}
-
-export function Estado({ activo, femenino = false }: { activo: boolean; femenino?: boolean }) {
-  const etiqueta = activo ? (femenino ? "Activa" : "Activo") : (femenino ? "Inactiva" : "Inactivo");
-  return <Insignia tono={activo ? "exito" : "neutro"}>{etiqueta}</Insignia>;
-}
-
-export function AvisoBajoStock() {
-  return <Insignia tono="alerta">Bajo stock</Insignia>;
 }
 
 export function TablaMovimientos({

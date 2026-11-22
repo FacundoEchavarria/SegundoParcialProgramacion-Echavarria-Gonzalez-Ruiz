@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
+import { EstadoVacio } from "@/components/estados";
+import { EncabezadoPagina, Panel } from "@/components/pagina";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
-import { EncabezadoPagina, EstadoVacio, Panel } from "@/components/pagina";
 import { GraficoFormasDePago, GraficoVentasDiarias } from "@/components/tablero/graficos";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePageUser } from "@/lib/auth-request";

@@ -1,8 +1,8 @@
 "use client";
 
 import { TriangleAlert } from "lucide-react";
-import { Fila, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { Panel } from "@/components/pagina";
+import { Fila, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { Button } from "@/components/ui/button";
 
 // Estado de error compartido: se muestra si una pantalla no pudo cargar sus datos.

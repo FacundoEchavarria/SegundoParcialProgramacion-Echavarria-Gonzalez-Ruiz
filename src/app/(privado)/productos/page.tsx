@@ -1,18 +1,12 @@
 import Link from "next/link";
+import { EstadoVacio } from "@/components/estados";
+import { AvisoBajoStock, Estado } from "@/components/insignia";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
 import { claseCampo } from "@/components/acceso/estilos";
 import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
-import { CampoFiltro, EncabezadoPagina, EstadoVacio, Panel } from "@/components/pagina";
 import { Pestanas, pestanasProductos } from "@/components/pestanas";
 import { FormularioProducto } from "@/components/productos/formularios";
-import {
-  AvisoBajoStock,
-  cargarPagina,
-  Estado,
-  Paginacion,
-  precioEnPesos,
-  textoParametro,
-  type ParametrosPagina,
-} from "@/components/productos/listados";
+import { cargarPagina, Paginacion, precioEnPesos, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

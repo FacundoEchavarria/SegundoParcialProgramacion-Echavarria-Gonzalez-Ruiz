@@ -1,6 +1,6 @@
+import { EncabezadoPagina, Panel } from "@/components/pagina";
 import { FormularioPassword } from "@/components/acceso/formularios-sesion";
 import { Grilla, Titulo } from "@/components/maquetacion";
-import { EncabezadoPagina, Panel } from "@/components/pagina";
 import { requirePageUser } from "@/lib/auth-request";
 
 export const metadata = { title: "Mi perfil | Gestión comercial" };

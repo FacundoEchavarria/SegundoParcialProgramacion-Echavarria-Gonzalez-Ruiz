@@ -1,16 +1,9 @@
 import Link from "next/link";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
 import { claseCampo } from "@/components/acceso/estilos";
 import { Fila, Grilla, Pila } from "@/components/maquetacion";
-import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
 import { Pestanas, pestanasProductos } from "@/components/pestanas";
-import {
-  cargarPagina,
-  Paginacion,
-  TablaMovimientos,
-  textoParametro,
-  tiposMovimiento,
-  type ParametrosPagina,
-} from "@/components/productos/listados";
+import { cargarPagina, Paginacion, TablaMovimientos, textoParametro, tiposMovimiento, type ParametrosPagina } from "@/components/productos/listados";
 import { Button } from "@/components/ui/button";
 import { requirePageUser } from "@/lib/auth-request";
 import { listarMovimientos } from "@/services/stock";

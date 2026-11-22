@@ -1,5 +1,5 @@
-import { Pila } from "@/components/maquetacion";
 import { Panel } from "@/components/pagina";
+import { Pila } from "@/components/maquetacion";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Estado de carga compartido por todas las pantallas del sistema.

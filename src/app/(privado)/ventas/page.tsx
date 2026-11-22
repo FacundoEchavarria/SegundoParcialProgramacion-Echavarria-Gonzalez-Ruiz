@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { EstadoVacio } from "@/components/estados";
+import { Insignia } from "@/components/insignia";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
 import { claseCampo } from "@/components/acceso/estilos";
 import { Fila, Grilla, Texto } from "@/components/maquetacion";
-import { CampoFiltro, EncabezadoPagina, EstadoVacio, Insignia, Panel } from "@/components/pagina";
 import { cargarPagina, Paginacion, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Ban } from "lucide-react";
+import { Insignia } from "@/components/insignia";
+import { Dato, Panel } from "@/components/pagina";
 import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
-import { Dato, Insignia, Panel } from "@/components/pagina";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { estadosFactura, fechaFactura, formasPago } from "@/components/ventas/facturas";

@@ -1,8 +1,9 @@
+import { EstadoVacio } from "@/components/estados";
+import { Estado } from "@/components/insignia";
+import { EncabezadoPagina, Panel } from "@/components/pagina";
 import { Fila, Grilla, Pila, Titulo } from "@/components/maquetacion";
-import { EncabezadoPagina, EstadoVacio, Panel } from "@/components/pagina";
 import { Pestanas, pestanasProductos } from "@/components/pestanas";
 import { CambiarEstado, FormularioCategoria } from "@/components/productos/formularios";
-import { Estado } from "@/components/productos/listados";
 import { requirePageUser } from "@/lib/auth-request";
 import { listarCategorias } from "@/services/productos";
 

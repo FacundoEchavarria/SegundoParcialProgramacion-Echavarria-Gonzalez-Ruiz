@@ -1,19 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ListFilter } from "lucide-react";
-import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
+import { AvisoBajoStock, Estado } from "@/components/insignia";
 import { Dato, Panel } from "@/components/pagina";
+import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { CambiarEstado, FormularioMovimiento, FormularioProducto } from "@/components/productos/formularios";
-import {
-  AvisoBajoStock,
-  cargarPagina,
-  Estado,
-  Paginacion,
-  precioEnPesos,
-  TablaMovimientos,
-  textoParametro,
-  type ParametrosPagina,
-} from "@/components/productos/listados";
+import { cargarPagina, Paginacion, precioEnPesos, TablaMovimientos, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { Dato, Panel } from "@/components/pagina";
 import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { saldoEnPesos } from "@/components/clientes/listados";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
-import { Dato, Panel } from "@/components/pagina";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";
