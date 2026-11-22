@@ -8,7 +8,7 @@ const espacios = { xs: "gap-1", sm: "gap-2", md: "gap-4", lg: "gap-6", xl: "gap-
 type Espacio = keyof typeof espacios;
 
 export function Pila({ as: Etiqueta = "div", gap = "md", className, ...props }: Base & { gap?: Espacio }) {
-  return <Etiqueta className={cn("flex flex-col", espacios[gap], className)} {...props} />;
+  return <Etiqueta className={cn("flex min-w-0 flex-col", espacios[gap], className)} {...props} />;
 }
 
 export function Fila({ as: Etiqueta = "div", gap = "sm", className, ...props }: Base & { gap?: Espacio }) {
@@ -16,7 +16,7 @@ export function Fila({ as: Etiqueta = "div", gap = "sm", className, ...props }: 
 }
 
 export function Grilla({ as: Etiqueta = "div", gap = "md", className, ...props }: Base & { gap?: Espacio }) {
-  return <Etiqueta className={cn("grid", espacios[gap], className)} {...props} />;
+  return <Etiqueta className={cn("grid min-w-0", espacios[gap], className)} {...props} />;
 }
 
 const tonos = {
