@@ -123,9 +123,10 @@ export default async function Productos({ searchParams }: { searchParams: Parame
                     <TableCell>{producto.categoria.nombre}</TableCell>
                     <TableCell className="text-right font-semibold">{precioEnPesos(producto.precio)}</TableCell>
                     <TableCell className="text-right">
-                      <Fila gap="sm" className="justify-end">
+                      <Fila gap="sm" className="flex-nowrap justify-end">
                         {producto.bajoMinimo && <AvisoBajoStock />}
-                        <Texto as="span" className={producto.bajoMinimo ? "font-semibold text-alerta" : undefined}>{producto.existencia}</Texto>
+                        {/* Ancho fijo para la cifra: así las alertas quedan en columna. */}
+                        <Texto as="span" className={producto.bajoMinimo ? "w-12 text-right font-semibold text-alerta" : "w-12 text-right"}>{producto.existencia}</Texto>
                       </Fila>
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">{producto.stockMinimo}</TableCell>
