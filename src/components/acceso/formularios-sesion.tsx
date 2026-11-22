@@ -2,7 +2,8 @@
 
 import { cambiarPasswordAction, loginAction, loginDemoAction, logoutAction } from "@/app/actions";
 import { cambioPasswordSchema, loginSchema } from "@/lib/schemas/usuarios";
-import { clasePrincipal, claseSecundaria } from "./estilos";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AvisoError, Campo, useFormulario } from "./formulario";
 
 const nombresDemo = { admin: "Administrador", vendedor: "Vendedor" };
@@ -20,18 +21,18 @@ export function FormularioLogin({ rolesDemo }: { rolesDemo: (keyof typeof nombre
       <Campo etiqueta="Email" name="email" type="email" autoComplete="username" error={errorCampo("email")} required />
       <Campo etiqueta="Contraseña" name="password" type="password" autoComplete="current-password" error={errorCampo("password")} required />
       <AvisoError error={error} />
-      <button className={clasePrincipal} disabled={enviando}>
+      <Button size="lg" className="h-11" disabled={enviando}>
         {enviando ? "Ingresando…" : "Ingresar"}
-      </button>
+      </Button>
       {rolesDemo.length > 0 && (
-        <fieldset className="grid gap-2">
-          <legend className="mb-2 w-full border-t pt-4 text-sm text-muted-foreground">O entrá en modo demo, sin escribir la contraseña:</legend>
+        <fieldset className="grid gap-2 border-t pt-5">
+          <legend className="float-left mb-3 w-full text-sm text-muted-foreground">O entrá en modo demo, sin escribir la contraseña:</legend>
           <div className="grid grid-cols-2 gap-2">
             {rolesDemo.map((rol) => (
-              <button key={rol} type="button" className={claseSecundaria} disabled={enviando}
+              <Button key={rol} type="button" variant="outline" className="h-10" disabled={enviando}
                 onClick={() => ejecutar(() => loginDemoAction(rol), () => window.location.replace("/"))}>
                 {nombresDemo[rol]}
-              </button>
+              </Button>
             ))}
           </div>
         </fieldset>
@@ -57,9 +58,9 @@ export function FormularioPassword() {
       <p className="text-sm text-muted-foreground">Usá al menos 8 caracteres. Al guardar, vas a volver a iniciar sesión.</p>
       <AvisoError error={error} />
       <div>
-        <button className={clasePrincipal} disabled={enviando}>
+        <Button disabled={enviando}>
           {enviando ? "Guardando…" : "Guardar contraseña"}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -70,14 +71,15 @@ export function CerrarSesion() {
 
   return (
     <div className="grid justify-items-start gap-2 sm:justify-items-end">
-      <button
+      <Button
         type="button"
-        className={claseSecundaria}
+        variant="outline"
         onClick={() => ejecutar(logoutAction, () => window.location.replace("/login"))}
         disabled={enviando}
       >
+        <LogOut aria-hidden />
         {enviando ? "Saliendo…" : "Cerrar sesión"}
-      </button>
+      </Button>
       <AvisoError error={error} />
     </div>
   );

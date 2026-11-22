@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
+import { CircleCheck } from "lucide-react";
 import { FormularioLogin } from "@/components/acceso/formularios-sesion";
-import { Card } from "@/components/ui/card";
+import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { getRequestSession } from "@/lib/auth-request";
 import { rolesDemoDisponibles } from "@/lib/demo";
 
@@ -15,21 +16,31 @@ export default async function Login({
   const { cambio } = await searchParams;
 
   return (
-    <main className="grid min-h-dvh place-items-center px-5 py-10">
-      <Card className="w-full max-w-md gap-7 overflow-hidden py-0">
-        <header className="bg-primary px-6 py-7 text-white sm:px-8">
-          <p className="text-sm font-medium text-emerald-100">Gestión comercial</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Iniciar sesión</h1>
-        </header>
-        <div className="grid gap-4 px-6 pb-7 sm:px-8 sm:pb-8">
+    <Grilla className="min-h-dvh gap-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      {/* La tapa del cuaderno, con su etiqueta blanca. */}
+      <Fila className="justify-center bg-tapa px-6 py-8 lg:py-16">
+        <Pila gap="xs" className="w-full max-w-sm rounded-lg bg-card px-6 py-5 text-center shadow-[0_18px_40px_-16px_rgb(16_22_38/0.55)] ring-1 ring-tinta-300 ring-inset lg:py-8">
+          <Texto as="span" className="text-2xl font-bold tracking-tight text-tapa">Gestión comercial</Texto>
+          <Texto as="span" tono="secundario" className="border-t border-dashed border-tinta-300 pt-2 text-xs font-semibold tracking-[0.08em] uppercase">
+            Ventas · Stock · Cuentas corrientes
+          </Texto>
+        </Pila>
+      </Fila>
+      <Fila as="main" className="justify-center px-5 py-10 sm:px-10">
+        <Pila gap="lg" className="w-full max-w-sm">
+          <Pila gap="xs">
+            <Titulo>Iniciar sesión</Titulo>
+            <Texto tono="secundario">Ingresá con tu email y contraseña.</Texto>
+          </Pila>
           {cambio === "1" && (
-            <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            <Fila role="status" gap="sm" className="rounded-lg bg-exito-fondo px-3 py-2.5 font-medium text-exito">
+              <CircleCheck aria-hidden className="size-4 shrink-0" />
               Contraseña actualizada. Ingresá con tu nueva contraseña.
-            </p>
+            </Fila>
           )}
           <FormularioLogin rolesDemo={rolesDemoDisponibles()} />
-        </div>
-      </Card>
-    </main>
+        </Pila>
+      </Fila>
+    </Grilla>
   );
 }
