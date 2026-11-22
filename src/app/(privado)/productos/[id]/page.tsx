@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { claseSecundaria } from "@/components/acceso/estilos";
+import { ArrowLeft, ListFilter } from "lucide-react";
+import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
+import { Dato, Panel } from "@/components/pagina";
 import { CambiarEstado, FormularioMovimiento, FormularioProducto } from "@/components/productos/formularios";
 import {
   AvisoBajoStock,
@@ -12,7 +14,7 @@ import {
   textoParametro,
   type ParametrosPagina,
 } from "@/components/productos/listados";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";
 import { listarCategorias, obtenerProducto } from "@/services/productos";
@@ -48,63 +50,51 @@ export default async function FichaProducto({
   ]);
 
   return (
-    <section className="grid gap-6">
-      <header className="grid gap-3">
-        <Link href="/productos" prefetch={false} className="w-fit text-sm font-medium text-primary underline">
-          Volver a productos
-        </Link>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-semibold break-all tracking-tight">{producto.codigo}</h1>
-          <Estado activo={producto.activo} />
-        </div>
-        <p className="break-words text-muted-foreground">{producto.descripcion}</p>
-      </header>
+    <Grilla gap="lg">
+      <Pila gap="sm">
+        <Button asChild variant="ghost" className="w-fit"><Link href="/productos" prefetch={false}><ArrowLeft aria-hidden />Volver a productos</Link></Button>
+        <Fila gap="md" className="justify-between">
+          <Pila gap="xs" className="min-w-0">
+            <Fila gap="sm">
+              <Titulo className="break-words">{producto.descripcion}</Titulo>
+              <Estado activo={producto.activo} />
+            </Fila>
+            <Texto tono="secundario">Código {producto.codigo}</Texto>
+          </Pila>
+          {admin && (
+            <Fila>
+              <FormularioMovimiento productoId={producto.id} />
+              <FormularioProducto producto={producto} categorias={categorias} />
+              <CambiarEstado producto={producto} />
+            </Fila>
+          )}
+        </Fila>
+      </Pila>
 
-      <Card className="px-4 sm:px-5">
-        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div>
-            <dt className="text-sm text-muted-foreground">Categoría</dt>
-            <dd className="mt-1 font-semibold break-words">{producto.categoria.nombre}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">Precio</dt>
-            <dd className="mt-1 font-semibold tabular-nums">{precioEnPesos(producto.precio)}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">Existencia</dt>
-            <dd className="mt-1 flex flex-wrap items-center gap-2 font-semibold tabular-nums">
-              {producto.existencia}
+      <Panel className="p-5 sm:p-6">
+        <Grilla as="dl" gap="lg" className="grid-cols-2 sm:grid-cols-4">
+          <Dato etiqueta="Categoría">{producto.categoria.nombre}</Dato>
+          <Dato etiqueta="Precio"><span className="angosta text-xl font-bold">{precioEnPesos(producto.precio)}</span></Dato>
+          <Dato etiqueta="Existencia">
+            <Fila gap="sm">
+              <span className={producto.bajoMinimo ? "angosta text-xl font-bold text-alerta" : "angosta text-xl font-bold"}>{producto.existencia}</span>
               {producto.bajoMinimo && <AvisoBajoStock />}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">Stock mínimo</dt>
-            <dd className="mt-1 font-semibold tabular-nums">{producto.stockMinimo}</dd>
-          </div>
-        </dl>
-        {admin && (
-          <div className="flex flex-wrap gap-2 border-t pt-4">
-            <FormularioProducto producto={producto} categorias={categorias} />
-            <CambiarEstado producto={producto} />
-            <FormularioMovimiento productoId={producto.id} />
-          </div>
-        )}
-      </Card>
+            </Fila>
+          </Dato>
+          <Dato etiqueta="Stock mínimo"><span className="angosta text-xl font-bold">{producto.stockMinimo}</span></Dato>
+        </Grilla>
+      </Panel>
 
-      <Card className="gap-0 overflow-hidden py-0">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4 sm:p-5">
-          <h2 className="text-xl font-semibold">Historial de stock</h2>
-          <Link
-            href={`/productos/movimientos?productoId=${producto.id}`}
-            prefetch={false}
-            className={claseSecundaria}
-          >
-            Filtrar movimientos
-          </Link>
-        </header>
+      <Panel className="overflow-hidden">
+        <Fila as="header" gap="md" className="justify-between border-b p-4 sm:px-5">
+          <Titulo nivel={2}>Historial de stock</Titulo>
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/productos/movimientos?productoId=${producto.id}`} prefetch={false}><ListFilter aria-hidden />Filtrar movimientos</Link>
+          </Button>
+        </Fila>
         <TablaMovimientos movimientos={movimientos.data} />
         <Paginacion ruta={ruta} filtros={filtros} pagina={movimientos} />
-      </Card>
-    </section>
+      </Panel>
+    </Grilla>
   );
 }

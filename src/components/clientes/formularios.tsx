@@ -49,7 +49,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
   const esquema = cliente ? edicionClienteForm : altaClienteForm;
 
   return (
-    <Dialogo etiqueta={titulo} titulo={titulo} ocupado={enviando} alCerrar={limpiarError}>
+    <Dialogo etiqueta={titulo} titulo={titulo} principal={!cliente && !alGuardar} ocupado={enviando} alCerrar={limpiarError}>
       {(cerrar) => (
         <form
           method="post"

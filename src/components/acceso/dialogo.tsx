@@ -8,12 +8,14 @@ export function Dialogo({
   etiqueta,
   titulo,
   ocupado = false,
+  principal = false,
   alCerrar,
   children,
 }: {
   etiqueta: string;
   titulo: string;
   ocupado?: boolean;
+  principal?: boolean;
   alCerrar?: () => void;
   children: (cerrar: () => void) => ReactNode;
 }) {
@@ -34,7 +36,7 @@ export function Dialogo({
 
   return (
     <>
-      <Button type="button" variant="outline" onClick={() => setAbierto(true)} aria-haspopup="dialog">
+      <Button type="button" variant={principal ? "default" : "outline"} onClick={() => setAbierto(true)} aria-haspopup="dialog">
         {etiqueta}
       </Button>
       <dialog

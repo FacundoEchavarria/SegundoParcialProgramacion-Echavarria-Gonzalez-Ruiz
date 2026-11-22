@@ -89,7 +89,7 @@ export function FormularioProducto({
   }
 
   return (
-    <Dialogo etiqueta={titulo} titulo={titulo} ocupado={enviando} alCerrar={limpiarError}>
+    <Dialogo etiqueta={titulo} titulo={titulo} principal={!producto} ocupado={enviando} alCerrar={limpiarError}>
       {(cerrar) => (
         <form
           method="post"
@@ -169,7 +169,7 @@ export function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
   const accion = categoria ? editarCategoriaAction.bind(null, categoria.id) : crearCategoriaAction;
 
   return (
-    <Dialogo etiqueta={categoria ? "Editar" : titulo} titulo={titulo} ocupado={enviando} alCerrar={limpiarError}>
+    <Dialogo etiqueta={categoria ? "Editar" : titulo} titulo={titulo} principal={!categoria} ocupado={enviando} alCerrar={limpiarError}>
       {(cerrar) => (
         <form
           method="post"

@@ -24,7 +24,7 @@ export function FormularioPago({ clienteId, deuda }: { clienteId: number; deuda:
   const errorMedio = errorCampo("medio");
 
   return (
-    <Dialogo etiqueta="Registrar pago" titulo="Registrar pago" ocupado={enviando} alCerrar={limpiarError}>
+    <Dialogo etiqueta="Registrar pago" titulo="Registrar pago" principal ocupado={enviando} alCerrar={limpiarError}>
       {(cerrar) => (
         <form method="post" noValidate onSubmit={(evento) =>
           enviar(evento, pagoFormulario, registrarPagoAction.bind(null, clienteId), (recibo) => {

@@ -20,7 +20,7 @@ type UsuarioEditable = {
 
 export function NuevoUsuario() {
   return (
-    <Dialogo etiqueta="Nuevo usuario" titulo="Nuevo usuario">
+    <Dialogo etiqueta="Nuevo usuario" titulo="Nuevo usuario" principal>
       {(cerrar) => <FormularioUsuario alGuardar={cerrar} />}
     </Dialogo>
   );

@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
+import { Fila, Grilla, Pila } from "@/components/maquetacion";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
+import { Pestanas, pestanasProductos } from "@/components/pestanas";
 import {
   cargarPagina,
   Paginacion,
@@ -8,7 +11,7 @@ import {
   tiposMovimiento,
   type ParametrosPagina,
 } from "@/components/productos/listados";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { requirePageUser } from "@/lib/auth-request";
 import { listarMovimientos } from "@/services/stock";
 
@@ -31,46 +34,43 @@ export default async function Movimientos({ searchParams }: { searchParams: Para
   }));
 
   return (
-    <section className="grid gap-6">
-      <header className="grid gap-3">
-        <Link href="/productos" prefetch={false} className="w-fit text-sm font-medium text-primary underline">
-          Volver a productos
-        </Link>
-        <h1 className="text-3xl font-semibold tracking-tight">Movimientos de stock</h1>
-      </header>
+    <Grilla gap="lg">
+      <EncabezadoPagina titulo="Productos" descripcion="Movimientos de stock de todo el catálogo." />
+      <Pila gap="md">
+        <Pestanas etiqueta="Secciones de productos" pestanas={pestanasProductos} />
+        <Panel className="overflow-hidden">
+          <form action={ruta} method="get" className="border-b p-4 sm:p-5">
+            <Grilla gap="sm" className="items-end gap-x-3 gap-y-4 sm:grid-cols-2 lg:grid-cols-[8rem_repeat(3,minmax(0,1fr))_auto]">
+              <CampoFiltro etiqueta="ID de producto">
+                <input className={claseCampo} type="number" name="productoId" min={1} defaultValue={filtros.productoId} />
+              </CampoFiltro>
+              <CampoFiltro etiqueta="Tipo">
+                <select className={claseCampo} name="tipo" defaultValue={filtros.tipo ?? ""}>
+                  <option value="">Todos</option>
+                  {Object.entries(tiposMovimiento).map(([valor, etiqueta]) => (
+                    <option key={valor} value={valor}>{etiqueta}</option>
+                  ))}
+                </select>
+              </CampoFiltro>
+              <CampoFiltro etiqueta="Desde">
+                <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
+              </CampoFiltro>
+              <CampoFiltro etiqueta="Hasta">
+                <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
+              </CampoFiltro>
+              <Fila>
+                <Button>Filtrar</Button>
+                {Object.values(filtros).some((valor) => valor !== undefined) && (
+                  <Button asChild variant="ghost"><Link href={ruta} prefetch={false}>Limpiar filtros</Link></Button>
+                )}
+              </Fila>
+            </Grilla>
+          </form>
 
-      <Card className="gap-0 overflow-hidden py-0">
-        <form action={ruta} method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
-          <label className="grid min-w-32 gap-1.5 text-sm font-medium">
-            ID de producto
-            <input className={claseCampo} type="number" name="productoId" min={1} defaultValue={filtros.productoId} />
-          </label>
-          <label className="grid min-w-28 grow gap-1.5 text-sm font-medium">
-            Tipo
-            <select className={claseCampo} name="tipo" defaultValue={filtros.tipo ?? ""}>
-              <option value="">Todos</option>
-              {Object.entries(tiposMovimiento).map(([valor, etiqueta]) => (
-                <option key={valor} value={valor}>{etiqueta}</option>
-              ))}
-            </select>
-          </label>
-          <label className="grid grow gap-1.5 text-sm font-medium">
-            Desde
-            <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
-          </label>
-          <label className="grid grow gap-1.5 text-sm font-medium">
-            Hasta
-            <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
-          </label>
-          <button className={clasePrincipal}>Filtrar</button>
-          {Object.values(filtros).some((valor) => valor !== undefined) && (
-            <Link href={ruta} prefetch={false} className={claseSecundaria}>Limpiar</Link>
-          )}
-        </form>
-
-        <TablaMovimientos movimientos={movimientos.data} mostrarProducto />
-        <Paginacion ruta={ruta} filtros={filtros} pagina={movimientos} />
-      </Card>
-    </section>
+          <TablaMovimientos movimientos={movimientos.data} mostrarProducto />
+          <Paginacion ruta={ruta} filtros={filtros} pagina={movimientos} />
+        </Panel>
+      </Pila>
+    </Grilla>
   );
 }
