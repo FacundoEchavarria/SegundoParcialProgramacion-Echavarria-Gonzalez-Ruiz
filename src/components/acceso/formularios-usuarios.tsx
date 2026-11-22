@@ -75,6 +75,7 @@ export function GestionarUsuario({ usuario, esPropio }: { usuario: UsuarioEditab
               {!esPropio && (
                 <Button
                   type="button" variant="outline"
+                  className={usuario.activo ? "border-peligro/40 text-peligro hover:bg-peligro-fondo hover:text-peligro" : undefined}
                   disabled={enviando}
                   onClick={() => cambiarEstado(cerrar)}
                 >
