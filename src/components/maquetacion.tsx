@@ -37,7 +37,7 @@ const niveles = {
   3: "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground",
 };
 
-export function Titulo({ nivel = 1, className, ...props }: Base & { nivel?: 1 | 2 | 3 }) {
-  const Etiqueta = `h${nivel}` as ElementType;
+export function Titulo({ as, nivel = 1, className, ...props }: Base & { nivel?: 1 | 2 | 3 }) {
+  const Etiqueta: ElementType = as ?? `h${nivel}`;
   return <Etiqueta className={cn("text-balance", niveles[nivel], className)} {...props} />;
 }
