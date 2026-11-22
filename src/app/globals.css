@@ -84,6 +84,30 @@
   }
 }
 
+/* Firma del sistema: el total subrayado dos veces en rojo de margen. Se vuelve a trazar al cambiar. */
+@layer components {
+  .subrayado-doble {
+    background-image: linear-gradient(var(--color-margen), var(--color-margen)),
+      linear-gradient(var(--color-margen), var(--color-margen));
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 4px), 0 100%;
+    background-size: 100% 1.5px, 100% 1.5px;
+    animation: subrayar 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes subrayar {
+  from {
+    background-size: 0 1.5px, 0 1.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subrayado-doble {
+    animation: none;
+  }
+}
+
 @media print {
   body {
     background: #ffffff;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { claseSecundaria } from "@/components/acceso/estilos";
+import { Button } from "@/components/ui/button";
 import { AvisoError, Campo } from "@/components/acceso/formulario";
 
 type Pagina<T> = { data: T[]; pageSize: number; total: number };
@@ -64,8 +64,13 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
       {respuesta && respuesta !== "error" && (
         <>
           {activos.length ? (
-            <ul className="divide-y rounded-lg border">
-              {activos.map((registro) => <li key={registro.id}>{resultado(registro, () => cambiarTexto(""))}</li>)}
+            // Con teclado, el resultado enfocado se levanta y el resto se atenúa.
+            <ul className="divide-y overflow-hidden rounded-lg border bg-tinta-50 has-[:focus-visible]:[&>li:not(:has(:focus-visible))]:opacity-55">
+              {activos.map((registro) => (
+                <li key={registro.id} className="group/resultado relative transition-[opacity,box-shadow,background-color] duration-150 hover:bg-card has-[:focus-visible]:z-10 has-[:focus-visible]:bg-card has-[:focus-visible]:shadow-[0_8px_20px_-8px_rgb(29_63_143/0.45)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-tapa has-[:focus-visible]:ring-inset">
+                  {resultado(registro, () => cambiarTexto(""))}
+                </li>
+              ))}
             </ul>
           ) : (
             <p role="status" className="text-sm text-muted-foreground">
@@ -74,11 +79,11 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
           )}
           {ultima > 1 && (
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <button type="button" className={claseSecundaria} disabled={pagina === 1}
-                onClick={() => cambiarPagina(pagina - 1)}>Anterior</button>
-              <span>Página {pagina} de {ultima}</span>
-              <button type="button" className={claseSecundaria} disabled={pagina >= ultima}
-                onClick={() => cambiarPagina(pagina + 1)}>Siguiente</button>
+              <Button type="button" variant="outline" size="sm" disabled={pagina === 1}
+                onClick={() => cambiarPagina(pagina - 1)}>Anterior</Button>
+              <span className="text-muted-foreground">Página {pagina} de {ultima}</span>
+              <Button type="button" variant="outline" size="sm" disabled={pagina >= ultima}
+                onClick={() => cambiarPagina(pagina + 1)}>Siguiente</Button>
             </div>
           )}
         </>
