@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { claseSecundaria } from "@/components/acceso/estilos";
+import { ArrowLeft } from "lucide-react";
 import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { saldoEnPesos } from "@/components/clientes/listados";
-import { Card } from "@/components/ui/card";
+import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
+import { Dato, Panel } from "@/components/pagina";
+import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";
 import { mediosPago } from "@/lib/schemas/pagos";
@@ -34,37 +36,27 @@ export default async function ReciboPago({ params }: { params: Promise<{ id: str
   ];
 
   return (
-    <section className="mx-auto grid max-w-lg gap-4 print:max-w-none">
-      <div className="flex flex-wrap gap-2 print:hidden">
-        <Link className={claseSecundaria} href={`/clientes/${recibo.cliente.id}`} prefetch={false}>
-          Volver a la ficha
-        </Link>
+    <Pila gap="md" className="mx-auto max-w-lg print:max-w-none">
+      <Fila className="justify-between print:hidden">
+        <Button asChild variant="ghost">
+          <Link href={`/clientes/${recibo.cliente.id}`} prefetch={false}><ArrowLeft aria-hidden />Volver a la ficha</Link>
+        </Button>
         <BotonImprimir />
-      </div>
-      <Card className="gap-5 px-5 print:shadow-none">
-        <header className="border-b pb-4">
-          <p className="text-sm text-muted-foreground">Recibo de pago</p>
-          <h1 className="text-2xl font-semibold tabular-nums">{recibo.numeroRecibo}</h1>
-        </header>
-        <dl className="grid gap-4">
-          <div>
-            <dt className="text-sm text-muted-foreground">Importe recibido</dt>
-            <dd className="text-3xl font-semibold tabular-nums">{saldoEnPesos(recibo.importe)}</dd>
-          </div>
-          {datos.map(([etiqueta, valor]) => (
-            <div key={etiqueta}>
-              <dt className="text-sm text-muted-foreground">{etiqueta}</dt>
-              <dd className="break-words font-medium">{valor}</dd>
-            </div>
-          ))}
-          {observacion && (
-            <div>
-              <dt className="text-sm text-muted-foreground">Observación</dt>
-              <dd className="break-words">{observacion}</dd>
-            </div>
-          )}
-        </dl>
-      </Card>
-    </section>
+      </Fila>
+      <Panel className="grid gap-6 p-6 sm:p-8 print:border-0 print:p-0">
+        <Pila as="header" gap="xs" className="border-b pb-5">
+          <Titulo nivel={3}>Recibo de pago</Titulo>
+          <Titulo>{recibo.numeroRecibo}</Titulo>
+        </Pila>
+        <Pila gap="xs">
+          <Texto tono="secundario">Importe recibido</Texto>
+          <span className="subrayado-doble angosta w-fit pb-2 text-3xl font-bold text-tapa print:text-black">{saldoEnPesos(recibo.importe)}</span>
+        </Pila>
+        <Grilla as="dl" gap="md" className="sm:grid-cols-2">
+          {datos.map(([etiqueta, valor]) => <Dato key={etiqueta} etiqueta={etiqueta}>{valor}</Dato>)}
+          {observacion && <Dato etiqueta="Observación" className="sm:col-span-2">{observacion}</Dato>}
+        </Grilla>
+      </Panel>
+    </Pila>
   );
 }
