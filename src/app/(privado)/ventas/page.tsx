@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { Plus } from "lucide-react";
+import { claseCampo } from "@/components/acceso/estilos";
+import { Fila, Grilla, Texto } from "@/components/maquetacion";
+import { CampoFiltro, EncabezadoPagina, EstadoVacio, Insignia, Panel } from "@/components/pagina";
 import { cargarPagina, Paginacion, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { estadosFactura, fechaFactura, formasPago } from "@/components/ventas/facturas";
 import { requirePageUser } from "@/lib/auth-request";
 import { precioEnPesos } from "@/lib/formatos";
@@ -27,118 +31,105 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
     opcionesFacturas(),
   ]);
 
-  const filtroCampo = "grid min-w-0 gap-1.5 text-sm font-medium";
   return (
-    <section className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">Facturas</h1>
-        <Link href="/ventas/nueva" className={clasePrincipal} prefetch={false}>Nueva venta</Link>
-      </header>
+    <Grilla gap="lg">
+      <EncabezadoPagina
+        titulo="Facturas"
+        acciones={<Button asChild><Link href="/ventas/nueva" prefetch={false}><Plus aria-hidden />Nueva venta</Link></Button>}
+      />
 
-      <Card className="gap-0 overflow-hidden py-0">
+      <Panel className="overflow-hidden">
         <form action="/ventas" method="get" className="grid gap-4 border-b p-4 sm:p-5">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className={filtroCampo}>
-              Número o nombre del cliente
+          <Grilla gap="sm" className="gap-x-3 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
+            <CampoFiltro etiqueta="Número o nombre del cliente">
               <input className={claseCampo} type="search" name="q" maxLength={150} defaultValue={filtros.q} />
-            </label>
-            <label className={filtroCampo}>
-              Desde
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Desde">
               <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
-            </label>
-            <label className={filtroCampo}>
-              Hasta
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Hasta">
               <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
-            </label>
-            <label className={filtroCampo}>
-              Cliente
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Cliente">
               <select className={claseCampo} name="clienteId" defaultValue={filtros.clienteId}>
                 <option value="">Todos</option>
                 {clientes.map(({ id, nombre }) => <option key={id} value={id}>{nombre}</option>)}
               </select>
-            </label>
-            <label className={filtroCampo}>
-              Vendedor
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Vendedor">
               <select className={claseCampo} name="vendedorId" defaultValue={filtros.vendedorId}>
                 <option value="">Todos</option>
                 {vendedores.map(({ id, nombre }) => <option key={id} value={id}>{nombre}</option>)}
               </select>
-            </label>
-            <label className={filtroCampo}>
-              Forma de pago
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Forma de pago">
               <select className={claseCampo} name="forma" defaultValue={filtros.forma}>
                 <option value="">Todas</option>
                 {Object.entries(formasPago).map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}
               </select>
-            </label>
-            <label className={filtroCampo}>
-              Estado
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Estado">
               <select className={claseCampo} name="estado" defaultValue={filtros.estado}>
                 <option value="">Todos</option>
                 {Object.entries(estadosFactura).map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}
               </select>
-            </label>
-            <label className={filtroCampo}>
-              Resultados por página
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Resultados por página">
               <input className={claseCampo} type="number" name="pageSize" min={1} max={100} defaultValue={facturas.pageSize} />
-            </label>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button className={clasePrincipal}>Filtrar</button>
+            </CampoFiltro>
+          </Grilla>
+          <Fila>
+            <Button>Filtrar</Button>
             {Object.values(filtros).some(Boolean) && (
-              <Link href="/ventas" className={claseSecundaria} prefetch={false}>Limpiar</Link>
+              <Button asChild variant="ghost"><Link href="/ventas" prefetch={false}>Limpiar filtros</Link></Button>
             )}
-          </div>
+          </Fila>
         </form>
 
-        <dl className="flex flex-wrap items-baseline justify-between gap-2 border-b px-4 py-3 sm:px-5">
-          <dt className="text-sm font-medium text-muted-foreground">Total emitido según los filtros</dt>
-          <dd className="font-semibold tabular-nums">{precioEnPesos(facturas.totalEmitido)}</dd>
-        </dl>
+        <Fila as="dl" gap="md" className="items-baseline justify-between border-b bg-tinta-50 px-4 py-3 sm:px-5">
+          <Texto as="dt" tono="secundario" className="font-medium">Total emitido según los filtros</Texto>
+          <dd className="angosta subrayado-doble pb-2 text-xl font-bold text-tapa">{precioEnPesos(facturas.totalEmitido)}</dd>
+        </Fila>
         {facturas.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay facturas que coincidan con la búsqueda.</p>
+          <EstadoVacio>No hay facturas que coincidan con la búsqueda.</EstadoVacio>
         ) : (
-          <div className="overflow-x-auto">
-            <table aria-label="Facturas" className="w-full text-left text-sm">
-              <thead className="border-b bg-background text-muted-foreground [&_th]:px-4 [&_th]:py-3">
-                <tr>
-                  <th scope="col">Número</th>
-                  <th scope="col">Fecha</th>
-                  <th scope="col">Cliente</th>
-                  <th scope="col">Vendedor</th>
-                  <th scope="col">Forma de pago</th>
-                  <th scope="col">Estado</th>
-                  <th scope="col" className="text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y [&_td]:px-4 [&_td]:py-3">
-                {facturas.data.map((factura) => (
-                  <tr key={factura.id} className="align-top">
-                    <td>
-                      <Link href={`/ventas/${factura.id}`} className="font-semibold whitespace-nowrap text-primary underline" prefetch={false}>
-                        {factura.numeroFormateado}
-                      </Link>
-                    </td>
-                    <td className="whitespace-nowrap">
-                      <time dateTime={factura.fecha}>{fechaFactura(factura.fecha)}</time>
-                    </td>
-                    <td className="min-w-24 break-words">{factura.cliente?.nombre ?? "Consumidor final"}</td>
-                    <td className="min-w-24 break-words">{factura.vendedor.nombre}</td>
-                    <td>{formasPago[factura.forma]}</td>
-                    <td>
-                      <span className={factura.estado === "anulada" ? "font-semibold text-red-900" : "text-muted-foreground"}>
-                        {estadosFactura[factura.estado]}
-                      </span>
-                    </td>
-                    <td className="text-right whitespace-nowrap tabular-nums">{precioEnPesos(factura.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table aria-label="Facturas">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Número</TableHead>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Vendedor</TableHead>
+                <TableHead>Forma de pago</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {facturas.data.map((factura) => (
+                <TableRow key={factura.id} className={factura.estado === "anulada" ? "text-muted-foreground" : undefined}>
+                  <TableCell>
+                    <Link href={`/ventas/${factura.id}`} className="font-semibold text-tapa hover:underline" prefetch={false}>
+                      {factura.numeroFormateado}
+                    </Link>
+                  </TableCell>
+                  <TableCell><time dateTime={factura.fecha}>{fechaFactura(factura.fecha)}</time></TableCell>
+                  <TableCell className="min-w-24 whitespace-normal break-words">{factura.cliente?.nombre ?? "Consumidor final"}</TableCell>
+                  <TableCell className="min-w-24 whitespace-normal break-words">{factura.vendedor.nombre}</TableCell>
+                  <TableCell>{formasPago[factura.forma]}</TableCell>
+                  <TableCell>
+                    <Insignia tono={factura.estado === "anulada" ? "peligro" : "exito"}>{estadosFactura[factura.estado]}</Insignia>
+                  </TableCell>
+                  <TableCell className={factura.estado === "anulada" ? "text-right line-through" : "text-right font-semibold"}>
+                    {precioEnPesos(factura.total)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
         <Paginacion ruta="/ventas" filtros={filtros} pagina={facturas} />
-      </Card>
-    </section>
+      </Panel>
+    </Grilla>
   );
 }
