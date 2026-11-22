@@ -5,10 +5,12 @@ import { useId } from "react";
 import { z } from "zod";
 import { registrarPagoAction } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { aCentavos } from "@/components/productos/campos";
 import { mediosPago, pagoSchema } from "@/lib/schemas/pagos";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const pagoFormulario = z.preprocess((datos: Record<string, FormDataEntryValue>) => ({
   ...datos,
@@ -34,7 +36,7 @@ export function FormularioPago({ clienteId, deuda }: { clienteId: number; deuda:
             <p className="text-sm">Deuda actual <strong>{deuda}</strong></p>
             <Campo etiqueta="Importe en pesos" name="importe" inputMode="decimal"
               placeholder="Ej. 3000,50" required error={errorCampo("importe")} />
-            <label className="grid gap-1.5 text-sm font-medium">
+            <Label className="grid gap-1.5">
               Medio de pago
               <select className={claseCampo} name="medio" aria-invalid={Boolean(errorMedio)}
                 aria-describedby={errorMedio ? errorMedioId : undefined}>
@@ -42,11 +44,11 @@ export function FormularioPago({ clienteId, deuda }: { clienteId: number; deuda:
                   <option key={valor} value={valor}>{etiqueta}</option>
                 ))}
               </select>
-              {errorMedio && <span id={errorMedioId} className="text-red-800">{errorMedio}</span>}
-            </label>
+              {errorMedio && <span id={errorMedioId} className="text-xs font-medium text-peligro">{errorMedio}</span>}
+            </Label>
             <Campo etiqueta="Observación (opcional)" name="observacion" error={errorCampo("observacion")} />
             <AvisoError error={error} />
-            <div><button className={clasePrincipal}>{enviando ? "Registrando…" : "Registrar pago"}</button></div>
+            <div><Button>{enviando ? "Registrando…" : "Registrar pago"}</Button></div>
           </fieldset>
         </form>
       )}

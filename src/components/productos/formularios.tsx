@@ -11,7 +11,7 @@ import {
   registrarMovimientoAction,
 } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import {
   altaCategoriaSchema,
@@ -23,6 +23,8 @@ import {
 } from "@/lib/schemas/productos";
 import type { listarCategorias, obtenerProducto } from "@/services/productos";
 import { aCentavos, aEntero, centavosComoDecimal } from "./campos";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 type Categoria = Awaited<ReturnType<typeof listarCategorias>>[number];
 type Producto = Awaited<ReturnType<typeof obtenerProducto>>;
@@ -53,7 +55,7 @@ function Selector({
 }: Omit<ComponentProps<"select">, "className"> & { etiqueta: string; error?: string }) {
   const idError = useId();
   return (
-    <label className="grid min-w-0 gap-1.5 text-sm font-medium">
+    <Label className="grid min-w-0 gap-1.5">
       {etiqueta}
       <select
         {...props}
@@ -61,8 +63,8 @@ function Selector({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? idError : undefined}
       />
-      {error && <span id={idError} className="text-red-800">{error}</span>}
-    </label>
+      {error && <span id={idError} className="text-xs font-medium text-peligro">{error}</span>}
+    </Label>
   );
 }
 
@@ -149,9 +151,9 @@ export function FormularioProducto({
             )}
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>
+              <Button>
                 {enviando ? "Guardando…" : producto ? "Guardar cambios" : "Crear producto"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>
@@ -189,9 +191,9 @@ export function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
             />
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>
+              <Button>
                 {enviando ? "Guardando…" : categoria ? "Guardar cambios" : "Crear categoría"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>
@@ -231,10 +233,10 @@ export function CambiarEstado({ producto, categoria }: Entidad) {
           <p>¿Querés {verbo.toLowerCase()} {nombre}?</p>
           <AvisoError error={error} />
           <div className="flex flex-wrap gap-2">
-            <button type="submit" className={clasePrincipal} disabled={enviando}>
+            <Button type="submit" variant={activo ? "destructive" : "default"} disabled={enviando}>
               {enviando ? "Guardando…" : `Confirmar ${activo ? "desactivación" : "reactivación"}`}
-            </button>
-            <button type="button" className={claseSecundaria} disabled={enviando} onClick={cerrar}>Cancelar</button>
+            </Button>
+            <Button type="button" variant="outline" disabled={enviando} onClick={cerrar}>Cancelar</Button>
           </div>
         </form>
       )}
@@ -296,7 +298,7 @@ export function FormularioMovimiento({ productoId }: { productoId: number }) {
             <Campo etiqueta="Observación (opcional)" name="observacion" error={errorCampo("observacion")} />
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>{enviando ? "Guardando…" : "Registrar movimiento"}</button>
+              <Button>{enviando ? "Guardando…" : "Registrar movimiento"}</Button>
             </div>
           </fieldset>
         </form>
