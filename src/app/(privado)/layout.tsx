@@ -12,12 +12,12 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] print:block print:min-h-0">
       <PanelLateral esAdmin={esAdmin} />
       <div className="min-w-0">
-        <Fila as="header" gap="md" className="sticky top-0 z-30 h-16 justify-between bg-tapa px-4 text-white sm:px-8 print:hidden">
+        <Fila as="header" gap="md" className="sticky top-0 z-30 h-16 justify-between border-b bg-card px-4 sm:px-8 print:hidden">
           <Fila gap="sm" className="min-w-0">
             <MenuMovil esAdmin={esAdmin} />
             <Pila gap="xs" className="min-w-0 gap-0">
-              <Texto className="truncate font-semibold text-white">{usuario.nombre}</Texto>
-              <Texto as="span" className="text-xs text-tapa-texto">{esAdmin ? "Administrador" : "Vendedor"}</Texto>
+              <Texto className="truncate font-semibold">{usuario.nombre}</Texto>
+              <Texto as="span" tono="secundario" className="text-xs">{esAdmin ? "Administrador" : "Vendedor"}</Texto>
             </Pila>
           </Fila>
           <CerrarSesion />

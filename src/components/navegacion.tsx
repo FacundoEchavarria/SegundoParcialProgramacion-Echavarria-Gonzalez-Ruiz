@@ -72,7 +72,7 @@ export function MenuMovil({ esAdmin }: { esAdmin: boolean }) {
   return (
     <Sheet open={abierto} onOpenChange={setAbierto}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white lg:hidden" aria-label="Abrir menú">
+        <Button variant="outline" size="icon" className="lg:hidden" aria-label="Abrir menú">
           <Menu />
         </Button>
       </SheetTrigger>
