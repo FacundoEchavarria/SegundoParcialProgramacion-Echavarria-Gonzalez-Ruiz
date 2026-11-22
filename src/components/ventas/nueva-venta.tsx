@@ -359,8 +359,11 @@ function Total({ importe }: { importe: number }) {
   return (
     <Fila gap="md" className="mt-3 items-end justify-between bg-card py-1">
       <span className="font-semibold">Total</span>
-      <output key={importe} aria-live="polite" className="subrayado-doble angosta pb-2 text-3xl font-bold tracking-tight text-tapa">
-        {precioEnPesos(importe)}
+      {/* La región viva queda fija para que el lector de pantalla anuncie cada cambio; solo el subrayado se renueva. */}
+      <output aria-live="polite">
+        <span key={importe} className="subrayado-doble angosta pb-2 text-3xl font-bold tracking-tight text-tapa">
+          {precioEnPesos(importe)}
+        </span>
       </output>
     </Fila>
   );

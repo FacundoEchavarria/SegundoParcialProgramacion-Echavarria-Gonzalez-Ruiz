@@ -26,7 +26,7 @@ export default async function Login({
           </Texto>
         </Pila>
         <Pila gap="xs">
-          <Titulo nivel={2}>Iniciar sesión</Titulo>
+          <Titulo as="h1" nivel={2}>Iniciar sesión</Titulo>
           <Texto tono="secundario">Ingresá con tu email y contraseña.</Texto>
         </Pila>
         {cambio === "1" && (

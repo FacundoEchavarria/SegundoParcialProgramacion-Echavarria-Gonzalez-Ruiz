@@ -65,7 +65,7 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
         <>
           {activos.length ? (
             // Con teclado, el resultado enfocado se levanta y el resto se atenúa.
-            <ul className="divide-y overflow-hidden rounded-lg border bg-tinta-50 has-[:focus-visible]:[&>li:not(:has(:focus-visible))]:opacity-55">
+            <ul className="divide-y overflow-hidden rounded-lg border bg-tinta-50 has-[:focus-visible]:[&>li:not(:has(:focus-visible))]:opacity-75">
               {activos.map((registro) => (
                 <li key={registro.id} className="group/resultado relative transition-[opacity,box-shadow,background-color] duration-150 hover:bg-card has-[:focus-visible]:z-10 has-[:focus-visible]:bg-card has-[:focus-visible]:shadow-[0_8px_20px_-8px_rgb(29_63_143/0.45)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-tapa has-[:focus-visible]:ring-inset">
                   {resultado(registro, () => cambiarTexto(""))}
