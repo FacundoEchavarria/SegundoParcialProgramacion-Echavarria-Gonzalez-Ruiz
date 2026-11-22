@@ -1,16 +1,15 @@
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { EstadoVacio } from "@/components/estados";
+import { AvisoBajoStock, Estado } from "@/components/insignia";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
+import { claseCampo } from "@/components/acceso/estilos";
+import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
+import { Pestanas, pestanasProductos } from "@/components/pestanas";
 import { FormularioProducto } from "@/components/productos/formularios";
-import {
-  AvisoBajoStock,
-  cargarPagina,
-  Estado,
-  Paginacion,
-  precioEnPesos,
-  textoParametro,
-  type ParametrosPagina,
-} from "@/components/productos/listados";
-import { Card } from "@/components/ui/card";
+import { cargarPagina, Paginacion, precioEnPesos, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePageUser } from "@/lib/auth-request";
 import { listarCategorias, listarProductos } from "@/services/productos";
 
@@ -36,104 +35,104 @@ export default async function Productos({ searchParams }: { searchParams: Parame
   ]);
 
   return (
-    <section className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-3xl font-semibold tracking-tight">Productos</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href="/productos/categorias" prefetch={false} className={claseSecundaria}>Categorías</Link>
-          <Link href="/productos/movimientos" prefetch={false} className={claseSecundaria}>Movimientos de stock</Link>
-          {admin && <FormularioProducto categorias={categorias} />}
-        </div>
-      </header>
+    <Grilla gap="lg">
+      <EncabezadoPagina titulo="Productos" acciones={admin && <FormularioProducto categorias={categorias} />} />
 
-      <Card className="gap-0 overflow-hidden py-0">
-        <form action="/productos" method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
-          <label className="grid min-w-48 grow gap-1.5 text-sm font-medium">
-            Código o descripción
-            <input className={claseCampo} type="search" name="q" defaultValue={filtros.q} maxLength={100} />
-          </label>
-          <label className="grid min-w-36 grow gap-1.5 text-sm font-medium">
-            Categoría
-            <select className={claseCampo} name="categoriaId" defaultValue={filtros.categoriaId ?? ""}>
-              <option value="">Todas</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nombre}{categoria.activa ? "" : " (inactiva)"}
-                </option>
-              ))}
-            </select>
-          </label>
-          {admin && (
-            <label className="grid min-w-28 gap-1.5 text-sm font-medium">
-              Estado
-              <select className={claseCampo} name="activo" defaultValue={filtros.activo ?? "true"}>
-                <option value="true">Activos</option>
-                <option value="false">Inactivos</option>
-                <option value="todos">Todos</option>
-              </select>
-            </label>
-          )}
-          <label className="flex min-h-10 items-center gap-2 text-sm font-medium">
-            <input
-              type="checkbox"
-              className="size-4 accent-primary"
-              name="bajoMinimo"
-              value="true"
-              defaultChecked={filtros.bajoMinimo === "true"}
-            />
-            Bajo stock
-          </label>
-          <button className={clasePrincipal}>Filtrar</button>
-          {Object.values(filtros).some((valor) => valor !== undefined) && (
-            <Link href="/productos" prefetch={false} className={claseSecundaria}>Limpiar</Link>
-          )}
-        </form>
+      <Pila gap="md">
+        <Pestanas etiqueta="Secciones de productos" pestanas={pestanasProductos} />
+        <Panel className="overflow-hidden">
+          <form action="/productos" method="get" className="border-b p-4 sm:p-5">
+            <Fila gap="md" className="items-end">
+              <div className="min-w-48 grow">
+                <CampoFiltro etiqueta="Código o descripción">
+                  <input className={claseCampo} type="search" name="q" defaultValue={filtros.q} maxLength={100} />
+                </CampoFiltro>
+              </div>
+              <div className="min-w-36 grow">
+                <CampoFiltro etiqueta="Categoría">
+                  <select className={claseCampo} name="categoriaId" defaultValue={filtros.categoriaId ?? ""}>
+                    <option value="">Todas</option>
+                    {categorias.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        {categoria.nombre}{categoria.activa ? "" : " (inactiva)"}
+                      </option>
+                    ))}
+                  </select>
+                </CampoFiltro>
+              </div>
+              {admin && (
+                <div className="min-w-28">
+                  <CampoFiltro etiqueta="Estado">
+                    <select className={claseCampo} name="activo" defaultValue={filtros.activo ?? "true"}>
+                      <option value="true">Activos</option>
+                      <option value="false">Inactivos</option>
+                      <option value="todos">Todos</option>
+                    </select>
+                  </CampoFiltro>
+                </div>
+              )}
+              <Label className="min-h-10">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-tapa"
+                  name="bajoMinimo"
+                  value="true"
+                  defaultChecked={filtros.bajoMinimo === "true"}
+                />
+                Solo bajo stock
+              </Label>
+              <Fila>
+                <Button>Filtrar</Button>
+                {Object.values(filtros).some((valor) => valor !== undefined) && (
+                  <Button asChild variant="ghost"><Link href="/productos" prefetch={false}>Limpiar filtros</Link></Button>
+                )}
+              </Fila>
+            </Fila>
+          </form>
 
-        {productos.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay productos que coincidan con la búsqueda.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table aria-label="Catálogo de productos" className="w-full text-left text-sm">
-              <thead className="border-b bg-background text-muted-foreground [&_th]:px-4 [&_th]:py-3">
-                <tr>
-                  <th scope="col">Código</th>
-                  <th scope="col">Descripción</th>
-                  <th scope="col">Categoría</th>
-                  <th scope="col" className="text-right">Precio</th>
-                  <th scope="col" className="text-right">Existencia</th>
-                  <th scope="col" className="text-right">Mínimo</th>
-                  <th scope="col">Estado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y [&_td]:px-4 [&_td]:py-3">
+          {productos.data.length === 0 ? (
+            <EstadoVacio>No hay productos que coincidan con la búsqueda.</EstadoVacio>
+          ) : (
+            <Table aria-label="Catálogo de productos">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Código</TableHead>
+                  <TableHead>Descripción</TableHead>
+                  <TableHead>Categoría</TableHead>
+                  <TableHead className="text-right">Precio</TableHead>
+                  <TableHead className="text-right">Existencia</TableHead>
+                  <TableHead className="text-right">Mínimo</TableHead>
+                  <TableHead>Estado</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {productos.data.map((producto) => (
-                  <tr key={producto.id} className="align-top">
-                    <td>
-                      <Link
-                        href={`/productos/${producto.id}`}
-                        prefetch={false}
-                        className="font-semibold break-all text-primary underline"
-                      >
+                  <TableRow key={producto.id} className={producto.activo ? undefined : "text-muted-foreground"}>
+                    <TableCell>
+                      <Link href={`/productos/${producto.id}`} prefetch={false} className="font-semibold break-all text-tapa hover:underline">
                         {producto.codigo}
                       </Link>
-                    </td>
-                    <td><span className="block min-w-32 break-words">{producto.descripcion}</span></td>
-                    <td>{producto.categoria.nombre}</td>
-                    <td className="text-right whitespace-nowrap tabular-nums">{precioEnPesos(producto.precio)}</td>
-                    <td className="text-right tabular-nums">
-                      <p>{producto.existencia}</p>
-                      {producto.bajoMinimo && <AvisoBajoStock />}
-                    </td>
-                    <td className="text-right tabular-nums">{producto.stockMinimo}</td>
-                    <td><Estado activo={producto.activo} /></td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="min-w-32 whitespace-normal break-words">{producto.descripcion}</TableCell>
+                    <TableCell>{producto.categoria.nombre}</TableCell>
+                    <TableCell className="text-right font-semibold">{precioEnPesos(producto.precio)}</TableCell>
+                    <TableCell className="text-right">
+                      <Fila gap="sm" className="flex-nowrap justify-end">
+                        {producto.bajoMinimo && <AvisoBajoStock />}
+                        {/* Ancho fijo para la cifra: así las alertas quedan en columna. */}
+                        <Texto as="span" className={producto.bajoMinimo ? "w-12 text-right font-semibold text-alerta" : "w-12 text-right"}>{producto.existencia}</Texto>
+                      </Fila>
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">{producto.stockMinimo}</TableCell>
+                    <TableCell><Estado activo={producto.activo} /></TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        <Paginacion ruta="/productos" filtros={filtros} pagina={productos} />
-      </Card>
-    </section>
+              </TableBody>
+            </Table>
+          )}
+          <Paginacion ruta="/productos" filtros={filtros} pagina={productos} />
+        </Panel>
+      </Pila>
+    </Grilla>
   );
 }

@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { EstadoVacio } from "@/components/estados";
+import { Insignia } from "@/components/insignia";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
+import { claseCampo } from "@/components/acceso/estilos";
 import { GestionarUsuario, NuevoUsuario } from "@/components/acceso/formularios-usuarios";
-import { Card } from "@/components/ui/card";
+import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
+import { Button } from "@/components/ui/button";
 import { requirePageUser } from "@/lib/auth-request";
 import { listadoUsuariosSchema } from "@/lib/schemas/usuarios";
 import { listarUsuarios } from "@/services/usuarios";
@@ -39,90 +44,83 @@ export default async function Usuarios({
   if (usuarios.page > ultimaPagina) redirect(enlaceUsuarios(q, activo, ultimaPagina));
 
   return (
-    <section className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Usuarios</h1>
-          <p className="mt-2 text-muted-foreground">Administrá las cuentas y sus permisos.</p>
-        </div>
-        <NuevoUsuario />
-      </header>
+    <Grilla gap="lg">
+      <EncabezadoPagina titulo="Usuarios" descripcion="Administrá las cuentas y sus permisos." acciones={<NuevoUsuario />} />
 
-      <Card className="gap-0 overflow-hidden py-0">
-        <form
-          action="/usuarios"
-          method="get"
-          className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5"
-        >
-          <label className="grid w-full gap-1.5 text-sm font-medium sm:max-w-xs">
-            Buscar por nombre o email
-            <input className={claseCampo} type="search" name="q" defaultValue={q} />
-          </label>
-          <label className="grid min-w-36 grow gap-1.5 text-sm font-medium sm:max-w-40">
-            Estado
-            <select className={claseCampo} name="activo" defaultValue={activo ?? ""}>
-              <option value="">Todos</option>
-              <option value="true">Activos</option>
-              <option value="false">Inactivos</option>
-            </select>
-          </label>
-          <button className={clasePrincipal}>Filtrar</button>
-          {(q || activo) && (
-            <Link href="/usuarios" prefetch={false} className={claseSecundaria}>Limpiar</Link>
-          )}
+      <Panel className="overflow-hidden">
+        <form action="/usuarios" method="get" className="border-b p-4 sm:p-5">
+          <Fila gap="md" className="items-end">
+            <div className="w-full sm:max-w-xs">
+              <CampoFiltro etiqueta="Buscar por nombre o email">
+                <input className={claseCampo} type="search" name="q" defaultValue={q} />
+              </CampoFiltro>
+            </div>
+            <div className="min-w-36 grow sm:max-w-40">
+              <CampoFiltro etiqueta="Estado">
+                <select className={claseCampo} name="activo" defaultValue={activo ?? ""}>
+                  <option value="">Todos</option>
+                  <option value="true">Activos</option>
+                  <option value="false">Inactivos</option>
+                </select>
+              </CampoFiltro>
+            </div>
+            <Fila>
+              <Button>Filtrar</Button>
+              {(q || activo) && <Button asChild variant="ghost"><Link href="/usuarios" prefetch={false}>Limpiar</Link></Button>}
+            </Fila>
+          </Fila>
         </form>
 
         {usuarios.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">No hay usuarios que coincidan con la búsqueda.</p>
+          <EstadoVacio>No hay usuarios que coincidan con la búsqueda.</EstadoVacio>
         ) : (
-          <ul aria-label="Resultados de usuarios" className="divide-y">
+          <Pila as="ul" gap="xs" aria-label="Resultados de usuarios" className="gap-0 divide-y">
             {usuarios.data.map((usuario) => (
-              <li
+              <Grilla
+                as="li"
                 key={usuario.id}
-                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-4
-                  sm:grid-cols-[minmax(0,1fr)_8rem_5rem_auto] sm:px-5"
+                gap="sm"
+                className="grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_9rem_6rem_auto] sm:px-5"
               >
-                <div className="col-span-2 min-w-0 sm:col-span-1">
-                  <p className="font-semibold break-words">{usuario.nombre}</p>
-                  <p className="text-sm break-all text-muted-foreground">{usuario.email}</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:contents">
-                  <span className="text-sm text-muted-foreground">
-                    {usuario.rol === "admin" ? "Administrador" : "Vendedor"}
+                <Fila gap="sm" className="col-span-2 min-w-0 flex-nowrap sm:col-span-1">
+                  <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-tapa-clara text-xs font-bold text-tapa uppercase">
+                    {usuario.nombre.slice(0, 2)}
                   </span>
-                  <span className={usuario.activo
-                    ? "w-fit rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-900"
-                    : "w-fit rounded-full bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-700"}
-                  >
-                    {usuario.activo ? "Activo" : "Inactivo"}
-                  </span>
-                </div>
+                  <Pila gap="xs" className="min-w-0 gap-0">
+                    <Texto className="font-semibold break-words">{usuario.nombre}</Texto>
+                    <Texto tono="secundario" className="break-all">{usuario.email}</Texto>
+                  </Pila>
+                </Fila>
+                <Fila className="sm:contents">
+                  <Insignia tono={usuario.rol === "admin" ? "info" : "neutro"}>{usuario.rol === "admin" ? "Administrador" : "Vendedor"}</Insignia>
+                  <Insignia tono={usuario.activo ? "exito" : "neutro"}>{usuario.activo ? "Activo" : "Inactivo"}</Insignia>
+                </Fila>
                 <GestionarUsuario usuario={usuario} esPropio={usuario.id === actor.id} />
-              </li>
+              </Grilla>
             ))}
-          </ul>
+          </Pila>
         )}
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t p-4 sm:p-5">
-          <p className="text-sm text-muted-foreground">
+        <Fila as="footer" gap="md" className="justify-between border-t px-4 py-3 sm:px-5">
+          <Texto tono="secundario">
             {usuarios.total} {usuarios.total === 1 ? "usuario" : "usuarios"} · Página {usuarios.page} de {ultimaPagina}
-          </p>
+          </Texto>
           {ultimaPagina > 1 && (
-            <nav aria-label="Paginación de usuarios" className="flex flex-wrap gap-2">
+            <Fila as="nav" aria-label="Paginación de usuarios">
               {usuarios.page > 1 && (
-                <Link href={enlaceUsuarios(q, activo, usuarios.page - 1)} prefetch={false} className={claseSecundaria}>
-                  Anterior
-                </Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={enlaceUsuarios(q, activo, usuarios.page - 1)} prefetch={false}><ChevronLeft aria-hidden />Anterior</Link>
+                </Button>
               )}
               {usuarios.page < ultimaPagina && (
-                <Link href={enlaceUsuarios(q, activo, usuarios.page + 1)} prefetch={false} className={claseSecundaria}>
-                  Siguiente
-                </Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={enlaceUsuarios(q, activo, usuarios.page + 1)} prefetch={false}>Siguiente<ChevronRight aria-hidden /></Link>
+                </Button>
               )}
-            </nav>
+            </Fila>
           )}
-        </footer>
-      </Card>
-    </section>
+        </Fila>
+      </Panel>
+    </Grilla>
   );
 }

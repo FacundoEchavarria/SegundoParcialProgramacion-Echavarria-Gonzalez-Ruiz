@@ -1,122 +1,129 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
+import { EstadoVacio } from "@/components/estados";
+import { EncabezadoPagina, Panel } from "@/components/pagina";
+import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { GraficoFormasDePago, GraficoVentasDiarias } from "@/components/tablero/graficos";
-import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePageUser } from "@/lib/auth-request";
 import { precioEnPesos } from "@/lib/formatos";
+import { cn } from "@/lib/utils";
 import { obtenerTablero } from "@/services/tablero";
 
 export const metadata = { title: "Inicio | Gestión comercial" };
 
-const claseIndicador = "min-w-0 gap-1 px-5 py-4";
-const claseEtiqueta = "text-sm font-medium text-muted-foreground";
-const claseValor = "text-2xl font-semibold break-words tabular-nums";
+// Un renglón de la tira de indicadores: etiqueta, cifra y su detalle.
+function Indicador({ etiqueta, valor, children, destacado = false }: {
+  etiqueta: string;
+  valor: string;
+  children: ReactNode;
+  destacado?: boolean;
+}) {
+  return (
+    <Pila gap="xs" className="min-w-0 px-5 py-5">
+      <Titulo as="dt" nivel={3}>{etiqueta}</Titulo>
+      <dd className={cn("angosta w-fit text-3xl font-bold break-words", destacado ? "subrayado-doble pb-2 text-tapa" : "text-foreground")}>{valor}</dd>
+      <dd className="text-sm text-muted-foreground">{children}</dd>
+    </Pila>
+  );
+}
 
 export default async function Inicio() {
   await requirePageUser();
   const { hoy, mes, cuentasCorrientes, bajoMinimo, ventasDiarias, porFormaDePago, masVendidos } = await obtenerTablero();
 
   return (
-    <section className="grid gap-6">
-      <h1 className="text-3xl font-semibold tracking-tight">Tablero de inicio</h1>
+    <Grilla gap="lg">
+      <EncabezadoPagina titulo="Tablero de inicio" />
 
-      <dl className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Indicadores comerciales">
-        <Card className={claseIndicador}>
-          <dt className={claseEtiqueta}>Ventas de hoy</dt>
-          <dd className={claseValor}>{precioEnPesos(hoy.importe)}</dd>
-          <dd className={claseEtiqueta}>{hoy.cantidad} {hoy.cantidad === 1 ? "factura" : "facturas"}</dd>
-        </Card>
-        <Card className={claseIndicador}>
-          <dt className={claseEtiqueta}>Ventas del mes</dt>
-          <dd className={claseValor}>{precioEnPesos(mes.importe)}</dd>
-          <dd className={claseEtiqueta}>{mes.cantidad} {mes.cantidad === 1 ? "factura" : "facturas"}</dd>
-          <dd className={claseEtiqueta}>Ticket promedio {precioEnPesos(mes.ticketPromedio)}</dd>
-        </Card>
-        <Card className={claseIndicador}>
-          <dt className={claseEtiqueta}>Total adeudado en cuenta corriente</dt>
-          <dd className={claseValor}>{precioEnPesos(cuentasCorrientes.totalAdeudado)}</dd>
-          <dd className={claseEtiqueta}>
+      <Panel>
+        <Grilla as="dl" gap="xs" aria-label="Indicadores comerciales" className="gap-0 divide-y sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4 xl:divide-x [&>*]:border-border sm:[&>*:nth-child(-n+2)]:border-b xl:[&>*:nth-child(-n+2)]:border-b-0">
+          <Indicador etiqueta="Ventas de hoy" valor={precioEnPesos(hoy.importe)} destacado>
+            {hoy.cantidad} {hoy.cantidad === 1 ? "factura" : "facturas"}
+          </Indicador>
+          <Indicador etiqueta="Ventas del mes" valor={precioEnPesos(mes.importe)}>
+            {mes.cantidad} {mes.cantidad === 1 ? "factura" : "facturas"} · Ticket promedio {precioEnPesos(mes.ticketPromedio)}
+          </Indicador>
+          <Indicador etiqueta="Adeudado en cuenta corriente" valor={precioEnPesos(cuentasCorrientes.totalAdeudado)}>
             {cuentasCorrientes.clientesConSaldo} {cuentasCorrientes.clientesConSaldo === 1 ? "cliente" : "clientes"} con saldo
-          </dd>
-        </Card>
-        <Card className={claseIndicador}>
-          <dt className={claseEtiqueta}>Productos bajo el mínimo</dt>
-          <dd className={claseValor}>{bajoMinimo.cantidad}</dd>
-          <dd>
-            <Link href="/productos?bajoMinimo=true" prefetch={false} className="text-sm font-medium text-primary underline underline-offset-4">
-              Ver productos bajo el mínimo
+          </Indicador>
+          <Indicador etiqueta="Productos bajo el mínimo" valor={String(bajoMinimo.cantidad)}>
+            <Link href="/productos?bajoMinimo=true" prefetch={false} className="inline-flex items-center gap-1 font-medium text-tapa hover:underline">
+              Ver productos bajo el mínimo<ArrowRight aria-hidden className="size-3.5" />
             </Link>
-          </dd>
-        </Card>
-      </dl>
+          </Indicador>
+        </Grilla>
+      </Panel>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Card className="min-w-0 gap-4 p-5">
-          <div>
-            <h2 className="text-lg font-semibold">Ventas diarias</h2>
-            <p className={claseEtiqueta}>Últimos 30 días</p>
-          </div>
+      <Grilla gap="md" className="xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <Panel className="grid min-w-0 content-start gap-4 p-5">
+          <Pila gap="xs">
+            <Titulo nivel={2}>Ventas diarias</Titulo>
+            <Texto tono="secundario">Últimos 30 días</Texto>
+          </Pila>
           <GraficoVentasDiarias ventasDiarias={ventasDiarias} />
           <details className="text-sm">
-            <summary className="cursor-pointer font-medium text-primary">Ver importes por día</summary>
-            <table className="mt-2 w-full text-left" aria-label="Importes de venta por día">
-              <thead className="border-b text-muted-foreground">
-                <tr>
-                  <th scope="col" className="py-1.5">Fecha</th>
-                  <th scope="col" className="py-1.5 text-right">Importe</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y tabular-nums">
+            <summary className="cursor-pointer font-medium text-tapa">Ver importes por día</summary>
+            <Table className="mt-2" aria-label="Importes de venta por día">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead className="text-right">Importe</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {ventasDiarias.map(({ fecha, importe }) => (
-                  <tr key={fecha}>
-                    <td className="py-1.5"><time dateTime={fecha}>{fecha.split("-").reverse().join("/")}</time></td>
-                    <td className="py-1.5 text-right">{precioEnPesos(importe)}</td>
-                  </tr>
+                  <TableRow key={fecha}>
+                    <TableCell><time dateTime={fecha}>{fecha.split("-").reverse().join("/")}</time></TableCell>
+                    <TableCell className="text-right">{precioEnPesos(importe)}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </details>
-        </Card>
-        <Card className="min-w-0 gap-4 p-5">
-          <div>
-            <h2 className="text-lg font-semibold">Ventas por forma de pago</h2>
-            <p className={claseEtiqueta}>Mes en curso</p>
-          </div>
+        </Panel>
+        <Panel className="grid min-w-0 content-start gap-4 p-5">
+          <Pila gap="xs">
+            <Titulo nivel={2}>Ventas por forma de pago</Titulo>
+            <Texto tono="secundario">Mes en curso</Texto>
+          </Pila>
           <GraficoFormasDePago porFormaDePago={porFormaDePago} />
-        </Card>
-      </div>
+        </Panel>
+      </Grilla>
 
-      <Card className="gap-0 overflow-hidden py-0">
-        <h2 className="p-5 text-lg font-semibold">Productos más vendidos del mes</h2>
+      <Panel className="overflow-hidden">
+        <Fila as="header" className="border-b px-5 py-4"><Titulo nivel={2}>Productos más vendidos del mes</Titulo></Fila>
         {masVendidos.length === 0 ? (
-          <p className="border-t p-5 text-sm text-muted-foreground">Todavía no hay productos vendidos este mes.</p>
+          <EstadoVacio>Todavía no hay productos vendidos este mes.</EstadoVacio>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm" aria-label="Productos más vendidos del mes">
-              <thead className="border-y bg-background text-muted-foreground [&_th]:px-3 [&_th]:py-3 sm:[&_th]:px-5">
-                <tr>
-                  <th scope="col">Producto</th>
-                  <th scope="col" className="text-right">Unidades</th>
-                  <th scope="col" className="text-right">Importe</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y [&_td]:px-3 [&_td]:py-3 sm:[&_td]:px-5">
-                {masVendidos.map(({ productoId, codigo, descripcion, unidades, importe }) => (
-                  <tr key={productoId}>
-                    <td className="min-w-28 break-words">
-                      <Link href={`/productos/${productoId}`} prefetch={false} className="font-medium text-primary underline underline-offset-4">
-                        {descripcion}
-                      </Link>
-                      <p className="text-xs text-muted-foreground">{codigo}</p>
-                    </td>
-                    <td className="text-right tabular-nums">{unidades}</td>
-                    <td className="text-right whitespace-nowrap tabular-nums">{precioEnPesos(importe)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table aria-label="Productos más vendidos del mes">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12 text-right">N.º</TableHead>
+                <TableHead>Producto</TableHead>
+                <TableHead className="text-right">Unidades</TableHead>
+                <TableHead className="text-right">Importe</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {masVendidos.map(({ productoId, codigo, descripcion, unidades, importe }, indice) => (
+                <TableRow key={productoId}>
+                  <TableCell className="angosta text-right text-xl font-bold text-tinta-400">{indice + 1}</TableCell>
+                  <TableCell className="min-w-28 whitespace-normal break-words">
+                    <Link href={`/productos/${productoId}`} prefetch={false} className="font-semibold text-tapa hover:underline">
+                      {descripcion}
+                    </Link>
+                    <Texto tono="secundario" className="text-xs">{codigo}</Texto>
+                  </TableCell>
+                  <TableCell className="text-right">{unidades}</TableCell>
+                  <TableCell className="text-right font-semibold">{precioEnPesos(importe)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
-      </Card>
-    </section>
+      </Panel>
+    </Grilla>
   );
 }

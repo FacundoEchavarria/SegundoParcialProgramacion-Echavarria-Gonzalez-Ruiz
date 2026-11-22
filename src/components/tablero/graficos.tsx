@@ -8,10 +8,11 @@ import type { Tablero } from "@/services/tablero";
 
 Chart.register(ArcElement, CategoryScale, LinearScale, LineElement, PointElement, Tooltip);
 
+// Colores de la libreta: azul de tapa, azul lavado y el ocre de la cuenta.
 const coloresPago = {
-  contado: "#205741",
-  tarjeta: "#30738a",
-  cuenta_corriente: "#b07830",
+  contado: "#1d3f8f",
+  tarjeta: "#7f9bd6",
+  cuenta_corriente: "#b8862b",
 };
 
 export function GraficoVentasDiarias({ ventasDiarias }: Pick<Tablero, "ventasDiarias">) {
@@ -24,8 +25,8 @@ export function GraficoVentasDiarias({ ventasDiarias }: Pick<Tablero, "ventasDia
           datasets: [{
             label: "Ventas",
             data: ventasDiarias.map(({ importe }) => importe),
-            borderColor: "#205741",
-            backgroundColor: "#205741",
+            borderColor: "#1d3f8f",
+            backgroundColor: "#1d3f8f",
             borderWidth: 2,
             pointRadius: 0,
             pointHoverRadius: 4,
@@ -80,7 +81,7 @@ export function GraficoFormasDePago({ porFormaDePago }: Pick<Tablero, "porFormaD
           />
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">Sin importes por forma de pago este mes.</p>
+        <p className="rounded-lg bg-tinta-50 px-3 py-6 text-center text-sm text-muted-foreground">Sin importes por forma de pago este mes.</p>
       )}
       {porFormaDePago.length > 0 && (
         <ul className="grid gap-2 text-sm" aria-label="Importes por forma de pago">

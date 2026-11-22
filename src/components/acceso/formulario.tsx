@@ -2,8 +2,10 @@
 
 import { useId, useState, useTransition, type ComponentProps, type FormEvent } from "react";
 import type { ZodType } from "zod";
+import { CircleAlert } from "lucide-react";
 import type { DetallesError } from "@/lib/api-error";
-import { claseCampo } from "./estilos";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type ErrorFormulario = {
   message: string;
@@ -77,26 +79,29 @@ export function Campo({
   error,
   ...props
 }: Omit<ComponentProps<"input">, "className"> & { etiqueta: string; error?: string }) {
-  const idError = useId();
+  const id = useId();
+  const idError = `${id}-error`;
   return (
-    <label className="grid min-w-0 gap-1.5 text-sm font-medium">
-      <span>{etiqueta}</span>
-      <input
+    <div className="grid min-w-0 content-start gap-1.5">
+      <Label htmlFor={id}>{etiqueta}</Label>
+      <Input
         {...props}
-        className={claseCampo}
+        id={id}
+        className="h-10 bg-card"
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? idError : undefined}
       />
-      {error && <span id={idError} className="text-red-800">{error}</span>}
-    </label>
+      {error && <p id={idError} className="text-xs font-medium text-peligro">{error}</p>}
+    </div>
   );
 }
 
 export function AvisoError({ error }: { error: ErrorFormulario | null }) {
   if (!error) return null;
   return (
-    <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-      {error.message}
-    </p>
+    <div role="alert" className="flex items-start gap-2 rounded-lg bg-peligro-fondo px-3 py-2.5 text-sm font-medium text-peligro">
+      <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+      <p>{error.message}</p>
+    </div>
   );
 }

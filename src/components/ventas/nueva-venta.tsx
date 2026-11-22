@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useId, useState, type ReactNode } from "react";
+import { CircleCheck, Plus, Trash2, UserRound } from "lucide-react";
 import { z } from "zod";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { EncabezadoPagina, Panel } from "@/components/pagina";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { FormularioCliente } from "@/components/clientes/formularios";
+import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { aCentavos, aEntero } from "@/components/productos/campos";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { ApiError } from "@/lib/api-error";
 import { precioEnPesos } from "@/lib/formatos";
+import { cn } from "@/lib/utils";
 import { ventaSchema } from "@/lib/schemas/facturas";
 import type { listarClientes } from "@/services/clientes";
 import type { FacturaEmitida } from "@/services/facturas";
@@ -22,6 +28,7 @@ type FormaPago = z.infer<typeof ventaSchema>["pago"]["forma"];
 type Renglon = { producto: Producto; cantidad: string };
 
 export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
+  const idFormulario = useId();
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [renglones, setRenglones] = useState<Renglon[]>([]);
   const [versionCatalogo, setVersionCatalogo] = useState(0);
@@ -106,195 +113,258 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
 
   if (confirmada) {
     return (
-      <section className="grid gap-6">
-        <h1 className="text-3xl font-semibold tracking-tight" tabIndex={-1} ref={(titulo) => titulo?.focus()}>
-          Venta confirmada
-        </h1>
-        <Card className="max-w-xl gap-4 border-t-4 border-t-primary p-5 sm:p-6">
-          <dl className="grid gap-2 text-sm [&>div]:flex [&>div]:justify-between [&>div]:gap-3 [&_dd]:font-semibold [&_dd]:tabular-nums">
-            <div><dt>Factura</dt><dd>{confirmada.numeroFormateado}</dd></div>
-            <div><dt>Total</dt><dd>{precioEnPesos(confirmada.total)}</dd></div>
+      <Pila gap="lg" className="max-w-xl">
+        <Fila gap="sm">
+          <CircleCheck aria-hidden className="size-6 text-exito" />
+          <Titulo tabIndex={-1} ref={(titulo: HTMLHeadingElement | null) => titulo?.focus()}>Venta confirmada</Titulo>
+        </Fila>
+        <LaCuenta>
+          <Pila as="dl" gap="xs" className="gap-0">
+            <Renglon etiqueta="Factura" valor={confirmada.numeroFormateado} />
+            <Total importe={confirmada.total} />
             {confirmada.pago.forma === "contado" && (
-              <div><dt>Vuelto</dt><dd>{precioEnPesos(confirmada.pago.vuelto)}</dd></div>
+              <Renglon etiqueta="Vuelto" valor={precioEnPesos(confirmada.pago.vuelto)} />
             )}
             {confirmada.saldoCliente !== undefined && (
-              <div><dt>Saldo del cliente</dt><dd>{precioEnPesos(confirmada.saldoCliente)}</dd></div>
+              <Renglon etiqueta="Saldo del cliente" valor={precioEnPesos(confirmada.saldoCliente)} />
             )}
-          </dl>
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/ventas/${confirmada.id}`} prefetch={false} className={clasePrincipal}>Ver factura</Link>
-            <button type="button" className={claseSecundaria} onClick={() => window.location.reload()}>Nueva venta</button>
-          </div>
-        </Card>
-      </section>
+          </Pila>
+          <Fila className="mt-6">
+            <Button asChild><Link href={`/ventas/${confirmada.id}`} prefetch={false}>Ver factura</Link></Button>
+            <Button type="button" variant="outline" onClick={() => window.location.reload()}>Nueva venta</Button>
+          </Fila>
+        </LaCuenta>
+      </Pila>
     );
   }
 
   return (
-    <section className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Nueva venta</h1>
-        <p className="text-sm text-muted-foreground">Próximo número estimado <span className="font-semibold tabular-nums">{numeroEstimado}</span></p>
-      </header>
+    <Pila gap="lg">
+      <EncabezadoPagina titulo="Nueva venta"
+        descripcion={<>Próximo número estimado <span className="font-semibold text-foreground">{numeroEstimado}</span></>} />
 
-      <Card className="gap-4 p-5 sm:p-6">
-        <h2 className="text-xl font-semibold">Comprador</h2>
-        <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-background px-3 py-2">
-            <div className="min-w-0 break-words">
-              <p className="font-semibold">{cliente?.nombre ?? "Consumidor final"}</p>
-              {cliente && <p className="text-sm text-muted-foreground">{cliente.tipoDoc} {cliente.nroDoc}</p>}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {cliente && <button type="button" className={claseSecundaria} onClick={() => elegirCliente(null)}>Usar consumidor final</button>}
-              <FormularioCliente alGuardar={elegirCliente} />
-            </div>
-          </div>
-          <BusquedaVenta<Cliente> recurso="clientes" etiqueta="Buscar por nombre o documento" maxLength={150}
-            resultado={(persona, limpiar) => (
-              <button type="button" className="flex w-full flex-wrap justify-between gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-background focus-visible:outline-2 focus-visible:outline-primary"
-                onClick={() => { elegirCliente(persona); limpiar(); }}>
-                <span className="font-medium break-words">{persona.nombre}</span>
-                <span className="text-muted-foreground">{persona.tipoDoc} {persona.nroDoc}</span>
-              </button>
-            )}
-          />
-          {errorCliente && <p className="text-sm text-red-900">{errorCliente}</p>}
-        </fieldset>
-      </Card>
-
-      <Card className="gap-4 p-5 sm:p-6">
-        <h2 className="text-xl font-semibold">Ítems</h2>
-        <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
-          <BusquedaVenta<Producto> key={versionCatalogo} recurso="productos" etiqueta="Buscar por código o descripción" maxLength={100}
-            resultado={(producto) => {
-              const renglon = items.find((item) => item.producto.id === producto.id);
-              return (
-                <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-                  <div className="min-w-0 break-words">
-                    <p className="font-medium">{producto.descripcion}</p>
-                    <p className="text-muted-foreground">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</p>
-                  </div>
-                  <button type="button" className={claseSecundaria} aria-label={`Agregar ${producto.descripcion}`}
-                    disabled={(renglon?.unidades ?? 0) >= producto.existencia} onClick={() => agregar(producto)}>
-                    Agregar
+      <Grilla gap="lg" className="items-start xl:grid-cols-[minmax(0,1fr)_23rem]">
+        <Pila gap="md">
+          <Bloque numero={1} titulo="Comprador">
+            <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
+              <Fila gap="md" className="justify-between rounded-lg bg-tinta-50 px-3 py-2.5">
+                <Fila gap="sm" className="min-w-0">
+                  <UserRound aria-hidden className="size-5 shrink-0 text-tapa" />
+                  <Pila gap="xs" className="min-w-0 gap-0 break-words">
+                    <Texto className="font-semibold">{cliente?.nombre ?? "Consumidor final"}</Texto>
+                    {cliente && <Texto tono="secundario" className="text-xs">{cliente.tipoDoc} {cliente.nroDoc}</Texto>}
+                  </Pila>
+                </Fila>
+                <Fila>
+                  {cliente && <Button type="button" variant="outline" onClick={() => elegirCliente(null)}>Usar consumidor final</Button>}
+                  <FormularioCliente alGuardar={elegirCliente} />
+                </Fila>
+              </Fila>
+              <BusquedaVenta<Cliente> recurso="clientes" etiqueta="Buscar por nombre o documento" maxLength={150}
+                resultado={(persona, limpiar) => (
+                  <button type="button" className="flex w-full flex-wrap justify-between gap-2 px-3 py-2.5 text-left text-sm outline-none"
+                    onClick={() => { elegirCliente(persona); limpiar(); }}>
+                    <span className="font-medium break-words">{persona.nombre}</span>
+                    <span className="text-muted-foreground">{persona.tipoDoc} {persona.nroDoc}</span>
                   </button>
-                </div>
-              );
-            }}
-          />
-          {renglones.length === 0 ? (
-            <p className="rounded-lg bg-background px-3 py-4 text-sm text-muted-foreground">Agregá al menos un producto para confirmar la venta.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table aria-label="Ítems de la venta" className="w-full text-left text-sm">
-                <thead className="border-b bg-background text-muted-foreground [&_th]:px-3 [&_th]:py-2">
-                  <tr>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col" className="text-right">Precio unitario</th>
-                    <th scope="col" className="text-right">Subtotal</th>
-                    <th scope="col"><span className="sr-only">Acciones</span></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y [&_td]:px-3 [&_td]:py-3">
-                  {items.map(({ producto, cantidad, subtotal, error: errorCantidad }, indice) => (
-                    <tr key={producto.id}>
-                      <td className="min-w-32">
-                        <p className="font-medium break-words">{producto.descripcion}</p>
-                        <p className="text-muted-foreground">{producto.codigo} · {producto.existencia} disponibles</p>
-                      </td>
-                      <td className="w-36 min-w-24">
-                        <label className="grid gap-1.5">
-                          <span className="sr-only">Cantidad de {producto.descripcion}</span>
-                          <input className={claseCampo} type="number" min={1} max={producto.existencia} step={1}
-                            aria-invalid={Boolean(errorCantidad ?? errorCampo(`items.${indice}.cantidad`))}
-                            aria-describedby={`cantidad-${producto.id}`}
-                            value={cantidad} onChange={(event) => cambiarCantidad(producto.id, event.currentTarget.value)} />
-                        </label>
-                        <p id={`cantidad-${producto.id}`} className="text-xs text-red-900">
-                          {errorCantidad ?? errorCampo(`items.${indice}.cantidad`)}
-                        </p>
-                      </td>
-                      <td className="text-right whitespace-nowrap tabular-nums">{precioEnPesos(producto.precio)}</td>
-                      <td className="text-right font-semibold whitespace-nowrap tabular-nums">{subtotal === null ? "—" : precioEnPesos(subtotal)}</td>
-                      <td className="text-right">
-                        <button type="button" className={claseSecundaria} aria-label={`Quitar ${producto.descripcion}`} onClick={() => {
-                          setRenglones((actuales) => actuales.filter((item) => item.producto.id !== producto.id));
-                          limpiarError();
-                        }}>Quitar</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </fieldset>
-      </Card>
-
-      <Card className="gap-4 p-5 sm:p-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-xl font-semibold">Forma de pago</h2>
-          <output className="text-2xl font-semibold tabular-nums">Total {precioEnPesos(total)}</output>
-        </div>
-        <form method="post" noValidate onSubmit={(event) => {
-          event.preventDefault();
-          if (!enviando && puedeConfirmar) enviar(event, esquema, confirmar, setConfirmada);
-        }}>
-          <fieldset disabled={enviando} className="grid min-w-0 gap-4">
-            <label className="grid max-w-xs gap-1.5 text-sm font-medium">
-              Forma de pago
-              <select className={claseCampo} value={forma} onChange={(event) => {
-                setForma(event.currentTarget.value as FormaPago);
-                limpiarError();
-              }}>
-                <option value="contado">Contado</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="cuenta_corriente" disabled={!cuentaHabilitada}>Cuenta corriente</option>
-              </select>
-            </label>
-            {forma === "contado" && (
-              <div className="flex flex-wrap items-end gap-x-5 gap-y-2">
-                <Campo etiqueta="Monto recibido en pesos" inputMode="decimal" value={recibido} placeholder="Importe exacto"
-                  error={errorCampo("pago.montoRecibido")} onChange={(event) => { setRecibido(event.currentTarget.value); limpiarError(); }} />
-                {Number.isSafeInteger(diferencia) && (
-                  <output className="pb-2 text-sm font-medium">
-                    {diferencia >= 0 ? "Vuelto" : "Faltan"} {precioEnPesos(Math.abs(diferencia))}
-                  </output>
                 )}
-              </div>
-            )}
-            {forma === "tarjeta" && (
-              <div className="grid gap-4 sm:grid-cols-3" onChange={limpiarError}>
-                <label className="grid gap-1.5 text-sm font-medium">
-                  Tipo de tarjeta
-                  <select className={claseCampo} name="tipo" defaultValue="debito">
-                    <option value="debito">Débito</option>
-                    <option value="credito">Crédito</option>
+              />
+              {errorCliente && <Texto tono="peligro" className="text-xs font-medium">{errorCliente}</Texto>}
+            </fieldset>
+          </Bloque>
+
+          <Bloque numero={2} titulo="Ítems">
+            <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
+              <BusquedaVenta<Producto> key={versionCatalogo} recurso="productos" etiqueta="Buscar por código o descripción" maxLength={100}
+                resultado={(producto) => {
+                  const renglon = items.find((item) => item.producto.id === producto.id);
+                  return (
+                    <Fila gap="md" className="justify-between px-3 py-2.5">
+                      <Pila gap="xs" className="min-w-0 gap-0 break-words">
+                        <Texto className="font-medium">{producto.descripcion}</Texto>
+                        <Texto tono="secundario" className="text-xs">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</Texto>
+                      </Pila>
+                      <Button type="button" variant="outline" size="sm" aria-label={`Agregar ${producto.descripcion}`}
+                        disabled={(renglon?.unidades ?? 0) >= producto.existencia} onClick={() => agregar(producto)}>
+                        <Plus aria-hidden />Agregar
+                        <kbd aria-hidden className="hidden rounded border border-tinta-300 px-1 text-xs font-medium text-tapa group-has-[:focus-visible]/resultado:inline">Enter</kbd>
+                      </Button>
+                    </Fila>
+                  );
+                }}
+              />
+              {renglones.length === 0 ? (
+                <Texto tono="secundario" className="rounded-lg bg-tinta-50 px-3 py-4">Agregá al menos un producto para confirmar la venta.</Texto>
+              ) : (
+                <Table aria-label="Ítems de la venta">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Producto</TableHead>
+                      <TableHead>Cantidad</TableHead>
+                      <TableHead className="text-right">Precio unitario</TableHead>
+                      <TableHead className="text-right">Subtotal</TableHead>
+                      <TableHead><span className="sr-only">Acciones</span></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map(({ producto, cantidad, subtotal, error: errorCantidad }, indice) => (
+                      <TableRow key={producto.id} className="align-top">
+                        <TableCell className="min-w-32 whitespace-normal">
+                          <Texto className="font-medium break-words">{producto.descripcion}</Texto>
+                          <Texto tono="secundario" className="text-xs">{producto.codigo} · {producto.existencia} disponibles</Texto>
+                        </TableCell>
+                        <TableCell className="w-32 min-w-24 whitespace-normal">
+                          <Label className="grid gap-1.5">
+                            <span className="sr-only">Cantidad de {producto.descripcion}</span>
+                            <input className={claseCampo} type="number" min={1} max={producto.existencia} step={1}
+                              aria-invalid={Boolean(errorCantidad ?? errorCampo(`items.${indice}.cantidad`))}
+                              aria-describedby={`cantidad-${producto.id}`}
+                              value={cantidad} onChange={(event) => cambiarCantidad(producto.id, event.currentTarget.value)} />
+                          </Label>
+                          <Texto as="span" id={`cantidad-${producto.id}`} tono="peligro" className="text-xs font-medium">
+                            {errorCantidad ?? errorCampo(`items.${indice}.cantidad`)}
+                          </Texto>
+                        </TableCell>
+                        <TableCell className="pt-4 text-right">{precioEnPesos(producto.precio)}</TableCell>
+                        <TableCell className="pt-4 text-right font-semibold">{subtotal === null ? "—" : precioEnPesos(subtotal)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button type="button" variant="ghost" size="icon" className="text-tinta-500 hover:text-peligro"
+                            aria-label={`Quitar ${producto.descripcion}`} onClick={() => {
+                              setRenglones((actuales) => actuales.filter((item) => item.producto.id !== producto.id));
+                              limpiarError();
+                            }}><Trash2 aria-hidden /></Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </fieldset>
+          </Bloque>
+
+          <Bloque numero={3} titulo="Forma de pago">
+            <form id={idFormulario} method="post" noValidate onSubmit={(event) => {
+              event.preventDefault();
+              if (!enviando && puedeConfirmar) enviar(event, esquema, confirmar, setConfirmada);
+            }}>
+              <fieldset disabled={enviando} className="grid min-w-0 gap-4">
+                <Label className="grid max-w-xs gap-1.5">
+                  Forma de pago
+                  <select className={claseCampo} value={forma} onChange={(event) => {
+                    setForma(event.currentTarget.value as FormaPago);
+                    limpiarError();
+                  }}>
+                    <option value="contado">Contado</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="cuenta_corriente" disabled={!cuentaHabilitada}>Cuenta corriente</option>
                   </select>
-                </label>
-                <Campo etiqueta="Marca" name="marca" maxLength={40} required error={errorCampo("pago.tarjeta.marca")} />
-                <Campo etiqueta="Últimos cuatro dígitos" name="ultimos4" inputMode="numeric" maxLength={4}
-                  autoComplete="off" required error={errorCampo("pago.tarjeta.ultimos4")} />
-              </div>
-            )}
-            {forma === "cuenta_corriente" && cliente && (
-              <p className="text-sm text-muted-foreground">
-                Saldo actual {precioEnPesos(credito?.saldoActual ?? cliente.saldo)}
-                {credito ? ` · Límite ${precioEnPesos(credito.limite)} · Excedente ${precioEnPesos(credito.excedente)}`
-                  : cliente.disponible === null ? " · Sin límite de crédito" : ` · Crédito disponible ${precioEnPesos(cliente.disponible)}`}
-              </p>
-            )}
+                </Label>
+                {forma === "contado" && (
+                  <Fila gap="md" className="items-end">
+                    <Campo etiqueta="Monto recibido en pesos" inputMode="decimal" value={recibido} placeholder="Importe exacto"
+                      error={errorCampo("pago.montoRecibido")} onChange={(event) => { setRecibido(event.currentTarget.value); limpiarError(); }} />
+                    {Number.isSafeInteger(diferencia) && (
+                      <output className="pb-2.5 font-semibold">
+                        {diferencia >= 0 ? "Vuelto" : "Faltan"} {precioEnPesos(Math.abs(diferencia))}
+                      </output>
+                    )}
+                  </Fila>
+                )}
+                {forma === "tarjeta" && (
+                  <Grilla className="sm:grid-cols-3" onChange={limpiarError}>
+                    <Label className="grid content-start gap-1.5">
+                      Tipo de tarjeta
+                      <select className={claseCampo} name="tipo" defaultValue="debito">
+                        <option value="debito">Débito</option>
+                        <option value="credito">Crédito</option>
+                      </select>
+                    </Label>
+                    <Campo etiqueta="Marca" name="marca" maxLength={40} required error={errorCampo("pago.tarjeta.marca")} />
+                    <Campo etiqueta="Últimos cuatro dígitos" name="ultimos4" inputMode="numeric" maxLength={4}
+                      autoComplete="off" required error={errorCampo("pago.tarjeta.ultimos4")} />
+                  </Grilla>
+                )}
+                {forma === "cuenta_corriente" && cliente && (
+                  <Texto tono="secundario">
+                    Saldo actual {precioEnPesos(credito?.saldoActual ?? cliente.saldo)}
+                    {credito ? ` · Límite ${precioEnPesos(credito.limite)} · Excedente ${precioEnPesos(credito.excedente)}`
+                      : cliente.disponible === null ? " · Sin límite de crédito" : ` · Crédito disponible ${precioEnPesos(cliente.disponible)}`}
+                  </Texto>
+                )}
+              </fieldset>
+            </form>
+          </Bloque>
+        </Pila>
+
+        <LaCuenta className="xl:sticky xl:top-24">
+          <Titulo nivel={3} className="leading-8">La cuenta</Titulo>
+          {items.length === 0 ? (
+            <Texto tono="secundario" className="leading-8">Todavía no agregaste productos.</Texto>
+          ) : (
+            <Pila as="ul" gap="xs" className="gap-0" aria-label="Detalle de la cuenta">
+              {items.map(({ producto, unidades, subtotal }) => (
+                <Fila as="li" key={producto.id} gap="md" className="min-h-8 flex-nowrap justify-between">
+                  <span className="min-w-0 truncate">{producto.descripcion} × {unidades || "—"}</span>
+                  <span className="shrink-0">{subtotal === null ? "—" : precioEnPesos(subtotal)}</span>
+                </Fila>
+              ))}
+            </Pila>
+          )}
+          <Total importe={total} />
+          <Pila gap="sm" className="mt-6">
             <AvisoError error={error} />
-            <div>
-              <button className={clasePrincipal} disabled={enviando || !puedeConfirmar}>
-                {enviando ? "Confirmando…" : "Confirmar venta"}
-              </button>
-            </div>
-          </fieldset>
-        </form>
-      </Card>
-    </section>
+            <Button type="submit" form={idFormulario} size="lg" className="h-11 w-full" disabled={enviando || !puedeConfirmar}>
+              {enviando ? "Confirmando…" : "Confirmar venta"}
+            </Button>
+          </Pila>
+        </LaCuenta>
+      </Grilla>
+    </Pila>
+  );
+}
+
+function Bloque({ numero, titulo, children }: { numero: number; titulo: string; children: ReactNode }) {
+  return (
+    <Panel aria-label={titulo} className="overflow-hidden">
+      <Fila as="h2" gap="sm" className="border-b bg-tapa-clara px-5 py-3 text-xs font-semibold tracking-[0.08em] text-tapa uppercase sm:px-6">
+        <span aria-hidden className="grid size-5 place-items-center rounded-full bg-tapa text-xs text-white">{numero}</span>
+        {titulo}
+      </Fila>
+      <div className="p-5 sm:p-6">{children}</div>
+    </Panel>
+  );
+}
+
+// La cuenta del almacén: papel con renglón tenue y el doble margen rojo a la izquierda.
+function LaCuenta({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <Panel className={cn("relative overflow-hidden bg-[repeating-linear-gradient(to_bottom,transparent_0_31px,var(--color-tinta-100)_31px_32px)] bg-origin-content py-5 pr-5 pl-11", className)}>
+      <span aria-hidden className="absolute inset-y-0 left-6 w-[5px] border-x border-margen/80" />
+      {children}
+    </Panel>
+  );
+}
+
+function Renglon({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  return (
+    <Fila gap="md" className="min-h-8 justify-between">
+      <dt>{etiqueta}</dt>
+      <dd className="font-semibold">{valor}</dd>
+    </Fila>
+  );
+}
+
+// El total se subraya dos veces, como en la libreta; la clave lo vuelve a subrayar cuando cambia.
+function Total({ importe }: { importe: number }) {
+  return (
+    <Fila gap="md" className="mt-3 items-end justify-between bg-card py-1">
+      <span className="font-semibold">Total</span>
+      {/* La región viva queda fija para que el lector de pantalla anuncie cada cambio; solo el subrayado se renueva. */}
+      <output aria-live="polite">
+        <span key={importe} className="subrayado-doble angosta pb-2 text-3xl font-bold tracking-tight text-tapa">
+          {precioEnPesos(importe)}
+        </span>
+      </output>
+    </Fila>
   );
 }

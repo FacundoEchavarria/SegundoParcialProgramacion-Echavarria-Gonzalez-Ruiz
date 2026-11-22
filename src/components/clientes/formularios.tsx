@@ -5,11 +5,13 @@ import { useId } from "react";
 import { z } from "zod";
 import { crearClienteAction, editarClienteAction } from "@/app/actions";
 import { Dialogo } from "@/components/acceso/dialogo";
-import { claseCampo, clasePrincipal } from "@/components/acceso/estilos";
+import { claseCampo } from "@/components/acceso/estilos";
 import { AvisoError, Campo, useFormulario } from "@/components/acceso/formulario";
 import { aCentavos, centavosComoDecimal } from "@/components/productos/campos";
 import { altaClienteSchema, edicionClienteSchema } from "@/lib/schemas/clientes";
 import type { crearCliente, obtenerCliente } from "@/services/clientes";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 type Cliente = Awaited<ReturnType<typeof obtenerCliente>>;
 
@@ -47,7 +49,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
   const esquema = cliente ? edicionClienteForm : altaClienteForm;
 
   return (
-    <Dialogo etiqueta={titulo} titulo={titulo} ocupado={enviando} alCerrar={limpiarError}>
+    <Dialogo etiqueta={titulo} titulo={titulo} principal={!cliente && !alGuardar} ocupado={enviando} alCerrar={limpiarError}>
       {(cerrar) => (
         <form
           method="post"
@@ -63,7 +65,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
             <Campo etiqueta="Nombre o razón social" name="nombre" defaultValue={cliente?.nombre} required error={errorCampo("nombre")} />
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid content-start gap-1.5 text-sm font-medium">
+              <Label className="grid content-start gap-1.5">
                 Tipo de documento
                 <select
                   className={claseCampo}
@@ -75,8 +77,8 @@ export function FormularioCliente({ cliente, alGuardar }: {
                   <option value="DNI">DNI</option>
                   <option value="CUIT">CUIT</option>
                 </select>
-                {errorTipoDoc && <span id={idErrorTipoDoc} className="text-red-800">{errorTipoDoc}</span>}
-              </label>
+                {errorTipoDoc && <span id={idErrorTipoDoc} className="text-xs font-medium text-peligro">{errorTipoDoc}</span>}
+              </Label>
               <Campo
                 etiqueta="Número de documento"
                 name="nroDoc"
@@ -89,7 +91,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
             <Campo etiqueta="Domicilio" name="domicilio" defaultValue={cliente?.domicilio ?? ""} error={errorCampo("domicilio")} />
             <Campo etiqueta="Teléfono" name="telefono" type="tel" defaultValue={cliente?.telefono ?? ""} error={errorCampo("telefono")} />
             <Campo etiqueta="Email" name="email" type="email" defaultValue={cliente?.email ?? ""} error={errorCampo("email")} />
-            <label className="flex items-center gap-2 text-sm font-medium">
+            <Label className="flex items-center gap-2">
               <input
                 className="size-4 accent-primary"
                 type="checkbox"
@@ -98,7 +100,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
                 defaultChecked={cliente?.cuentaCorriente}
               />
               Habilitar cuenta corriente
-            </label>
+            </Label>
             <Campo
               etiqueta="Límite de crédito en pesos (opcional)"
               name="limiteCredito"
@@ -109,9 +111,9 @@ export function FormularioCliente({ cliente, alGuardar }: {
             />
             <AvisoError error={error} />
             <div>
-              <button className={clasePrincipal}>
+              <Button>
                 {enviando ? "Guardando…" : cliente ? "Guardar cambios" : "Crear cliente"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </form>
@@ -143,9 +145,9 @@ export function CambiarEstadoCliente({ cliente }: { cliente: Cliente }) {
           <p className="break-words">¿Querés {activo ? "reactivar" : "desactivar"} a {cliente.nombre}?</p>
           <AvisoError error={error} />
           <div>
-            <button className={clasePrincipal} disabled={enviando}>
+            <Button variant={activo ? "default" : "destructive"} disabled={enviando}>
               {enviando ? "Guardando…" : titulo}
-            </button>
+            </Button>
           </div>
         </form>
       )}

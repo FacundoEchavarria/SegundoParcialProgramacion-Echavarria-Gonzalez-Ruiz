@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { claseSecundaria } from "./estilos";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function Dialogo({
   etiqueta,
   titulo,
   ocupado = false,
+  principal = false,
   alCerrar,
   children,
 }: {
   etiqueta: string;
   titulo: string;
   ocupado?: boolean;
+  principal?: boolean;
   alCerrar?: () => void;
   children: (cerrar: () => void) => ReactNode;
 }) {
@@ -33,14 +36,14 @@ export function Dialogo({
 
   return (
     <>
-      <button type="button" className={claseSecundaria} onClick={() => setAbierto(true)} aria-haspopup="dialog">
+      <Button type="button" variant={principal ? "default" : "outline"} onClick={() => setAbierto(true)} aria-haspopup="dialog">
         {etiqueta}
-      </button>
+      </Button>
       <dialog
         ref={ref}
         aria-labelledby={idTitulo}
         className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg
-          overflow-y-auto rounded-xl border bg-white p-5 text-foreground shadow-lg backdrop:bg-black/45 sm:p-7"
+          overflow-y-auto rounded-xl border bg-card p-5 text-foreground shadow-[0_24px_48px_-12px_rgb(16_22_38/0.35)] backdrop:bg-tinta-950/50 sm:p-7"
         onCancel={(event) => {
           if (ocupado) event.preventDefault();
         }}
@@ -50,10 +53,10 @@ export function Dialogo({
         }}
       >
         <header className="mb-5 flex items-start justify-between gap-4">
-          <h2 id={idTitulo} className="text-xl font-semibold">{titulo}</h2>
-          <button type="button" className={claseSecundaria} onClick={cerrar} disabled={ocupado}>
-            Cerrar
-          </button>
+          <h2 id={idTitulo} className="text-xl font-semibold tracking-tight">{titulo}</h2>
+          <Button type="button" variant="ghost" size="icon" onClick={cerrar} disabled={ocupado} aria-label="Cerrar">
+            <X />
+          </Button>
         </header>
         {abierto && children(cerrar)}
       </dialog>

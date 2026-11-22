@@ -5,8 +5,10 @@ import { useId, useState } from "react";
 import { crearUsuarioAction, editarUsuarioAction, restablecerPasswordAction } from "@/app/actions";
 import { altaUsuarioSchema, edicionUsuarioSchema } from "@/lib/schemas/usuarios";
 import { Dialogo } from "./dialogo";
-import { claseCampo, clasePrincipal, claseSecundaria } from "./estilos";
+import { claseCampo } from "./estilos";
 import { AvisoError, Campo, useFormulario } from "./formulario";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 type UsuarioEditable = {
   id: number;
@@ -18,7 +20,7 @@ type UsuarioEditable = {
 
 export function NuevoUsuario() {
   return (
-    <Dialogo etiqueta="Nuevo usuario" titulo="Nuevo usuario">
+    <Dialogo etiqueta="Nuevo usuario" titulo="Nuevo usuario" principal>
       {(cerrar) => <FormularioUsuario alGuardar={cerrar} />}
     </Dialogo>
   );
@@ -60,7 +62,7 @@ export function GestionarUsuario({ usuario, esPropio }: { usuario: UsuarioEditab
       }}
     >
       {(cerrar) => passwordTemporal ? (
-        <div role="status" className="grid gap-3 rounded-lg bg-emerald-50 p-4 text-emerald-950">
+        <div role="status" className="grid gap-3 rounded-lg bg-exito-fondo p-4 text-exito">
           <p className="font-semibold">Contraseña temporal</p>
           <p className="text-sm">Copiala antes de cerrar. Se muestra una sola vez.</p>
           <code className="select-all break-all rounded-md bg-white px-3 py-2">{passwordTemporal}</code>
@@ -71,18 +73,18 @@ export function GestionarUsuario({ usuario, esPropio }: { usuario: UsuarioEditab
           <div className="grid gap-3 border-t pt-4">
             <div className="flex flex-wrap gap-2">
               {!esPropio && (
-                <button
-                  type="button"
-                  className={claseSecundaria}
+                <Button
+                  type="button" variant="outline"
+                  className={usuario.activo ? "border-peligro/40 text-peligro hover:bg-peligro-fondo hover:text-peligro" : undefined}
                   disabled={enviando}
                   onClick={() => cambiarEstado(cerrar)}
                 >
                   {usuario.activo ? "Desactivar" : "Activar"}
-                </button>
+                </Button>
               )}
-              <button type="button" className={claseSecundaria} disabled={enviando} onClick={restablecer}>
+              <Button type="button" variant="outline" disabled={enviando} onClick={restablecer}>
                 Restablecer contraseña
-              </button>
+              </Button>
               {enviando && <p role="status" className="my-auto text-sm text-muted-foreground">Procesando…</p>}
             </div>
             <AvisoError error={error} />
@@ -140,7 +142,7 @@ function FormularioUsuario({
           error={errorCampo("email")}
           required
         />
-        <label className="grid gap-1.5 text-sm font-medium">
+        <Label className="grid gap-1.5">
           Rol
           <select
             name="rol"
@@ -153,8 +155,8 @@ function FormularioUsuario({
             <option value="vendedor">Vendedor</option>
             <option value="admin">Administrador</option>
           </select>
-          {errorRol && <span id={idErrorRol} className="text-red-800">{errorRol}</span>}
-        </label>
+          {errorRol && <span id={idErrorRol} className="text-xs font-medium text-peligro">{errorRol}</span>}
+        </Label>
         {!usuario && (
           <Campo
             etiqueta="Contraseña inicial"
@@ -167,9 +169,9 @@ function FormularioUsuario({
         )}
         <AvisoError error={error} />
         <div>
-          <button className={clasePrincipal}>
+          <Button>
             {enviando ? "Guardando…" : usuario ? "Guardar cambios" : "Crear usuario"}
-          </button>
+          </Button>
         </div>
       </fieldset>
     </form>

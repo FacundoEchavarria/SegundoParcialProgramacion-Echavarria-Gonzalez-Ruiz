@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { claseCampo, clasePrincipal, claseSecundaria } from "@/components/acceso/estilos";
+import { EstadoVacio } from "@/components/estados";
+import { Estado } from "@/components/insignia";
+import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
+import { claseCampo } from "@/components/acceso/estilos";
 import { FormularioCliente } from "@/components/clientes/formularios";
-import { cargarPagina, Estado, Paginacion, textoParametro } from "@/components/productos/listados";
-import { Card } from "@/components/ui/card";
+import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
+import { Pestanas, pestanasClientes } from "@/components/pestanas";
+import { cargarPagina, Paginacion, textoParametro } from "@/components/productos/listados";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { requirePageUser } from "@/lib/auth-request";
 import { precioEnPesos as saldoEnPesos } from "@/lib/formatos";
 import { listarClientes } from "@/services/clientes";
@@ -31,73 +37,71 @@ export async function ListadoClientes({
   }));
 
   return (
-    <section className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-3xl font-semibold tracking-tight">{saldos ? "Saldos pendientes" : "Clientes"}</h1>
-        {saldos ? (
-          <Link href="/clientes" prefetch={false} className={claseSecundaria}>Volver a clientes</Link>
-        ) : (
-          <div className="flex flex-wrap items-center gap-2">
-            <Link href="/clientes/saldos" prefetch={false} className={claseSecundaria}>Saldos pendientes</Link>
-            <FormularioCliente />
-          </div>
-        )}
-      </header>
+    <Grilla gap="lg">
+      <EncabezadoPagina
+        titulo="Clientes"
+        descripcion={saldos ? "Clientes con saldo pendiente, de mayor a menor deuda." : undefined}
+        acciones={!saldos && <FormularioCliente />}
+      />
 
-      <Card className="gap-0 overflow-hidden py-0">
-        <form action={ruta} method="get" className="flex flex-wrap items-end gap-3 border-b p-4 sm:p-5">
-          <label className="grid min-w-48 grow gap-1.5 text-sm font-medium">
-            Nombre o número de documento
-            <input className={claseCampo} name="q" type="search" defaultValue={filtros.q} maxLength={150} />
-          </label>
-          <button className={clasePrincipal}>Buscar</button>
-          {filtros.q && <Link href={ruta} prefetch={false} className={claseSecundaria}>Limpiar</Link>}
-        </form>
+      <Pila gap="md">
+        <Pestanas etiqueta="Secciones de clientes" pestanas={pestanasClientes} />
+        <Panel className="overflow-hidden">
+          <form action={ruta} method="get" className="border-b p-4 sm:p-5">
+            <Fila gap="md" className="items-end">
+              <div className="min-w-48 grow">
+                <CampoFiltro etiqueta="Nombre o número de documento">
+                  <input className={claseCampo} name="q" type="search" defaultValue={filtros.q} maxLength={150} />
+                </CampoFiltro>
+              </div>
+              <Fila>
+                <Button>Buscar</Button>
+                {filtros.q && <Button asChild variant="ghost"><Link href={ruta} prefetch={false}>Limpiar</Link></Button>}
+              </Fila>
+            </Fila>
+          </form>
 
-        {saldos && (
-          <div className="flex flex-wrap justify-between gap-2 border-b p-4 font-semibold sm:p-5">
-            <span>Total adeudado del filtro</span>
-            <span className="tabular-nums">{saldoEnPesos(clientes.totalAdeudado ?? 0)}</span>
-          </div>
-        )}
-        {clientes.data.length === 0 ? (
-          <p className="p-5 text-muted-foreground">
-            {saldos ? "No hay saldos pendientes para esta búsqueda." : "No hay clientes que coincidan con la búsqueda."}
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table aria-label={saldos ? "Clientes con saldo pendiente" : "Catálogo de clientes"} className="w-full text-left text-sm">
-              <thead className="border-b bg-background text-muted-foreground [&_th]:px-4 [&_th]:py-3">
-                <tr>
-                  <th scope="col">Nombre</th>
-                  <th scope="col">Documento</th>
-                  <th scope="col">Estado</th>
-                  <th scope="col" className="text-right" aria-sort={saldos ? "descending" : undefined}>Saldo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y [&_td]:px-4 [&_td]:py-3">
+          {saldos && (
+            <Fila as="dl" gap="md" className="items-baseline justify-between border-b bg-tinta-50 px-4 py-3 sm:px-5">
+              <Texto as="dt" tono="secundario" className="font-medium">Total adeudado del filtro</Texto>
+              <dd className="angosta subrayado-doble pb-2 text-xl font-bold text-tapa">{saldoEnPesos(clientes.totalAdeudado ?? 0)}</dd>
+            </Fila>
+          )}
+          {clientes.data.length === 0 ? (
+            <EstadoVacio>
+              {saldos ? "No hay saldos pendientes para esta búsqueda." : "No hay clientes que coincidan con la búsqueda."}
+            </EstadoVacio>
+          ) : (
+            <Table aria-label={saldos ? "Clientes con saldo pendiente" : "Catálogo de clientes"}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Documento</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead className="text-right" aria-sort={saldos ? "descending" : undefined}>Saldo</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {clientes.data.map((cliente) => (
-                  <tr key={cliente.id}>
-                    <td>
-                      <Link
-                        href={`/clientes/${cliente.id}`}
-                        prefetch={false}
-                        className="font-semibold break-words text-primary underline"
-                      >
+                  <TableRow key={cliente.id}>
+                    <TableCell className="whitespace-normal">
+                      <Link href={`/clientes/${cliente.id}`} prefetch={false} className="font-semibold break-words text-tapa hover:underline">
                         {cliente.nombre}
                       </Link>
-                    </td>
-                    <td className="whitespace-nowrap">{cliente.tipoDoc} {cliente.nroDoc}</td>
-                    <td><Estado activo={cliente.activo} /></td>
-                    <td className="text-right whitespace-nowrap tabular-nums">{saldoEnPesos(cliente.saldo)}</td>
-                  </tr>
+                    </TableCell>
+                    <TableCell>{cliente.tipoDoc} {cliente.nroDoc}</TableCell>
+                    <TableCell><Estado activo={cliente.activo} /></TableCell>
+                    <TableCell className={cliente.saldo > 0 ? "text-right font-semibold" : "text-right text-muted-foreground"}>
+                      {saldoEnPesos(cliente.saldo)}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        <Paginacion ruta={ruta} filtros={filtros} pagina={clientes} />
-      </Card>
-    </section>
+              </TableBody>
+            </Table>
+          )}
+          <Paginacion ruta={ruta} filtros={filtros} pagina={clientes} />
+        </Panel>
+      </Pila>
+    </Grilla>
   );
 }
