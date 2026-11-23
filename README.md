@@ -2,7 +2,9 @@
 
 Proyecto de Programación IV. El equipo Echavarría, González y Ruiz desarrolló un sistema de gestión comercial con accesos por rol, catálogo, stock, ventas, facturas, cuentas corrientes y tablero.
 
-**URL de la demo:** se agregará después de verificar la publicación en Vercel.
+**Demo pública:** [Abrir Gestión comercial](https://segundo-parcial-gestion-comercial.vercel.app/login).
+
+En el login de la demo, elegí **Administrador** o **Vendedor** para entrar con la cuenta de prueba de ese rol.
 
 ## Arranque local
 
