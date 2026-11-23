@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { EstadoVacio } from "@/components/estados";
 import { Estado, Insignia } from "@/components/insignia";
-import { CampoFiltro, Dato, Panel } from "@/components/pagina";
-import { claseCampo } from "@/components/acceso/estilos";
+import { CampoFiltro, Cifra, Dato, EntradaFiltro, Fecha, FormularioFiltros, Panel } from "@/components/pagina";
 import { CambiarEstadoCliente, FormularioCliente } from "@/components/clientes/formularios";
 import { saldoEnPesos } from "@/components/clientes/listados";
 import { FormularioPago } from "@/components/clientes/formulario-pago";
@@ -25,8 +24,8 @@ type Cuenta = Awaited<ReturnType<typeof obtenerCuenta>>;
 // La cuenta corriente como en la libreta: doble margen rojo y el saldo de cierre subrayado dos veces.
 function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
   return (
-    <div className="relative pl-6">
-      <span aria-hidden className="absolute inset-y-0 left-3 w-[5px] border-x border-margen/70" />
+    <Pila gap="xs" className="relative gap-0 pl-6">
+      <Texto as="span" aria-hidden className="absolute inset-y-0 left-3 w-[5px] border-x border-margen/70" />
       <Fila gap="md" className="justify-between border-b px-4 py-3 sm:px-5">
         <Texto tono="secundario">Saldo anterior</Texto>
         <Texto className="font-semibold">{saldoEnPesos(cuenta.saldoAnterior)}</Texto>
@@ -48,7 +47,7 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
             {cuenta.movimientos.map((movimiento, indice) => (
               <TableRow key={`${movimiento.fecha}-${indice}`}>
                 <TableCell>
-                  <time dateTime={movimiento.fecha}>{formatearFechaHora(movimiento.fecha)}</time>
+                  <Fecha iso={movimiento.fecha}>{formatearFechaHora(movimiento.fecha)}</Fecha>
                 </TableCell>
                 <TableCell>
                   <Insignia tono={movimiento.tipo === "debito" ? "info" : "exito"}>{movimiento.tipo === "debito" ? "Débito" : "Crédito"}</Insignia>
@@ -73,7 +72,7 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
         <Texto className="font-semibold">Saldo al cierre del período</Texto>
         <Texto as="span" className="subrayado-doble angosta pb-2 text-xl font-bold text-tapa">{saldoEnPesos(cuenta.saldo)}</Texto>
       </Fila>
-    </div>
+    </Pila>
   );
 }
 
@@ -146,15 +145,15 @@ export default async function FichaCliente({
           <Pila gap="md">
             <Pila gap="xs">
               <Titulo nivel={3}>{cliente.saldo < 0 ? "Saldo a favor" : "Saldo actual"}</Titulo>
-              <span className={cliente.saldo > 0 ? "angosta text-3xl font-bold text-tapa" : "angosta text-3xl font-bold text-exito"}>
+              <Cifra className={cliente.saldo > 0 ? "text-3xl text-tapa" : "text-3xl text-exito"}>
                 {saldoEnPesos(Math.abs(cliente.saldo))}
-              </span>
+              </Cifra>
             </Pila>
             <Grilla as="dl" gap="sm">
               {cuentaDatos.map(([etiqueta, valor]) => (
                 <Fila key={etiqueta} gap="md" className="justify-between">
                   <Texto as="dt" tono="secundario">{etiqueta}</Texto>
-                  <dd className="font-semibold">{valor}</dd>
+                  <Texto as="dd" className="font-semibold">{valor}</Texto>
                 </Fila>
               ))}
             </Grilla>
@@ -171,7 +170,7 @@ export default async function FichaCliente({
             {cliente.ultimasFacturas.map((factura) => (
               <Fila as="li" key={factura.id} gap="md" className="px-4 py-3 sm:px-5">
                 <Link href={`/ventas/${factura.id}`} className="font-semibold text-tapa hover:underline">{factura.numeroFormateado}</Link>
-                <time dateTime={factura.fecha} className="text-sm text-muted-foreground">{formatearFechaHora(factura.fecha)}</time>
+                <Fecha iso={factura.fecha} className="text-sm text-muted-foreground">{formatearFechaHora(factura.fecha)}</Fecha>
                 <Insignia tono={factura.estado === "emitida" ? "exito" : "peligro"}>{factura.estado === "emitida" ? "Emitida" : "Anulada"}</Insignia>
                 <Texto as="span" className="ml-auto font-semibold">{saldoEnPesos(factura.total)}</Texto>
               </Fila>
@@ -182,16 +181,16 @@ export default async function FichaCliente({
 
       <Panel className="overflow-hidden">
         <Fila as="header" className="border-b px-4 py-4 sm:px-5"><Titulo nivel={2}>Cuenta corriente</Titulo></Fila>
-        <form action={ruta} method="get" className="border-b p-4 sm:p-5">
+        <FormularioFiltros action={ruta}>
           <Fila gap="md" className="items-end">
-            <div className="grow"><CampoFiltro etiqueta="Desde"><input className={claseCampo} type="date" name="desde" defaultValue={desde} /></CampoFiltro></div>
-            <div className="grow"><CampoFiltro etiqueta="Hasta"><input className={claseCampo} type="date" name="hasta" defaultValue={hasta} /></CampoFiltro></div>
+            <CampoFiltro etiqueta="Desde" className="grow"><EntradaFiltro type="date" name="desde" defaultValue={desde} /></CampoFiltro>
+            <CampoFiltro etiqueta="Hasta" className="grow"><EntradaFiltro type="date" name="hasta" defaultValue={hasta} /></CampoFiltro>
             <Fila>
               <Button>Filtrar</Button>
               {(desde || hasta) && <Button asChild variant="ghost"><Link href={ruta} prefetch={false}>Limpiar</Link></Button>}
             </Fila>
           </Fila>
-        </form>
+        </FormularioFiltros>
         {typeof cuenta === "string" ? (
           <Texto role="alert" tono="peligro" className="p-5 font-medium">{cuenta}</Texto>
         ) : (

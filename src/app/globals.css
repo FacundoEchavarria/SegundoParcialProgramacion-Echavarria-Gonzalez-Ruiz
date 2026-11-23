@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* La app no tiene tema oscuro: los estilos dark: de shadcn solo se activan con la clase .dark, que no se usa. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Libreta de fiado: tapa azul, papel teñido de azul y el margen rojo de la cuenta. */
 @theme {
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;

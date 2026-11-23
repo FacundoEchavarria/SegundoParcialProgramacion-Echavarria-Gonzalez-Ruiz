@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
-import { claseCampo } from "@/components/acceso/estilos";
+import { CampoFiltro, EncabezadoPagina, EntradaFiltro, FormularioFiltros, Panel, SelectorFiltro } from "@/components/pagina";
 import { Fila, Grilla, Pila } from "@/components/maquetacion";
 import { Pestanas, pestanasProductos } from "@/components/pestanas";
 import { cargarPagina, Paginacion, TablaMovimientos, textoParametro, tiposMovimiento, type ParametrosPagina } from "@/components/productos/listados";
@@ -32,24 +31,19 @@ export default async function Movimientos({ searchParams }: { searchParams: Para
       <Pila gap="md">
         <Pestanas etiqueta="Secciones de productos" pestanas={pestanasProductos} />
         <Panel className="overflow-hidden">
-          <form action={ruta} method="get" className="border-b p-4 sm:p-5">
+          <FormularioFiltros action={ruta}>
             <Grilla gap="sm" className="items-end gap-x-3 gap-y-4 sm:grid-cols-2 lg:grid-cols-[8rem_repeat(3,minmax(0,1fr))_auto]">
               <CampoFiltro etiqueta="ID de producto">
-                <input className={claseCampo} type="number" name="productoId" min={1} defaultValue={filtros.productoId} />
+                <EntradaFiltro type="number" name="productoId" min={1} defaultValue={filtros.productoId} />
               </CampoFiltro>
               <CampoFiltro etiqueta="Tipo">
-                <select className={claseCampo} name="tipo" defaultValue={filtros.tipo ?? ""}>
-                  <option value="">Todos</option>
-                  {Object.entries(tiposMovimiento).map(([valor, etiqueta]) => (
-                    <option key={valor} value={valor}>{etiqueta}</option>
-                  ))}
-                </select>
+                <SelectorFiltro name="tipo" defaultValue={filtros.tipo ?? ""} vacio="Todos" opciones={Object.entries(tiposMovimiento)} />
               </CampoFiltro>
               <CampoFiltro etiqueta="Desde">
-                <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
+                <EntradaFiltro type="date" name="desde" defaultValue={filtros.desde} />
               </CampoFiltro>
               <CampoFiltro etiqueta="Hasta">
-                <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
+                <EntradaFiltro type="date" name="hasta" defaultValue={filtros.hasta} />
               </CampoFiltro>
               <Fila>
                 <Button>Filtrar</Button>
@@ -58,7 +52,7 @@ export default async function Movimientos({ searchParams }: { searchParams: Para
                 )}
               </Fila>
             </Grilla>
-          </form>
+          </FormularioFiltros>
 
           <TablaMovimientos movimientos={movimientos.data} mostrarProducto />
           <Paginacion ruta={ruta} filtros={filtros} pagina={movimientos} />

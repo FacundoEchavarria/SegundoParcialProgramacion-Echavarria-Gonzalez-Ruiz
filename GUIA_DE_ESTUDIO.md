@@ -134,3 +134,15 @@ Para la parte de código, practicá ubicar en qué archivo está cada paso. Ensa
 ### Demostrar las correcciones de interfaz
 
 Abrí la aplicación con un ancho de 360 px. Usá **Menú** y comprobá que el módulo activo se distinga, también desde una pantalla interna. En **Nueva venta**, buscá un producto, agregalo con **Enter** y usá **Tab** para llegar a **Ir al pago**. Verificá que al activarlo el foco pase al selector de pago. Guardá un producto para ver el aviso de éxito y buscá un código inexistente para ver el estado vacío. En una factura o recibo, comprobá la fecha con año de cuatro dígitos y hora argentina.
+
+### Páginas armadas solo con componentes
+
+La consigna (§10.6) pide que las páginas no lleven etiquetas HTML sueltas. Todos los `page.tsx` y el layout privado se arman con componentes de shadcn/ui, con las primitivas de [maquetacion.tsx](src/components/maquetacion.tsx) (`Pila`, `Fila`, `Grilla`, `Texto`, `Titulo`) y con las piezas repetidas de [pagina.tsx](src/components/pagina.tsx):
+
+- **Filtros:** `FormularioFiltros` (envía por GET, así los filtros quedan en la URL), `CampoFiltro`, `EntradaFiltro` (el `Input` de shadcn), `SelectorFiltro` (recibe las opciones como lista) y `CasillaFiltro`.
+- **Datos:** `Dato` para un par etiqueta/valor de ficha, `Renglon` para los totales del comprobante, `Cifra` para los importes grandes y `Fecha` para las fechas con su valor ISO.
+- **Otros:** `Desplegable` para la tabla de importes por día del tablero.
+
+Además, [globals.css](src/app/globals.css) limita los estilos `dark:` de shadcn a la clase `.dark`. Como la app no tiene tema oscuro, los campos ya no se ven grises en una compu con modo oscuro.
+
+**Cómo comprobarlo.** Abrí cualquier `page.tsx` de `src/app/(privado)` y verificá que todas las etiquetas empiecen con mayúscula. Filtrá **Productos** por categoría y «Solo bajo stock», y fijate que la URL guarde los filtros. **Para practicar:** agregá a **Facturas** un filtro nuevo con `CampoFiltro` y `SelectorFiltro`, sin escribir ningún `<select>`.

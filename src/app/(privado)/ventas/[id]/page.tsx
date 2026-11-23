@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Ban } from "lucide-react";
 import { Insignia } from "@/components/insignia";
-import { Dato, Panel } from "@/components/pagina";
+import { Dato, Fecha, Panel, Renglon } from "@/components/pagina";
 import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,7 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
           <Pila gap="xs" className="items-end text-right">
             <Insignia tono={estado === "anulada" ? "peligro" : "exito"}>{estadosFactura[estado]}</Insignia>
             <Titulo className="whitespace-nowrap">Factura {numeroFormateado}</Titulo>
-            <Texto tono="secundario"><time dateTime={fecha}>{fechaFactura(fecha)}</time></Texto>
+            <Texto tono="secundario"><Fecha iso={fecha}>{fechaFactura(fecha)}</Fecha></Texto>
           </Pila>
         </Fila>
 
@@ -64,12 +64,12 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
           <Pila as="section" gap="sm" className="rounded-lg bg-peligro-fondo p-4 text-peligro print:break-inside-avoid print:border print:border-black print:bg-transparent print:text-black">
             <Fila as="h2" gap="sm" className="font-semibold"><Ban aria-hidden className="size-4" />Factura anulada</Fila>
             <Grilla as="dl" gap="sm" className="text-foreground sm:grid-cols-2">
-              <Dato etiqueta="Fecha de anulación"><time dateTime={anulacion.fecha}>{fechaFactura(anulacion.fecha)}</time></Dato>
+              <Dato etiqueta="Fecha de anulación"><Fecha iso={anulacion.fecha}>{fechaFactura(anulacion.fecha)}</Fecha></Dato>
               <Dato etiqueta="Responsable">{anulacion.usuario.nombre}</Dato>
               {anulacion.importeDevuelto !== undefined && (
                 <Dato etiqueta="Devolución de caja">{precioEnPesos(anulacion.importeDevuelto)}</Dato>
               )}
-              <Dato etiqueta="Motivo" className="sm:col-span-2"><span className="whitespace-pre-wrap">{anulacion.motivo}</span></Dato>
+              <Dato etiqueta="Motivo" className="whitespace-pre-wrap sm:col-span-2">{anulacion.motivo}</Dato>
             </Grilla>
           </Pila>
         )}
@@ -98,30 +98,25 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
           </TableBody>
         </Table>
 
-        <Grilla as="dl" gap="sm" className="ml-auto w-full max-w-sm print:break-inside-avoid [&>div]:flex [&>div]:justify-between [&>div]:gap-3">
-          <div className="items-end border-b pb-3">
-            <dt className="font-semibold">Total</dt>
-            <dd className={estado === "anulada" ? "angosta pb-2 text-3xl font-bold text-muted-foreground line-through" : "subrayado-doble angosta pb-2 text-3xl font-bold text-tapa print:text-black"}>
-              {precioEnPesos(factura.total)}
-            </dd>
-          </div>
-          <div><dt className="text-muted-foreground">Forma de pago</dt><dd className="font-medium">{formasPago[pago.forma]}</dd></div>
+        <Grilla as="dl" gap="sm" className="ml-auto w-full max-w-sm print:break-inside-avoid">
+          <Renglon etiqueta="Total" className="items-end border-b pb-3" claseEtiqueta="font-semibold text-foreground"
+            claseValor={estado === "anulada" ? "angosta pb-2 text-3xl font-bold text-muted-foreground line-through" : "subrayado-doble angosta pb-2 text-3xl font-bold text-tapa print:text-black"}>
+            {precioEnPesos(factura.total)}
+          </Renglon>
+          <Renglon etiqueta="Forma de pago">{formasPago[pago.forma]}</Renglon>
           {pago.forma === "contado" && (
             <>
-              <div><dt className="text-muted-foreground">Monto recibido</dt><dd className="font-medium">{precioEnPesos(pago.montoRecibido)}</dd></div>
-              <div><dt className="text-muted-foreground">Vuelto</dt><dd className="font-medium">{precioEnPesos(pago.vuelto)}</dd></div>
+              <Renglon etiqueta="Monto recibido">{precioEnPesos(pago.montoRecibido)}</Renglon>
+              <Renglon etiqueta="Vuelto">{precioEnPesos(pago.vuelto)}</Renglon>
             </>
           )}
           {pago.forma === "tarjeta" && (
-            <div>
-              <dt className="text-muted-foreground">Tarjeta</dt>
-              <dd className="text-right font-medium">
-                {pago.tarjeta.tipo === "debito" ? "Débito" : "Crédito"} · {pago.tarjeta.marca} · •••• {pago.tarjeta.ultimos4}
-              </dd>
-            </div>
+            <Renglon etiqueta="Tarjeta" claseValor="text-right">
+              {pago.tarjeta.tipo === "debito" ? "Débito" : "Crédito"} · {pago.tarjeta.marca} · •••• {pago.tarjeta.ultimos4}
+            </Renglon>
           )}
           {factura.saldoCliente !== undefined && (
-            <div><dt className="text-muted-foreground">Saldo al emitir</dt><dd className="font-medium">{precioEnPesos(factura.saldoCliente)}</dd></div>
+            <Renglon etiqueta="Saldo al emitir">{precioEnPesos(factura.saldoCliente)}</Renglon>
           )}
         </Grilla>
       </Panel>

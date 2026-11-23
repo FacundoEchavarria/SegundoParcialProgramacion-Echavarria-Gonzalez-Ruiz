@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ListFilter } from "lucide-react";
 import { AvisoBajoStock, Estado } from "@/components/insignia";
-import { Dato, Panel } from "@/components/pagina";
+import { Cifra, Dato, Panel } from "@/components/pagina";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { CambiarEstado, FormularioMovimiento, FormularioProducto } from "@/components/productos/formularios";
 import { cargarPagina, Paginacion, precioEnPesos, TablaMovimientos, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
@@ -66,14 +66,14 @@ export default async function FichaProducto({
       <Panel className="p-5 sm:p-6">
         <Grilla as="dl" gap="lg" className="grid-cols-2 sm:grid-cols-4">
           <Dato etiqueta="Categoría">{producto.categoria.nombre}</Dato>
-          <Dato etiqueta="Precio"><span className="angosta text-xl font-bold">{precioEnPesos(producto.precio)}</span></Dato>
+          <Dato etiqueta="Precio"><Cifra className="text-xl">{precioEnPesos(producto.precio)}</Cifra></Dato>
           <Dato etiqueta="Existencia">
             <Fila gap="sm">
-              <span className={producto.bajoMinimo ? "angosta text-xl font-bold text-alerta" : "angosta text-xl font-bold"}>{producto.existencia}</span>
+              <Cifra className={producto.bajoMinimo ? "text-xl text-alerta" : "text-xl"}>{producto.existencia}</Cifra>
               {producto.bajoMinimo && <AvisoBajoStock />}
             </Fila>
           </Dato>
-          <Dato etiqueta="Stock mínimo"><span className="angosta text-xl font-bold">{producto.stockMinimo}</span></Dato>
+          <Dato etiqueta="Stock mínimo"><Cifra className="text-xl">{producto.stockMinimo}</Cifra></Dato>
         </Grilla>
       </Panel>
 

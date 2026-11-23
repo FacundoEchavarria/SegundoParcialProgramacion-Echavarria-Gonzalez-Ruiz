@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Dato, Panel } from "@/components/pagina";
+import { Cifra, Dato, Panel } from "@/components/pagina";
 import { BotonImprimir } from "@/components/clientes/boton-imprimir";
 import { saldoEnPesos } from "@/components/clientes/listados";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
@@ -45,7 +45,7 @@ export default async function ReciboPago({ params }: { params: Promise<{ id: str
         </Pila>
         <Pila gap="xs">
           <Texto tono="secundario">Importe recibido</Texto>
-          <span className="subrayado-doble angosta w-fit pb-2 text-3xl font-bold text-tapa print:text-black">{saldoEnPesos(recibo.importe)}</span>
+          <Cifra className="subrayado-doble w-fit pb-2 text-3xl text-tapa print:text-black">{saldoEnPesos(recibo.importe)}</Cifra>
         </Pila>
         <Grilla as="dl" gap="md" className="sm:grid-cols-2">
           {datos.map(([etiqueta, valor]) => <Dato key={etiqueta} etiqueta={etiqueta}>{valor}</Dato>)}
