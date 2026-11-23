@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Avisos } from "@/components/acceso/avisos";
 import { CerrarSesion } from "@/components/acceso/formularios-sesion";
-import { Fila, Pila, Texto } from "@/components/maquetacion";
+import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
 import { MenuMovil, PanelLateral } from "@/components/navegacion";
 import { requirePageUser } from "@/lib/auth-request";
 
@@ -10,9 +10,9 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
   const esAdmin = usuario.rol === "admin";
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] print:block print:min-h-0">
+    <Grilla gap="xs" className="block min-h-dvh gap-0 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] print:block print:min-h-0">
       <PanelLateral esAdmin={esAdmin} />
-      <div className="min-w-0">
+      <Pila gap="xs" className="gap-0">
         <Fila as="header" gap="md" className="sticky top-0 z-30 h-16 justify-between border-b bg-card px-4 sm:px-8 print:hidden">
           <Fila gap="sm" className="min-w-0">
             <MenuMovil esAdmin={esAdmin} />
@@ -23,10 +23,10 @@ export default async function LayoutPrivado({ children }: { children: ReactNode 
           </Fila>
           <CerrarSesion />
         </Fila>
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8 print:p-0">
+        <Pila as="main" gap="xs" className="mx-auto block w-full max-w-7xl gap-0 px-4 py-6 sm:px-8 sm:py-8 print:p-0">
           <Avisos>{children}</Avisos>
-        </main>
-      </div>
-    </div>
+        </Pila>
+      </Pila>
+    </Grilla>
   );
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { EstadoVacio } from "@/components/estados";
-import { EncabezadoPagina, Panel } from "@/components/pagina";
+import { Desplegable, EncabezadoPagina, Fecha, Panel } from "@/components/pagina";
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { GraficoFormasDePago, GraficoVentasDiarias } from "@/components/tablero/graficos";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -23,8 +23,8 @@ function Indicador({ etiqueta, valor, children, destacado = false }: {
   return (
     <Pila gap="xs" className="min-w-0 px-5 py-5">
       <Titulo as="dt" nivel={3}>{etiqueta}</Titulo>
-      <dd className={cn("angosta w-fit text-3xl font-bold break-words", destacado ? "subrayado-doble pb-2 text-tapa" : "text-foreground")}>{valor}</dd>
-      <dd className="text-sm text-muted-foreground">{children}</dd>
+      <Texto as="dd" className={cn("angosta w-fit text-3xl font-bold break-words", destacado && "subrayado-doble pb-2 text-tapa")}>{valor}</Texto>
+      <Texto as="dd" tono="secundario">{children}</Texto>
     </Pila>
   );
 }
@@ -63,8 +63,7 @@ export default async function Inicio() {
             <Texto tono="secundario">Últimos 30 días</Texto>
           </Pila>
           <GraficoVentasDiarias ventasDiarias={ventasDiarias} />
-          <details className="text-sm">
-            <summary className="cursor-pointer font-medium text-tapa">Ver importes por día</summary>
+          <Desplegable resumen="Ver importes por día" className="text-sm">
             <Table className="mt-2" aria-label="Importes de venta por día">
               <TableHeader>
                 <TableRow>
@@ -75,13 +74,13 @@ export default async function Inicio() {
               <TableBody>
                 {ventasDiarias.map(({ fecha, importe }) => (
                   <TableRow key={fecha}>
-                    <TableCell><time dateTime={fecha}>{formatearDia(fecha)}</time></TableCell>
+                    <TableCell><Fecha iso={fecha}>{formatearDia(fecha)}</Fecha></TableCell>
                     <TableCell className="text-right">{precioEnPesos(importe)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </details>
+          </Desplegable>
         </Panel>
         <Panel className="grid min-w-0 content-start gap-4 p-5">
           <Pila gap="xs">

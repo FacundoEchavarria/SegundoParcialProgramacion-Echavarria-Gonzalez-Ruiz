@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { EstadoVacio } from "@/components/estados";
 import { Insignia } from "@/components/insignia";
-import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
-import { claseCampo } from "@/components/acceso/estilos";
+import { CampoFiltro, EncabezadoPagina, EntradaFiltro, FormularioFiltros, Panel, SelectorFiltro } from "@/components/pagina";
 import { GestionarUsuario, NuevoUsuario } from "@/components/acceso/formularios-usuarios";
 import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
 import { Button } from "@/components/ui/button";
@@ -48,28 +47,20 @@ export default async function Usuarios({
       <EncabezadoPagina titulo="Usuarios" descripcion="Administrá las cuentas y sus permisos." acciones={<NuevoUsuario />} />
 
       <Panel className="overflow-hidden">
-        <form action="/usuarios" method="get" className="border-b p-4 sm:p-5">
+        <FormularioFiltros action="/usuarios">
           <Fila gap="md" className="items-end">
-            <div className="w-full sm:max-w-xs">
-              <CampoFiltro etiqueta="Buscar por nombre o email">
-                <input className={claseCampo} type="search" name="q" defaultValue={q} />
-              </CampoFiltro>
-            </div>
-            <div className="min-w-36 grow sm:max-w-40">
-              <CampoFiltro etiqueta="Estado">
-                <select className={claseCampo} name="activo" defaultValue={activo ?? ""}>
-                  <option value="">Todos</option>
-                  <option value="true">Activos</option>
-                  <option value="false">Inactivos</option>
-                </select>
-              </CampoFiltro>
-            </div>
+            <CampoFiltro etiqueta="Buscar por nombre o email" className="w-full sm:max-w-xs">
+              <EntradaFiltro type="search" name="q" defaultValue={q} />
+            </CampoFiltro>
+            <CampoFiltro etiqueta="Estado" className="min-w-36 grow sm:max-w-40">
+              <SelectorFiltro name="activo" defaultValue={activo ?? ""} vacio="Todos" opciones={[["true", "Activos"], ["false", "Inactivos"]]} />
+            </CampoFiltro>
             <Fila>
               <Button>Filtrar</Button>
               {(q || activo) && <Button asChild variant="ghost"><Link href="/usuarios" prefetch={false}>Limpiar</Link></Button>}
             </Fila>
           </Fila>
-        </form>
+        </FormularioFiltros>
 
         {usuarios.data.length === 0 ? (
           <EstadoVacio>No hay usuarios que coincidan con la búsqueda.</EstadoVacio>
@@ -83,9 +74,9 @@ export default async function Usuarios({
                 className="grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_9rem_6rem_auto] sm:px-5"
               >
                 <Fila gap="sm" className="col-span-2 min-w-0 flex-nowrap sm:col-span-1">
-                  <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-tapa-clara text-xs font-bold text-tapa uppercase">
+                  <Texto as="span" aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-tapa-clara text-xs font-bold text-tapa uppercase">
                     {usuario.nombre.slice(0, 2)}
-                  </span>
+                  </Texto>
                   <Pila gap="xs" className="min-w-0 gap-0">
                     <Texto className="font-semibold break-words">{usuario.nombre}</Texto>
                     <Texto tono="secundario" className="break-all">{usuario.email}</Texto>

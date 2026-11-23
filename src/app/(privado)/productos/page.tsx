@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { EstadoVacio } from "@/components/estados";
 import { AvisoBajoStock, Estado } from "@/components/insignia";
-import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
-import { claseCampo } from "@/components/acceso/estilos";
+import { CampoFiltro, CasillaFiltro, EncabezadoPagina, EntradaFiltro, FormularioFiltros, Panel, SelectorFiltro } from "@/components/pagina";
 import { Fila, Grilla, Pila, Texto } from "@/components/maquetacion";
 import { Pestanas, pestanasProductos } from "@/components/pestanas";
 import { FormularioProducto } from "@/components/productos/formularios";
 import { cargarPagina, Paginacion, precioEnPesos, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePageUser } from "@/lib/auth-request";
 import { listarCategorias, listarProductos } from "@/services/productos";
@@ -41,46 +39,22 @@ export default async function Productos({ searchParams }: { searchParams: Parame
       <Pila gap="md">
         <Pestanas etiqueta="Secciones de productos" pestanas={pestanasProductos} />
         <Panel className="overflow-hidden">
-          <form action="/productos" method="get" className="border-b p-4 sm:p-5">
+          <FormularioFiltros action="/productos">
             <Fila gap="md" className="items-end">
-              <div className="min-w-48 grow">
-                <CampoFiltro etiqueta="Código o descripción">
-                  <input className={claseCampo} type="search" name="q" defaultValue={filtros.q} maxLength={100} />
-                </CampoFiltro>
-              </div>
-              <div className="min-w-36 grow">
-                <CampoFiltro etiqueta="Categoría">
-                  <select className={claseCampo} name="categoriaId" defaultValue={filtros.categoriaId ?? ""}>
-                    <option value="">Todas</option>
-                    {categorias.map((categoria) => (
-                      <option key={categoria.id} value={categoria.id}>
-                        {categoria.nombre}{categoria.activa ? "" : " (inactiva)"}
-                      </option>
-                    ))}
-                  </select>
-                </CampoFiltro>
-              </div>
+              <CampoFiltro etiqueta="Código o descripción" className="min-w-48 grow">
+                <EntradaFiltro type="search" name="q" defaultValue={filtros.q} maxLength={100} />
+              </CampoFiltro>
+              <CampoFiltro etiqueta="Categoría" className="min-w-36 grow">
+                <SelectorFiltro name="categoriaId" defaultValue={filtros.categoriaId ?? ""} vacio="Todas"
+                  opciones={categorias.map(({ id, nombre, activa }) => [id, activa ? nombre : `${nombre} (inactiva)`])} />
+              </CampoFiltro>
               {admin && (
-                <div className="min-w-28">
-                  <CampoFiltro etiqueta="Estado">
-                    <select className={claseCampo} name="activo" defaultValue={filtros.activo ?? "true"}>
-                      <option value="true">Activos</option>
-                      <option value="false">Inactivos</option>
-                      <option value="todos">Todos</option>
-                    </select>
-                  </CampoFiltro>
-                </div>
+                <CampoFiltro etiqueta="Estado" className="min-w-28">
+                  <SelectorFiltro name="activo" defaultValue={filtros.activo ?? "true"}
+                    opciones={[["true", "Activos"], ["false", "Inactivos"], ["todos", "Todos"]]} />
+                </CampoFiltro>
               )}
-              <Label className="min-h-10">
-                <input
-                  type="checkbox"
-                  className="size-4 accent-tapa"
-                  name="bajoMinimo"
-                  value="true"
-                  defaultChecked={filtros.bajoMinimo === "true"}
-                />
-                Solo bajo stock
-              </Label>
+              <CasillaFiltro etiqueta="Solo bajo stock" name="bajoMinimo" value="true" defaultChecked={filtros.bajoMinimo === "true"} />
               <Fila>
                 <Button>Filtrar</Button>
                 {Object.values(filtros).some((valor) => valor !== undefined) && (
@@ -88,7 +62,7 @@ export default async function Productos({ searchParams }: { searchParams: Parame
                 )}
               </Fila>
             </Fila>
-          </form>
+          </FormularioFiltros>
 
           {productos.data.length === 0 ? (
             <EstadoVacio>No hay productos que coincidan con la búsqueda.</EstadoVacio>

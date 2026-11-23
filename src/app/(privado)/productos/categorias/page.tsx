@@ -32,7 +32,7 @@ export default async function Categorias() {
                   className="grid-cols-[minmax(0,1fr)_auto] items-center px-4 py-3 sm:grid-cols-[minmax(0,1fr)_6rem_auto] sm:px-5"
                 >
                   <Titulo nivel={2} className="text-sm font-semibold break-words">{categoria.nombre}</Titulo>
-                  <div><Estado activo={categoria.activa} femenino /></div>
+                  <Fila><Estado activo={categoria.activa} femenino /></Fila>
                   {admin && (
                     <Fila className="col-span-2 sm:col-span-1">
                       <FormularioCategoria categoria={categoria} />

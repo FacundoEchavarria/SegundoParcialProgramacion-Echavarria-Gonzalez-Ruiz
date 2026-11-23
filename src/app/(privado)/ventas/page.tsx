@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { EstadoVacio } from "@/components/estados";
 import { Insignia } from "@/components/insignia";
-import { CampoFiltro, EncabezadoPagina, Panel } from "@/components/pagina";
-import { claseCampo } from "@/components/acceso/estilos";
+import { CampoFiltro, EncabezadoPagina, EntradaFiltro, Fecha, FormularioFiltros, Panel, SelectorFiltro } from "@/components/pagina";
 import { Fila, Grilla, Texto } from "@/components/maquetacion";
 import { cargarPagina, Paginacion, textoParametro, type ParametrosPagina } from "@/components/productos/listados";
 import { Button } from "@/components/ui/button";
@@ -41,43 +40,33 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
       />
 
       <Panel className="overflow-hidden">
-        <form action="/ventas" method="get" className="grid gap-4 border-b p-4 sm:p-5">
+        <FormularioFiltros action="/ventas" className="grid gap-4">
           <Grilla gap="sm" className="gap-x-3 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
             <CampoFiltro etiqueta="Número o nombre del cliente">
-              <input className={claseCampo} type="search" name="q" maxLength={150} defaultValue={filtros.q} />
+              <EntradaFiltro type="search" name="q" maxLength={150} defaultValue={filtros.q} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Desde">
-              <input className={claseCampo} type="date" name="desde" defaultValue={filtros.desde} />
+              <EntradaFiltro type="date" name="desde" defaultValue={filtros.desde} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Hasta">
-              <input className={claseCampo} type="date" name="hasta" defaultValue={filtros.hasta} />
+              <EntradaFiltro type="date" name="hasta" defaultValue={filtros.hasta} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Cliente">
-              <select className={claseCampo} name="clienteId" defaultValue={filtros.clienteId}>
-                <option value="">Todos</option>
-                {clientes.map(({ id, nombre }) => <option key={id} value={id}>{nombre}</option>)}
-              </select>
+              <SelectorFiltro name="clienteId" defaultValue={filtros.clienteId} vacio="Todos"
+                opciones={clientes.map(({ id, nombre }) => [id, nombre])} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Vendedor">
-              <select className={claseCampo} name="vendedorId" defaultValue={filtros.vendedorId}>
-                <option value="">Todos</option>
-                {vendedores.map(({ id, nombre }) => <option key={id} value={id}>{nombre}</option>)}
-              </select>
+              <SelectorFiltro name="vendedorId" defaultValue={filtros.vendedorId} vacio="Todos"
+                opciones={vendedores.map(({ id, nombre }) => [id, nombre])} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Forma de pago">
-              <select className={claseCampo} name="forma" defaultValue={filtros.forma}>
-                <option value="">Todas</option>
-                {Object.entries(formasPago).map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}
-              </select>
+              <SelectorFiltro name="forma" defaultValue={filtros.forma} vacio="Todas" opciones={Object.entries(formasPago)} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Estado">
-              <select className={claseCampo} name="estado" defaultValue={filtros.estado}>
-                <option value="">Todos</option>
-                {Object.entries(estadosFactura).map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}
-              </select>
+              <SelectorFiltro name="estado" defaultValue={filtros.estado} vacio="Todos" opciones={Object.entries(estadosFactura)} />
             </CampoFiltro>
             <CampoFiltro etiqueta="Resultados por página">
-              <input className={claseCampo} type="number" name="pageSize" min={1} max={100} defaultValue={facturas.pageSize} />
+              <EntradaFiltro type="number" name="pageSize" min={1} max={100} defaultValue={facturas.pageSize} />
             </CampoFiltro>
           </Grilla>
           <Fila>
@@ -86,11 +75,11 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
               <Button asChild variant="ghost"><Link href="/ventas" prefetch={false}>Limpiar filtros</Link></Button>
             )}
           </Fila>
-        </form>
+        </FormularioFiltros>
 
         <Fila as="dl" gap="md" className="items-baseline justify-between border-b bg-tinta-50 px-4 py-3 sm:px-5">
           <Texto as="dt" tono="secundario" className="font-medium">Total emitido según los filtros</Texto>
-          <dd className="angosta subrayado-doble pb-2 text-xl font-bold text-tapa">{precioEnPesos(facturas.totalEmitido)}</dd>
+          <Texto as="dd" className="angosta subrayado-doble pb-2 text-xl font-bold text-tapa">{precioEnPesos(facturas.totalEmitido)}</Texto>
         </Fila>
         {facturas.data.length === 0 ? (
           <EstadoVacio>No hay facturas que coincidan con la búsqueda.</EstadoVacio>
@@ -115,7 +104,7 @@ export default async function Ventas({ searchParams }: { searchParams: Parametro
                       {factura.numeroFormateado}
                     </Link>
                   </TableCell>
-                  <TableCell><time dateTime={factura.fecha}>{fechaFactura(factura.fecha)}</time></TableCell>
+                  <TableCell><Fecha iso={factura.fecha}>{fechaFactura(factura.fecha)}</Fecha></TableCell>
                   <TableCell className="min-w-24 whitespace-normal break-words">{factura.cliente?.nombre ?? "Consumidor final"}</TableCell>
                   <TableCell className="min-w-24 whitespace-normal break-words">{factura.vendedor.nombre}</TableCell>
                   <TableCell>{formasPago[factura.forma]}</TableCell>

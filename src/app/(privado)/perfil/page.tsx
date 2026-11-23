@@ -1,6 +1,6 @@
 import { EncabezadoPagina, Panel } from "@/components/pagina";
 import { FormularioPassword } from "@/components/acceso/formularios-sesion";
-import { Grilla, Titulo } from "@/components/maquetacion";
+import { Grilla, Texto, Titulo } from "@/components/maquetacion";
 import { requirePageUser } from "@/lib/auth-request";
 
 export const metadata = { title: "Mi perfil | Gestión comercial" };
@@ -10,7 +10,7 @@ export default async function Perfil() {
 
   return (
     <Grilla gap="lg" className="max-w-lg">
-      <EncabezadoPagina titulo="Mi perfil" descripcion={<span className="break-all">{usuario.email}</span>} />
+      <EncabezadoPagina titulo="Mi perfil" descripcion={<Texto as="span" tono="secundario" className="break-all">{usuario.email}</Texto>} />
       <Panel className="grid gap-5 p-5 sm:p-7">
         <Titulo nivel={2}>Cambiar contraseña</Titulo>
         <FormularioPassword />
