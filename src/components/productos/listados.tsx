@@ -6,6 +6,7 @@ import { Insignia } from "@/components/insignia";
 import { Fila, Texto } from "@/components/maquetacion";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatearFechaHora } from "@/lib/formatos";
 import { ApiError } from "@/lib/api-error";
 import type { listarMovimientos } from "@/services/stock";
 
@@ -16,12 +17,6 @@ type Filtros = Record<string, string | undefined>;
 export { precioEnPesos } from "@/lib/formatos";
 
 const cantidadConSigno = new Intl.NumberFormat("es-AR", { signDisplay: "always" });
-const fechaArgentina = new Intl.DateTimeFormat("es-AR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "America/Argentina/Buenos_Aires",
-});
-
 export const tiposMovimiento = {
   ingreso: "Ingreso",
   egreso: "Egreso",
@@ -116,7 +111,7 @@ export function TablaMovimientos({
         {movimientos.map((movimiento) => (
           <TableRow key={movimiento.id} className="align-top">
             <TableCell>
-              <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
+              <time dateTime={movimiento.fecha}>{formatearFechaHora(movimiento.fecha)}</time>
             </TableCell>
             {mostrarProducto && (
               <TableCell>

@@ -8,6 +8,7 @@ import { claseCampo } from "@/components/acceso/estilos";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { AvisoError, useFormulario } from "@/components/acceso/formulario";
+import { precioEnPesos } from "@/lib/formatos";
 import { anulacionSchema } from "@/lib/schemas/facturas";
 
 export function FormularioAnulacion({ facturaId, numero }: { facturaId: number; numero: string }) {
@@ -15,15 +16,21 @@ export function FormularioAnulacion({ facturaId, numero }: { facturaId: number; 
   const { enviar, enviando, error, errorCampo, limpiarError } = useFormulario();
   const errorMotivo = errorCampo("motivo");
   const idError = useId();
+  const importe = error?.code === "DEVOLUCION_REQUERIDA" && error.details && "importeDevuelto" in error.details
+    ? error.details.importeDevuelto : 0;
+  const esquema = anulacionSchema.transform(({ motivo }) => ({
+    motivo,
+    ...(importe > 0 ? { importeDevuelto: importe } : {}),
+  }));
 
   return (
     <Dialogo etiqueta="Anular factura" titulo={`Anular factura ${numero}`} ocupado={enviando} alCerrar={limpiarError}>
       {(cerrar) => (
         <form method="post" noValidate onSubmit={(evento) =>
-          enviar(evento, anulacionSchema, anularFacturaAction.bind(null, facturaId), () => {
+          enviar(evento, esquema, anularFacturaAction.bind(null, facturaId), () => {
             cerrar();
             router.refresh();
-          })
+          }, importe > 0 ? "Factura anulada y devolución registrada." : "Factura anulada.")
         }>
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
             <p className="text-sm text-muted-foreground">
@@ -37,8 +44,16 @@ export function FormularioAnulacion({ facturaId, numero }: { facturaId: number; 
               {errorMotivo && <span id={idError} className="text-xs font-medium text-peligro">{errorMotivo}</span>}
             </Label>
             <AvisoError error={error} />
+            {importe > 0 && (
+              <p className="rounded-lg border bg-tapa-clara px-3 py-2 text-sm">
+                Devolución de caja: <strong>{precioEnPesos(importe)}</strong>.
+                Entregá el importe al cliente cuando se confirme la anulación.
+              </p>
+            )}
             <div>
-              <Button variant="destructive">{enviando ? "Anulando…" : "Confirmar anulación"}</Button>
+              <Button type="submit" variant="destructive">
+                {enviando ? "Anulando…" : importe > 0 ? "Anular y registrar devolución" : "Confirmar anulación"}
+              </Button>
             </div>
           </fieldset>
         </form>

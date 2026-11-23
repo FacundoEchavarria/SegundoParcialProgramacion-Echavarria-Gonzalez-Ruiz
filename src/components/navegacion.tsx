@@ -18,6 +18,7 @@ const modulos = [
 ];
 
 function esActivo(ruta: string, href: string) {
+  if (href === "/clientes" && ruta.startsWith("/pagos/")) return true;
   return href === "/" ? ruta === "/" : ruta === href || ruta.startsWith(`${href}/`);
 }
 

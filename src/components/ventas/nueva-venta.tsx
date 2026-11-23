@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { CircleCheck, Plus, Trash2, UserRound } from "lucide-react";
 import { z } from "zod";
 import { EncabezadoPagina, Panel } from "@/components/pagina";
@@ -35,6 +35,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
   const [forma, setForma] = useState<FormaPago>("contado");
   const [recibido, setRecibido] = useState("");
   const [confirmada, setConfirmada] = useState<FacturaEmitida | null>(null);
+  const selectorPago = useRef<HTMLSelectElement>(null);
   const { enviar, enviando, error, errorCampo, limpiarError } = useFormulario();
 
   const items = renglones.map(({ producto, cantidad }) => {
@@ -77,6 +78,11 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
   function cambiarCantidad(id: number, cantidad: string) {
     limpiarError();
     setRenglones((actuales) => actuales.map((renglon) => renglon.producto.id === id ? { ...renglon, cantidad } : renglon));
+  }
+
+  function hayStockParaAgregar(producto: Producto) {
+    const renglon = items.find((item) => item.producto.id === producto.id);
+    return (renglon?.unidades ?? 0) < producto.existencia;
   }
 
   const esquema = z.preprocess((datos: Record<string, FormDataEntryValue>) => ({
@@ -143,7 +149,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
       <EncabezadoPagina titulo="Nueva venta"
         descripcion={<>Próximo número estimado <span className="font-semibold text-foreground">{numeroEstimado}</span></>} />
 
-      <Grilla gap="lg" className="items-start xl:grid-cols-[minmax(0,1fr)_23rem]">
+      <Grilla gap="lg" className="grid-cols-1 items-start xl:grid-cols-[minmax(0,1fr)_23rem]">
         <Pila gap="md">
           <Bloque numero={1} titulo="Comprador">
             <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -176,23 +182,25 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
           <Bloque numero={2} titulo="Ítems">
             <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
               <BusquedaVenta<Producto> key={versionCatalogo} recurso="productos" etiqueta="Buscar por código o descripción" maxLength={100}
-                resultado={(producto) => {
-                  const renglon = items.find((item) => item.producto.id === producto.id);
-                  return (
-                    <Fila gap="md" className="justify-between px-3 py-2.5">
-                      <Pila gap="xs" className="min-w-0 gap-0 break-words">
-                        <Texto className="font-medium">{producto.descripcion}</Texto>
-                        <Texto tono="secundario" className="text-xs">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</Texto>
-                      </Pila>
-                      <Button type="button" variant="outline" size="sm" aria-label={`Agregar ${producto.descripcion}`}
-                        disabled={(renglon?.unidades ?? 0) >= producto.existencia} onClick={() => agregar(producto)}>
-                        <Plus aria-hidden />Agregar
-                        <kbd aria-hidden className="hidden rounded border border-tinta-300 px-1 text-xs font-medium text-tapa group-has-[:focus-visible]/resultado:inline">Enter</kbd>
-                      </Button>
-                    </Fila>
-                  );
+                alEnter={(resultados) => {
+                  const producto = resultados.find(hayStockParaAgregar);
+                  if (producto) agregar(producto);
                 }}
+                resultado={(producto) => (
+                  <Fila gap="md" className="justify-between px-3 py-2.5">
+                    <Pila gap="xs" className="min-w-0 gap-0 break-words">
+                      <Texto className="font-medium">{producto.descripcion}</Texto>
+                      <Texto tono="secundario" className="text-xs">{producto.codigo} · {precioEnPesos(producto.precio)} · {producto.existencia} disponibles</Texto>
+                    </Pila>
+                    <Button type="button" variant="outline" size="sm" aria-label={`Agregar ${producto.descripcion}`}
+                      disabled={!hayStockParaAgregar(producto)} onClick={() => agregar(producto)}>
+                      <Plus aria-hidden />Agregar
+                      <kbd aria-hidden className="hidden rounded border border-tinta-300 px-1 text-xs font-medium text-tapa group-has-[:focus-visible]/resultado:inline">Enter</kbd>
+                    </Button>
+                  </Fila>
+                )}
               />
+              <Texto tono="secundario" className="text-xs">Presioná Enter para agregar el primer resultado con stock disponible.</Texto>
               {renglones.length === 0 ? (
                 <Texto tono="secundario" className="rounded-lg bg-tinta-50 px-3 py-4">Agregá al menos un producto para confirmar la venta.</Texto>
               ) : (
@@ -239,6 +247,12 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
                   </TableBody>
                 </Table>
               )}
+              {renglones.length > 0 && (
+                <Button type="button" variant="outline" className="w-fit" disabled={!puedeConfirmar}
+                  onClick={() => selectorPago.current?.focus()}>
+                  Ir al pago
+                </Button>
+              )}
             </fieldset>
           </Bloque>
 
@@ -250,7 +264,7 @@ export function NuevaVenta({ numeroEstimado }: { numeroEstimado: string }) {
               <fieldset disabled={enviando} className="grid min-w-0 gap-4">
                 <Label className="grid max-w-xs gap-1.5">
                   Forma de pago
-                  <select className={claseCampo} value={forma} onChange={(event) => {
+                  <select ref={selectorPago} className={claseCampo} value={forma} onChange={(event) => {
                     setForma(event.currentTarget.value as FormaPago);
                     limpiarError();
                   }}>

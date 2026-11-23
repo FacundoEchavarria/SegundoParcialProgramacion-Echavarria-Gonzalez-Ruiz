@@ -3,7 +3,8 @@ import { z } from "zod";
 type DetalleCampo = { campo: string; mensaje: string };
 type DetalleStock = { productoId: number; solicitado: number; disponible: number };
 type DetalleCredito = { saldoActual: number; limite: number; excedente: number };
-export type DetallesError = DetalleCampo[] | DetalleStock[] | DetalleCredito;
+type DetalleDevolucion = { importeDevuelto: number };
+export type DetallesError = DetalleCampo[] | DetalleStock[] | DetalleCredito | DetalleDevolucion;
 
 export class ApiError extends Error {
   constructor(

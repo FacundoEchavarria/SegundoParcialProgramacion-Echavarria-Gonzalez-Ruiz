@@ -98,7 +98,7 @@ export function FormularioProducto({
             enviar(event, esquema, accion, () => {
               cerrar();
               router.refresh();
-            })
+            }, producto ? "Producto actualizado." : "Producto creado.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -178,7 +178,7 @@ export function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
             enviar(event, categoria ? edicionCategoriaSchema : altaCategoriaSchema, accion, () => {
               cerrar();
               router.refresh();
-            })
+            }, categoria ? "Categoría actualizada." : "Categoría creada.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -227,7 +227,7 @@ export function CambiarEstado({ producto, categoria }: Entidad) {
             ejecutar<unknown>(actualizar, () => {
               cerrar();
               router.refresh();
-            });
+            }, "Estado actualizado.");
           }}
         >
           <p>¿Querés {verbo.toLowerCase()} {nombre}?</p>
@@ -267,7 +267,7 @@ export function FormularioMovimiento({ productoId }: { productoId: number }) {
             enviar(event, movimientoManualForm, registrarMovimientoAction.bind(null, productoId), () => {
               cerrar();
               router.refresh();
-            })
+            }, "Movimiento de stock registrado.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>

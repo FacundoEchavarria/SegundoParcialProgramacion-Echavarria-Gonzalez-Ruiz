@@ -6,6 +6,7 @@ import { CircleAlert } from "lucide-react";
 import type { DetallesError } from "@/lib/api-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAviso } from "./avisos";
 
 type ErrorFormulario = {
   message: string;
@@ -16,16 +17,18 @@ type ErrorFormulario = {
 type Resultado<T> = { ok: true; data: T } | { ok: false; error: ErrorFormulario };
 
 export function useFormulario() {
+  const avisar = useAviso();
   const [error, setError] = useState<ErrorFormulario | null>(null);
   const [enviando, iniciarEnvio] = useTransition();
 
-  function ejecutar<T>(accion: () => Promise<Resultado<T>>, alCompletar: (data: T) => void) {
+  function ejecutar<T>(accion: () => Promise<Resultado<T>>, alCompletar: (data: T) => void, mensajeExito?: string) {
     setError(null);
     iniciarEnvio(async () => {
       try {
         const resultado = await accion();
         if (resultado.ok) {
           alCompletar(resultado.data);
+          if (mensajeExito) avisar(mensajeExito);
         } else {
           setError(resultado.error);
         }
@@ -40,6 +43,7 @@ export function useFormulario() {
     esquema: ZodType,
     accion: (datos: unknown) => Promise<Resultado<T>>,
     alCompletar: (data: T) => void,
+    mensajeExito?: string,
   ) {
     event.preventDefault();
     const datos = Object.fromEntries(new FormData(event.currentTarget));
@@ -56,7 +60,7 @@ export function useFormulario() {
       return;
     }
 
-    ejecutar(() => accion(validacion.data), alCompletar);
+    ejecutar(() => accion(validacion.data), alCompletar, mensajeExito);
   }
 
   return {

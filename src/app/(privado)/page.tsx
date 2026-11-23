@@ -7,7 +7,7 @@ import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { GraficoFormasDePago, GraficoVentasDiarias } from "@/components/tablero/graficos";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePageUser } from "@/lib/auth-request";
-import { precioEnPesos } from "@/lib/formatos";
+import { formatearDia, precioEnPesos } from "@/lib/formatos";
 import { cn } from "@/lib/utils";
 import { obtenerTablero } from "@/services/tablero";
 
@@ -75,7 +75,7 @@ export default async function Inicio() {
               <TableBody>
                 {ventasDiarias.map(({ fecha, importe }) => (
                   <TableRow key={fecha}>
-                    <TableCell><time dateTime={fecha}>{fecha.split("-").reverse().join("/")}</time></TableCell>
+                    <TableCell><time dateTime={fecha}>{formatearDia(fecha)}</time></TableCell>
                     <TableCell className="text-right">{precioEnPesos(importe)}</TableCell>
                   </TableRow>
                 ))}

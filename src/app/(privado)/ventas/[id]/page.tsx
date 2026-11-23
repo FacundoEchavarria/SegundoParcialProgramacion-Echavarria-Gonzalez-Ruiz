@@ -66,6 +66,9 @@ export default async function DetalleFactura({ params }: { params: Promise<{ id:
             <Grilla as="dl" gap="sm" className="text-foreground sm:grid-cols-2">
               <Dato etiqueta="Fecha de anulación"><time dateTime={anulacion.fecha}>{fechaFactura(anulacion.fecha)}</time></Dato>
               <Dato etiqueta="Responsable">{anulacion.usuario.nombre}</Dato>
+              {anulacion.importeDevuelto !== undefined && (
+                <Dato etiqueta="Devolución de caja">{precioEnPesos(anulacion.importeDevuelto)}</Dato>
+              )}
               <Dato etiqueta="Motivo" className="sm:col-span-2"><span className="whitespace-pre-wrap">{anulacion.motivo}</span></Dato>
             </Grilla>
           </Pila>

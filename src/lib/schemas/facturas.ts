@@ -54,4 +54,5 @@ export const listadoFacturasSchema = z.strictObject({
 
 export const anulacionSchema = z.strictObject({
   motivo: z.string().trim().min(1, "Ingresá el motivo de anulación.").max(500),
+  importeDevuelto: z.number().int().nonnegative().optional(),
 });

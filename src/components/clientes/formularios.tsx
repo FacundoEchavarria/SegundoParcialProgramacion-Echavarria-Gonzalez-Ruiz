@@ -59,7 +59,7 @@ export function FormularioCliente({ cliente, alGuardar }: {
               cerrar();
               if (alGuardar) alGuardar(guardado);
               else router.refresh();
-            })
+            }, cliente ? "Cliente actualizado." : "Cliente creado.")
           }
         >
           <fieldset className="grid min-w-0 gap-4" disabled={enviando}>
@@ -139,7 +139,7 @@ export function CambiarEstadoCliente({ cliente }: { cliente: Cliente }) {
             enviar(event, esquema, editarClienteAction.bind(null, cliente.id), () => {
               cerrar();
               router.refresh();
-            })
+            }, cliente.activo ? "Cliente desactivado." : "Cliente reactivado.")
           }
         >
           <p className="break-words">¿Querés {activo ? "reactivar" : "desactivar"} a {cliente.nombre}?</p>

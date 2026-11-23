@@ -12,18 +12,13 @@ import { textoParametro, type ParametrosPagina } from "@/components/productos/li
 import { Fila, Grilla, Pila, Texto, Titulo } from "@/components/maquetacion";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatearFechaHora } from "@/lib/formatos";
 import { ApiError } from "@/lib/api-error";
 import { requirePageUser } from "@/lib/auth-request";
 import { obtenerCliente } from "@/services/clientes";
 import { obtenerCuenta } from "@/services/cuenta-corriente";
 
 export const metadata = { title: "Ficha de cliente | Gestión comercial" };
-
-const fechaArgentina = new Intl.DateTimeFormat("es-AR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "America/Argentina/Buenos_Aires",
-});
 
 type Cuenta = Awaited<ReturnType<typeof obtenerCuenta>>;
 
@@ -53,7 +48,7 @@ function HistorialCuenta({ cuenta }: { cuenta: Cuenta }) {
             {cuenta.movimientos.map((movimiento, indice) => (
               <TableRow key={`${movimiento.fecha}-${indice}`}>
                 <TableCell>
-                  <time dateTime={movimiento.fecha}>{fechaArgentina.format(new Date(movimiento.fecha))}</time>
+                  <time dateTime={movimiento.fecha}>{formatearFechaHora(movimiento.fecha)}</time>
                 </TableCell>
                 <TableCell>
                   <Insignia tono={movimiento.tipo === "debito" ? "info" : "exito"}>{movimiento.tipo === "debito" ? "Débito" : "Crédito"}</Insignia>
@@ -176,7 +171,7 @@ export default async function FichaCliente({
             {cliente.ultimasFacturas.map((factura) => (
               <Fila as="li" key={factura.id} gap="md" className="px-4 py-3 sm:px-5">
                 <Link href={`/ventas/${factura.id}`} className="font-semibold text-tapa hover:underline">{factura.numeroFormateado}</Link>
-                <time dateTime={factura.fecha} className="text-sm text-muted-foreground">{fechaArgentina.format(new Date(factura.fecha))}</time>
+                <time dateTime={factura.fecha} className="text-sm text-muted-foreground">{formatearFechaHora(factura.fecha)}</time>
                 <Insignia tono={factura.estado === "emitida" ? "exito" : "peligro"}>{factura.estado === "emitida" ? "Emitida" : "Anulada"}</Insignia>
                 <Texto as="span" className="ml-auto font-semibold">{saldoEnPesos(factura.total)}</Texto>
               </Fila>

@@ -74,7 +74,7 @@ export function CerrarSesion() {
       <Button
         type="button"
         variant="outline"
-        onClick={() => ejecutar(logoutAction, () => window.location.replace("/login"))}
+        onClick={() => ejecutar(logoutAction, () => window.location.replace("/login?salida=1"))}
         disabled={enviando}
       >
         <LogOut aria-hidden />

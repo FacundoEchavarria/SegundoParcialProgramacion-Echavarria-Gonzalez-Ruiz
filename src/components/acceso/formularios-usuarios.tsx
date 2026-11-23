@@ -39,6 +39,7 @@ export function GestionarUsuario({ usuario, esPropio }: { usuario: UsuarioEditab
         cerrar();
         router.refresh();
       },
+      usuario.activo ? "Usuario desactivado." : "Usuario reactivado.",
     );
   }
 
@@ -120,7 +121,7 @@ function FormularioUsuario({
         enviar(event, esquema, accion, () => {
           alGuardar();
           router.refresh();
-        })
+        }, usuario ? "Usuario actualizado." : "Usuario creado.")
       }
       noValidate
     >

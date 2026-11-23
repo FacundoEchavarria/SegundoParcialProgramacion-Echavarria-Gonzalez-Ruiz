@@ -7,16 +7,18 @@ import { AvisoError, Campo } from "@/components/acceso/formulario";
 type Pagina<T> = { data: T[]; pageSize: number; total: number };
 
 export function BusquedaVenta<T extends { id: number; activo: boolean }>({
-  recurso, etiqueta, maxLength, resultado,
+  recurso, etiqueta, maxLength, resultado, alEnter,
 }: {
   recurso: "clientes" | "productos";
   etiqueta: string;
   maxLength: number;
   resultado: (registro: T, limpiar: () => void) => ReactNode;
+  alEnter?: (registros: T[]) => void;
 }) {
   const [texto, setTexto] = useState("");
   const [pagina, setPagina] = useState(1);
   const [respuesta, setRespuesta] = useState<Pagina<T> | "error" | null>(null);
+  const [intento, setIntento] = useState(0);
   const consulta = texto.trim();
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
       clearTimeout(espera);
       controlador.abort();
     };
-  }, [consulta, pagina, recurso]);
+  }, [consulta, pagina, recurso, intento]);
 
   function cambiarTexto(nuevo: string) {
     setTexto(nuevo);
@@ -58,9 +60,22 @@ export function BusquedaVenta<T extends { id: number; activo: boolean }>({
   return (
     <div className="grid gap-2">
       <Campo etiqueta={etiqueta} type="search" value={texto} maxLength={maxLength}
-        onChange={(event) => cambiarTexto(event.currentTarget.value)} />
+        onChange={(event) => cambiarTexto(event.currentTarget.value)}
+        onKeyDown={alEnter && ((event) => {
+          if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+          event.preventDefault();
+          if (!event.repeat) alEnter(activos);
+        })} />
       {consulta && respuesta === null && <p role="status" className="text-sm text-muted-foreground">Buscando…</p>}
-      {respuesta === "error" && <AvisoError error={{ message: "No se pudo realizar la búsqueda. Volvé a ingresar el texto." }} />}
+      {respuesta === "error" && (
+        <div className="grid gap-2">
+          <AvisoError error={{ message: "No se pudo realizar la búsqueda." }} />
+          <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => {
+            setRespuesta(null);
+            setIntento((anterior) => anterior + 1);
+          }}>Reintentar</Button>
+        </div>
+      )}
       {respuesta && respuesta !== "error" && (
         <>
           {activos.length ? (

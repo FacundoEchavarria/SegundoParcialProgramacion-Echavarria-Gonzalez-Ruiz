@@ -179,6 +179,7 @@ function detalleFactura(factura: Factura, items: Awaited<ReturnType<typeof rengl
     fecha: factura.anuladaEn.toISOString(),
     usuario: { id: factura.anuladaPorId!, nombre: factura.anuladaPorNombre! },
     motivo: factura.motivoAnulacion!,
+    ...(factura.importeDevueltoAnulacion === null ? {} : { importeDevuelto: factura.importeDevueltoAnulacion }),
   };
   return {
     ...resumen, items, pago,
@@ -260,27 +261,42 @@ export async function obtenerFactura(inputId: unknown) {
   return detalleFactura(factura, await renglonesFactura(db, id));
 }
 
-// RF-V9. El estado, la devolución de stock y el crédito se confirman juntos.
+// RF-V9 y regla 8. La anulación y la devolución de caja se registran juntas.
 export async function anularFactura(actor: UsuarioSesion, inputId: unknown, input: unknown) {
   exigirAdmin(actor);
   const id = validar(usuarioIdSchema, inputId);
-  const { motivo } = validar(anulacionSchema, input);
+  const { motivo, importeDevuelto = 0 } = validar(anulacionSchema, input);
 
   return transaccionEscritura(async (tx) => {
     await exigirAdminVigente(tx, actor);
+    const [factura] = await tx.select().from(facturas).where(eq(facturas.id, id));
+    if (!factura) throw facturaInexistente();
+    if (factura.estado === "anulada") {
+      throw new ApiError(409, "FACTURA_ANULADA", "La factura ya está anulada.");
+    }
+
+    const clienteId = factura.formaPago === "cuenta_corriente" ? factura.clienteId : null;
+    const saldo = clienteId === null ? 0 : await calcularSaldo(tx, clienteId);
+    if (saldo < 0) {
+      throw new ApiError(409, "SALDO_A_FAVOR_EXISTENTE", "Revisá el saldo a favor que ya tiene el cliente antes de anular.");
+    }
+    const devolucion = clienteId === null ? 0 : Math.max(0, factura.total - saldo);
+    if (importeDevuelto !== devolucion) {
+      const mensaje = devolucion > 0
+        ? "Confirmá el importe que se devolverá al cliente."
+        : "El saldo cambió. Volvé a confirmar la anulación sin devolución.";
+      throw new ApiError(409, "DEVOLUCION_REQUERIDA", mensaje, { importeDevuelto: devolucion });
+    }
+
     const fecha = new Date();
-    const [factura] = await tx.update(facturas).set({
+    const [anulada] = await tx.update(facturas).set({
       estado: "anulada",
       anuladaEn: fecha,
       anuladaPorId: actor.id,
       anuladaPorNombre: actor.nombre,
       motivoAnulacion: motivo,
-    }).where(and(eq(facturas.id, id), eq(facturas.estado, "emitida"))).returning();
-    if (!factura) {
-      const [existente] = await tx.select({ id: facturas.id }).from(facturas).where(eq(facturas.id, id));
-      if (!existente) throw facturaInexistente();
-      throw new ApiError(409, "FACTURA_ANULADA", "La factura ya está anulada.");
-    }
+      importeDevueltoAnulacion: devolucion || null,
+    }).where(eq(facturas.id, id)).returning();
 
     const items = await renglonesFactura(tx, id);
     for (const { productoId, cantidad } of items) {
@@ -289,13 +305,20 @@ export async function anularFactura(actor: UsuarioSesion, inputId: unknown, inpu
         motivo, facturaId: id, creadoEn: fecha,
       });
     }
-    if (factura.formaPago === "cuenta_corriente" && factura.clienteId !== null) {
+    if (clienteId !== null) {
       const numero = formatearNumeroFactura(factura.puntoVenta, factura.numero);
+      if (devolucion > 0) {
+        // El débito por caja se registra primero para que tampoco haya saldo a favor en el historial.
+        await tx.insert(movimientosCuenta).values({
+          clienteId, tipo: "debito", importe: devolucion,
+          descripcion: `Devolución al cliente por factura ${numero}`, facturaId: id, creadoEn: fecha,
+        });
+      }
       await tx.insert(movimientosCuenta).values({
-        clienteId: factura.clienteId, tipo: "credito", importe: factura.total,
+        clienteId, tipo: "credito", importe: factura.total,
         descripcion: `Anulación de factura ${numero}`, facturaId: id, creadoEn: fecha,
       });
     }
-    return detalleFactura(factura, items);
+    return detalleFactura(anulada, items);
   });
 }

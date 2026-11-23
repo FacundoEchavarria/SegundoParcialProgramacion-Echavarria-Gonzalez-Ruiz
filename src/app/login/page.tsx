@@ -10,10 +10,10 @@ export const metadata = { title: "Iniciar sesión | Gestión comercial" };
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ cambio?: string }>;
+  searchParams: Promise<{ cambio?: string; salida?: string }>;
 }) {
   if (await getRequestSession()) redirect("/");
-  const { cambio } = await searchParams;
+  const { cambio, salida } = await searchParams;
 
   return (
     // Toda la pantalla es la tapa azul; el formulario es su etiqueta blanca, centrada.
@@ -29,10 +29,10 @@ export default async function Login({
           <Titulo as="h1" nivel={2}>Iniciar sesión</Titulo>
           <Texto tono="secundario">Ingresá con tu email y contraseña.</Texto>
         </Pila>
-        {cambio === "1" && (
+        {(cambio === "1" || salida === "1") && (
           <Fila role="status" gap="sm" className="rounded-lg bg-exito-fondo px-3 py-2.5 font-medium text-exito">
             <CircleCheck aria-hidden className="size-4 shrink-0" />
-            Contraseña actualizada. Ingresá con tu nueva contraseña.
+            {cambio === "1" ? "Contraseña actualizada. Ingresá con tu nueva contraseña." : "Sesión cerrada."}
           </Fila>
         )}
         <FormularioLogin rolesDemo={rolesDemoDisponibles()} />
