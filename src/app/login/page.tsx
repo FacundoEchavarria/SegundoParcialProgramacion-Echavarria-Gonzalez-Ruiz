@@ -37,6 +37,22 @@ export default async function Login({
         )}
         <FormularioLogin rolesDemo={rolesDemoDisponibles()} />
       </Pila>
+      {/* Integrantes del grupo, fijos en la esquina inferior derecha. */}
+      <aside className="fixed right-5 bottom-5 rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white shadow-lg backdrop-blur-md">
+        <p className="mb-2 text-xs font-semibold tracking-[0.12em] text-white/60 uppercase">Integrantes</p>
+        <ul className="space-y-1.5 text-sm sm:text-base">
+          {[
+            ["Facundo Echavarria Pacios", "63404"],
+            ["Pablo Hernan Gonzalez", "63630"],
+            ["Marcos Benjamin Ruiz", "63403"],
+          ].map(([nombre, legajo]) => (
+            <li key={legajo} className="flex items-baseline justify-between gap-4">
+              <span className="font-medium">{nombre}</span>
+              <span className="font-mono text-white/70 tabular-nums">{legajo}</span>
+            </li>
+          ))}
+        </ul>
+      </aside>
     </Fila>
   );
 }
